@@ -19,7 +19,7 @@ export async function getUserGroupChats() {
       .select('group_id')
       .not('group_id', 'is', null);
 
-    const focusGroupIds = focusGroups?.map(fg => fg.group_id).filter(Boolean) || [];
+    const focusGroupIds = focusGroups?.map((fg: any) => fg.group_id).filter(Boolean) || [];
 
     // Only get groups that are associated with focus groups
     const { data: groupMemberships, error } = await supabase
@@ -95,7 +95,7 @@ export async function getOrCreateConversation(otherUserId: string) {
       .single();
 
     if (existing) {
-      return { conversationId: existing.id, error: null };
+      return { conversationId: (existing as any).id, error: null };
     }
 
     // Create new conversation
@@ -112,7 +112,7 @@ export async function getOrCreateConversation(otherUserId: string) {
       return { conversationId: null, error: error.message };
     }
     
-    return { conversationId: data.id, error: null };
+    return { conversationId: (data as any).id, error: null };
   } catch (error) {
     return { conversationId: null, error: (error as Error).message };
   }
@@ -162,6 +162,7 @@ export async function markMessagesAsRead(conversationId: string) {
 
     const { error } = await supabase
       .from('messages')
+      // @ts-expect-error - Supabase type issue
       .update({ is_read: true })
       .eq('conversation_id', conversationId)
       .eq('is_read', false)
@@ -300,7 +301,7 @@ export async function sendMessage(
     .eq('id', userId)
     .single();
 
-  if (profile?.role === 'banned') {
+  if ((profile as any)?.role === 'banned') {
     throw new Error('Your account has been banned. You cannot send messages.');
   }
 
@@ -316,7 +317,7 @@ export async function sendMessage(
       file_url: fileUrl || null,
       file_type: fileType || null,
       file_name: fileName || null,
-    })
+    } as any)
     .select(`
       *,
       profiles:sender_id (
@@ -337,7 +338,7 @@ export async function sendMessage(
     throw new Error('No data returned from message insert');
   }
 
-  console.log('Message sent successfully:', data.id);
+  console.log('Message sent successfully:', (data as any).id);
 
   // Update conversation timestamp
   await (supabase

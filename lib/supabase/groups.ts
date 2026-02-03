@@ -76,7 +76,7 @@ export async function fetchGroups() {
     .select('group_id')
     .not('group_id', 'is', null);
 
-  const focusGroupIds = focusGroups?.map(fg => fg.group_id).filter(Boolean) || [];
+  const focusGroupIds = focusGroups?.map((fg: any) => fg.group_id).filter(Boolean) || [];
 
   let query = supabase
     .from('groups')
@@ -120,7 +120,7 @@ export async function fetchUserGroups() {
     .select('group_id')
     .not('group_id', 'is', null);
 
-  const focusGroupIds = focusGroups?.map(fg => fg.group_id).filter(Boolean) || [];
+  const focusGroupIds = focusGroups?.map((fg: any) => fg.group_id).filter(Boolean) || [];
 
   const { data, error } = await supabase
     .from('group_members')

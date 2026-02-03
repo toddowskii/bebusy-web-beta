@@ -48,16 +48,16 @@ export default function GroupChatPage() {
                 avatar_url
               )
             `)
-            .eq('id', payload.new.id)
+            .eq('id', (payload.new as any).id)
             .single()
 
           if (data) {
             setPosts((prev) => {
               // Check if post already exists to avoid duplicates
-              if (prev.some(p => p.id === data.id)) {
+              if (prev.some((p: any) => p.id === (data as any).id)) {
                 return prev
               }
-              return [...prev, data]
+              return [...prev, data as any]
             })
           }
         }

@@ -53,16 +53,16 @@ export default function ChatPage() {
                 avatar_url
               )
             `)
-            .eq('id', payload.new.id)
+            .eq('id', (payload.new as any).id)
             .single()
 
           if (data) {
             setMessages((prev) => {
               // Check if message already exists to avoid duplicates
-              if (prev.some(m => m.id === data.id)) {
+              if (prev.some((m: any) => m.id === (data as any).id)) {
                 return prev
               }
-              return [...prev, data]
+              return [...prev, data as any]
             })
           }
         }

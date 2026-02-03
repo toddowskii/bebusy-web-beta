@@ -21,7 +21,7 @@ export async function createComment(postId: string, content: string) {
     .eq('id', userId)
     .single();
 
-  if (profile?.role === 'banned') {
+  if ((profile as any)?.role === 'banned') {
     throw new Error('Your account has been banned. You cannot post comments.');
   }
 

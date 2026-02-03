@@ -85,7 +85,7 @@ export async function createPost(content: string, imageUrl?: string | null, grou
     .eq('id', userId)
     .single();
 
-  if (profile?.role === 'banned') {
+  if ((profile as any)?.role === 'banned') {
     return { data: null, error: new Error('Your account has been banned. You cannot create posts.') };
   }
 
