@@ -251,25 +251,34 @@ export interface Database {
           id: string
           conversation_id: string
           sender_id: string
-          content: string
+          content: string | null
           is_read: boolean
           created_at: string
+          file_url: string | null
+          file_type: string | null
+          file_name: string | null
         }
         Insert: {
           id?: string
           conversation_id: string
           sender_id: string
-          content: string
+          content?: string | null
           is_read?: boolean
           created_at?: string
+          file_url?: string | null
+          file_type?: string | null
+          file_name?: string | null
         }
         Update: {
           id?: string
           conversation_id?: string
           sender_id?: string
-          content?: string
+          content?: string | null
           is_read?: boolean
           created_at?: string
+          file_url?: string | null
+          file_type?: string | null
+          file_name?: string | null
         }
       }
       conversations: {

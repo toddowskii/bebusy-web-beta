@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
 import toast from 'react-hot-toast'
-import { Mail, Lock, ArrowRight, User } from 'lucide-react'
+import { Mail, Lock, ArrowRight, User, Eye, EyeOff } from 'lucide-react'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -13,6 +13,8 @@ export default function SignupPage() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -76,28 +78,44 @@ export default function SignupPage() {
           <Lock className="absolute h-5 w-5 text-[#8E8E93]" style={{ left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
           <input
             id="password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             className="w-full bg-[#000000] border border-[#2C2C2E] rounded-[12px] text-[#FFFFFF] placeholder-[#8E8E93] focus:outline-none focus:border-[#10B981] transition-colors"
-            style={{ paddingLeft: '48px', paddingRight: '16px', paddingTop: '14px', paddingBottom: '14px' }}
+            style={{ paddingLeft: '48px', paddingRight: '48px', paddingTop: '14px', paddingBottom: '14px' }}
             placeholder="••••••••"
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute text-[#8E8E93] hover:text-[#FFFFFF] transition-colors"
+            style={{ right: '16px', top: '50%', transform: 'translateY(-50%)' }}
+          >
+            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+          </button>
         </div>
 
         <div className="relative">
           <Lock className="absolute h-5 w-5 text-[#8E8E93]" style={{ left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
           <input
             id="confirmPassword"
-            type="password"
+            type={showConfirmPassword ? "text" : "password"}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
             className="w-full bg-[#000000] border border-[#2C2C2E] rounded-[12px] text-[#FFFFFF] placeholder-[#8E8E93] focus:outline-none focus:border-[#10B981] transition-colors"
-            style={{ paddingLeft: '48px', paddingRight: '16px', paddingTop: '14px', paddingBottom: '14px' }}
+            style={{ paddingLeft: '48px', paddingRight: '48px', paddingTop: '14px', paddingBottom: '14px' }}
             placeholder="Confirm password"
           />
+          <button
+            type="button"
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            className="absolute text-[#8E8E93] hover:text-[#FFFFFF] transition-colors"
+            style={{ right: '16px', top: '50%', transform: 'translateY(-50%)' }}
+          >
+            {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+          </button>
         </div>
 
         <button

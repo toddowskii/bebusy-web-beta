@@ -27,6 +27,13 @@ export default function HomePage() {
       if (data.user) {
         const userProfile = await getCurrentProfile()
         setProfile(userProfile)
+        
+        // Check if user is banned
+        if (userProfile?.role === 'banned') {
+          console.log('Client: User is banned, redirecting to /banned')
+          router.push('/banned')
+          return
+        }
       }
       
       setLoading(false)

@@ -52,7 +52,13 @@ export default function GroupChatPage() {
             .single()
 
           if (data) {
-            setPosts((prev) => [...prev, data])
+            setPosts((prev) => {
+              // Check if post already exists to avoid duplicates
+              if (prev.some(p => p.id === data.id)) {
+                return prev
+              }
+              return [...prev, data]
+            })
           }
         }
       )
@@ -76,6 +82,12 @@ export default function GroupChatPage() {
     try {
       const currentProfile = await getCurrentProfile()
       setCurrentUser(currentProfile)
+
+      if (!currentProfile) {
+        toast.error('Please log in')
+        router.push('/login')
+        return
+      }
 
       // Get group details
       const { data: groupData } = await supabase
@@ -181,11 +193,11 @@ export default function GroupChatPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {posts.map((post) => {
+            {posts.map((post, index) => {
               const isOwn = post.user_id === currentUser.id
               return (
                 <div
-                  key={post.id}
+                  key={`${post.id}-${index}`}
                   className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
                 >
                   <div className={`max-w-[70%] ${isOwn ? 'order-2' : 'order-1'}`}>

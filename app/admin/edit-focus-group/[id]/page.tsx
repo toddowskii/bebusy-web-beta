@@ -33,13 +33,13 @@ export default function EditFocusGroupPage({ params }: { params: { id: string } 
         return
       }
 
-      setTitle(group.title)
-      setDescription(group.description || '')
-      setMentorName(group.mentor_name || '')
-      setMentorRole(group.mentor_role || '')
-      setTotalSpots(group.total_spots)
-      setStartDate(group.start_date || '')
-      setEndDate(group.end_date || '')
+      setTitle((group as any).title)
+      setDescription((group as any).description || '')
+      setMentorName((group as any).mentor_name || '')
+      setMentorRole((group as any).mentor_role || '')
+      setTotalSpots((group as any).total_spots)
+      setStartDate((group as any).start_date || '')
+      setEndDate((group as any).end_date || '')
     } catch (error) {
       console.error('Error loading focus group:', error)
       toast.error('Failed to load focus group')
@@ -66,7 +66,7 @@ export default function EditFocusGroupPage({ params }: { params: { id: string } 
         total_spots: totalSpots,
         start_date: startDate || undefined,
         end_date: endDate || undefined,
-      })
+      } as any)
 
       toast.success('Focus group updated successfully!')
       router.push('/admin')

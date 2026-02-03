@@ -1,5 +1,7 @@
 import { supabase } from './client';
 import { Database } from '@/types/database.types';
+import { sanitizePlainText } from '@/lib/security/sanitize';
+import { validateContent } from '@/lib/security/moderation';
 
 /**
  * Create a new comment on a post
@@ -12,12 +14,31 @@ export async function createComment(postId: string, content: string) {
     throw new Error('User not authenticated');
   }
 
+  // Check if user is banned
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', userId)
+    .single();
+
+  if (profile?.role === 'banned') {
+    throw new Error('Your account has been banned. You cannot post comments.');
+  }
+
+  // Validate and sanitize content
+  const validation = validateContent(content);
+  if (!validation.isValid) {
+    throw new Error(validation.error);
+  }
+
+  const sanitizedContent = sanitizePlainText(content);
+
   const { data, error } = await supabase
     .from('comments')
     .insert({
       post_id: postId,
       user_id: userId,
-      content
+      content: sanitizedContent
     } as any)
     .select(`
       *,

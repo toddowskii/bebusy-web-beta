@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { Image as ImageIcon, X, Send } from 'lucide-react'
 import { createPost } from '@/lib/supabase/posts'
 import { supabase } from '@/lib/supabase/client'
+import { validateImageUpload, generateSafeFilename } from '@/lib/security/upload'
 import toast from 'react-hot-toast'
 
 interface CreatePostProps {
@@ -22,6 +23,13 @@ export function CreatePost({ userAvatar, username, onPostCreated }: CreatePostPr
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+
+    // Validate image
+    const validation = validateImageUpload(file)
+    if (!validation.isValid) {
+      toast.error(validation.error || 'Invalid file')
+      return
+    }
 
     if (!file.type.startsWith('image/')) {
       toast.error('Please select an image file')
@@ -63,9 +71,8 @@ export function CreatePost({ userAvatar, username, onPostCreated }: CreatePostPr
 
       // Upload image if present
       if (imageFile) {
-        const fileExt = imageFile.name.split('.').pop()
-        const fileName = `${Math.random()}.${fileExt}`
-        const filePath = `posts/${fileName}`
+        const safeFilename = generateSafeFilename(imageFile.name)
+        const filePath = `posts/${safeFilename}`
 
         const { error: uploadError } = await supabase.storage
           .from('posts')

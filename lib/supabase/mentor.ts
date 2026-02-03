@@ -14,7 +14,7 @@ export async function isMentor(): Promise<boolean> {
       .eq('id', user.id)
       .single();
 
-    return data?.role === 'mentor' || data?.role === 'admin';
+    return (data as any)?.role === 'mentor' || (data as any)?.role === 'admin';
   } catch (error) {
     console.error('Error checking mentor status:', error);
     return false;
@@ -81,7 +81,7 @@ export async function createMentorFocusGroup(focusGroup: {
       mentor_id: user.id,
       start_date: focusGroup.start_date || null,
       end_date: focusGroup.end_date || null,
-      group_id: groupData.id,
+      group_id: (groupData as any).id,
     } as any)
     .select()
     .single();
@@ -108,7 +108,7 @@ export async function updateMentorFocusGroup(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
 
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from('focus_groups')
     .update(updates as any)
     .eq('id', focusGroupId)

@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { getGroup, isMember, joinGroup, leaveGroup, getGroupPosts } from '@/lib/supabase/groups'
 import { getCurrentProfile } from '@/lib/supabase/profiles'
 import { PostCard } from '@/components/PostCard'
-import { ArrowLeft, Users, Settings, MessageSquare, ArrowRight } from 'lucide-react'
+import { ArrowLeft, Users, Settings } from 'lucide-react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { AppLayout } from '@/components/AppLayout'
@@ -157,28 +157,6 @@ export default function GroupDetailPage() {
           </button>
         )}
       </div>
-
-      {/* Group Chat Link - Only visible to members */}
-      {isMemberOfGroup && (
-        <Link 
-          href={`/messages/group/${groupId}`}
-          className="block bg-gradient-to-r from-purple-500/10 to-pink-600/10 rounded-[20px] border border-purple-500/20 hover:border-purple-500/40 transition-all"
-          style={{ padding: '24px', marginBottom: '24px' }}
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center" style={{ gap: '16px' }}>
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
-                <MessageSquare className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h3 className="font-bold text-[#FFFFFF] text-lg">Group Chat</h3>
-                <p className="text-[#9BA1A6] text-sm">Chat with group members</p>
-              </div>
-            </div>
-            <ArrowRight className="w-5 h-5 text-[#9BA1A6]" />
-          </div>
-        </Link>
-      )}
 
       {/* Posts */}
       {posts.length === 0 ? (

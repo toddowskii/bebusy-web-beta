@@ -5,13 +5,14 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
 import toast from 'react-hot-toast'
-import { Mail, Lock, ArrowRight } from 'lucide-react'
+import { Mail, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -63,14 +64,22 @@ export default function LoginPage() {
           <Lock className="absolute h-5 w-5 text-[#8E8E93]" style={{ left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
           <input
             id="password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             className="w-full bg-[#000000] border border-[#2C2C2E] rounded-[12px] text-[#FFFFFF] placeholder-[#8E8E93] focus:outline-none focus:border-[#10B981] transition-colors"
-            style={{ paddingLeft: '48px', paddingRight: '16px', paddingTop: '14px', paddingBottom: '14px' }}
+            style={{ paddingLeft: '48px', paddingRight: '48px', paddingTop: '14px', paddingBottom: '14px' }}
             placeholder="••••••••"
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute text-[#8E8E93] hover:text-[#FFFFFF] transition-colors"
+            style={{ right: '16px', top: '50%', transform: 'translateY(-50%)' }}
+          >
+            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+          </button>
         </div>
 
         <button
@@ -89,6 +98,11 @@ export default function LoginPage() {
           Don't have an account?{' '}
           <Link href="/signup" className="text-[#10B981] hover:underline font-medium">
             Sign up
+          </Link>
+        </p>
+        <p className="text-[#9BA1A6]" style={{ marginTop: '12px' }}>
+          <Link href="/reset-password" className="text-[#10B981] hover:underline font-medium">
+            Forgot password?
           </Link>
         </p>
       </div>

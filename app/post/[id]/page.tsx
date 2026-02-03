@@ -136,8 +136,8 @@ export default function PostDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="animate-spin h-10 w-10 border-4 border-[#10B981] border-t-transparent rounded-full"></div>
+      <div className="min-h-screen bg-[#000000] flex items-center justify-center">
+        <div className="animate-spin h-8 w-8 border-4 border-[#10B981] border-t-transparent rounded-full"></div>
       </div>
     )
   }
@@ -145,179 +145,205 @@ export default function PostDetailPage() {
   if (!post) return null
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="max-w-[600px] mx-auto border-x border-gray-800">
-        {/* Header */}
-        <div className="sticky top-0 bg-black/95 backdrop-blur-md border-b border-gray-800 p-4 z-10 flex items-center gap-4">
-          <button onClick={() => router.back()} className="p-2 hover:bg-gray-900 rounded-full transition-colors">
-            <ArrowLeft className="w-5 h-5" />
+    <div className="min-h-screen bg-[#000000]">
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 bg-[#000000] border-b border-[#2D2D2D] z-50">
+        <div className="h-14 flex items-center gap-4" style={{ marginLeft: '20px', marginRight: '20px' }}>
+          <button onClick={() => router.back()} className="p-2 hover:bg-[#151718] rounded-lg transition-colors">
+            <ArrowLeft className="w-5 h-5 text-[#9BA1A6]" />
           </button>
-          <h2 className="text-xl font-bold">Post</h2>
+          <h2 className="text-xl font-bold text-[#ECEDEE]">Post</h2>
         </div>
+      </header>
 
-        {/* Post */}
-        <div className="p-4 border-b border-gray-800">
-          <div className="flex gap-3 mb-4">
+      <main style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '80px', paddingBottom: '80px' }}>
+        {/* Post Card */}
+        <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] shadow-sm" style={{ marginBottom: '20px', paddingLeft: '24px', paddingRight: '24px', paddingTop: '28px', paddingBottom: '28px' }}>
+          {/* Header */}
+          <div className="flex items-start gap-3 mb-5">
             <Link href={`/profile/${post.profiles.username}`}>
               {post.profiles.avatar_url ? (
                 <img
                   src={post.profiles.avatar_url}
                   alt={post.profiles.username}
-                  className="w-12 h-12 rounded-full object-cover ring-2 ring-gray-800"
+                  className="w-12 h-12 rounded-full object-cover"
                 />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold text-lg ring-2 ring-gray-800">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-semibold">
                   {post.profiles.username[0].toUpperCase()}
                 </div>
               )}
             </Link>
-            <div>
-              <Link href={`/profile/${post.profiles.username}`} className="font-bold hover:underline">
-                {post.profiles.full_name || post.profiles.username}
-              </Link>
-              <Link href={`/profile/${post.profiles.username}`} className="block text-gray-500 text-sm hover:underline">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-0.5">
+                <Link href={`/profile/${post.profiles.username}`} className="font-bold text-[#FFFFFF] truncate text-base hover:underline">
+                  {post.profiles.full_name || post.profiles.username}
+                </Link>
+              </div>
+              <Link href={`/profile/${post.profiles.username}`} className="text-sm text-[#8E8E93] hover:underline">
                 @{post.profiles.username}
               </Link>
             </div>
           </div>
 
-          <p className="text-xl whitespace-pre-wrap mb-4">{post.content}</p>
+          {/* Content */}
+          <div className="mb-6">
+            <p className="text-[#FFFFFF] text-base whitespace-pre-wrap break-words leading-relaxed">{post.content}</p>
+          </div>
 
+          {/* Image */}
           {post.image_url && (
-            <div className="mb-4 rounded-2xl overflow-hidden border border-gray-700">
+            <div className="mb-6 rounded-xl overflow-hidden">
               <img src={post.image_url} alt="Post image" className="w-full h-auto object-cover" />
             </div>
           )}
 
-          <p className="text-gray-500 text-sm mb-4">{formatDate(post.created_at)}</p>
+          {/* Timestamp */}
+          <p className="text-[#8E8E93] text-sm" style={{ marginBottom: '12px' }}>{formatDate(post.created_at)}</p>
 
-          <div className="flex items-center gap-4 py-3 border-y border-gray-800 mb-3">
-            <div className="flex items-center gap-1">
-              <span className="font-bold">{likeCount}</span>
-              <span className="text-gray-500">Likes</span>
+          {/* Stats */}
+          <div className="flex items-center gap-6 border-y border-[#2C2C2E]" style={{ paddingTop: '12px', paddingBottom: '12px', marginBottom: '12px' }}>
+            <div className="flex items-center gap-1.5">
+              <span className="font-bold text-[#FFFFFF]">{likeCount}</span>
+              <span className="text-[#8E8E93] text-sm">Likes</span>
             </div>
-            <div className="flex items-center gap-1">
-              <span className="font-bold">{comments.length}</span>
-              <span className="text-gray-500">Comments</span>
+            <div className="flex items-center gap-1.5">
+              <span className="font-bold text-[#FFFFFF]">{comments.length}</span>
+              <span className="text-[#8E8E93] text-sm">Comments</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-8">
+          {/* Actions */}
+          <div className="flex items-center gap-6" style={{ paddingTop: '4px' }}>
             <button
               onClick={handleLike}
-              className={`flex items-center gap-2 transition-all group ${
-                isLiked ? 'text-red-500' : 'text-gray-500 hover:text-red-500'
-              }`}
+              className="flex items-center gap-2 text-[#8E8E93] hover:text-red-500 transition-colors"
             >
-              <div className={`p-2 rounded-full transition-all ${
-                isLiked ? 'bg-red-500/10' : 'group-hover:bg-red-500/10'
-              }`}>
-                <Heart className={`w-5 h-5 transition-all ${isLiked ? 'fill-current scale-110' : ''}`} />
-              </div>
+              <Heart className={`w-5 h-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
             </button>
-            <button className="flex items-center gap-2 text-gray-500 hover:text-blue-500 transition-colors group">
-              <div className="p-2 rounded-full group-hover:bg-blue-500/10 transition-all">
-                <MessageCircle className="w-5 h-5" />
-              </div>
+            <button className="flex items-center gap-2 text-[#8E8E93] hover:text-blue-500 transition-colors">
+              <MessageCircle className="w-5 h-5" />
             </button>
-            <button className="flex items-center gap-2 text-gray-500 hover:text-green-500 transition-colors group">
-              <div className="p-2 rounded-full group-hover:bg-green-500/10 transition-all">
-                <Share2 className="w-5 h-5" />
-              </div>
+            <button className="flex items-center gap-2 text-[#8E8E93] hover:text-green-500 transition-colors">
+              <Share2 className="w-5 h-5" />
             </button>
           </div>
         </div>
 
         {/* Comment Form */}
         {currentUser && (
-          <form onSubmit={handleSubmitComment} className="p-4 border-b border-gray-800">
-            <div className="flex gap-3">
-              {currentUser.avatar_url ? (
-                <img
-                  src={currentUser.avatar_url}
-                  alt={currentUser.username}
-                  className="w-12 h-12 rounded-full object-cover ring-2 ring-gray-800"
-                />
-              ) : (
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold text-lg ring-2 ring-gray-800">
-                  {currentUser.username[0].toUpperCase()}
-                </div>
-              )}
-              <div className="flex-1">
-                <textarea
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Post your reply"
-                  className="w-full bg-transparent text-white text-lg placeholder-gray-600 outline-none resize-none min-h-[60px]"
-                  disabled={submitting}
-                />
-                <div className="flex justify-end mt-2">
-                  <button
-                    type="submit"
-                    disabled={submitting || !newComment.trim()}
-                    className="px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-full hover:from-green-600 hover:to-emerald-700 disabled:opacity-50 transition-all shadow-lg shadow-green-500/20"
-                  >
-                    {submitting ? 'Replying...' : 'Reply'}
-                  </button>
+          <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] shadow-sm" style={{ marginBottom: '20px', paddingLeft: '20px', paddingRight: '20px', paddingTop: '20px', paddingBottom: '24px' }}>
+            <form onSubmit={handleSubmitComment}>
+              <div className="flex gap-3">
+                {currentUser.avatar_url ? (
+                  <img
+                    src={currentUser.avatar_url}
+                    alt={currentUser.username}
+                    className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+                    {currentUser.username[0].toUpperCase()}
+                  </div>
+                )}
+                <div className="flex-1">
+                  <textarea
+                    value={newComment}
+                    onChange={(e) => {
+                      setNewComment(e.target.value)
+                      e.target.style.height = 'auto'
+                      e.target.style.height = e.target.scrollHeight + 'px'
+                    }}
+                    placeholder="Post your reply"
+                    className="w-full bg-transparent text-[#FFFFFF] placeholder-[#8E8E93] outline-none resize-none leading-relaxed text-[15px]"
+                    rows={1}
+                    disabled={submitting}
+                    style={{ minHeight: '24px', maxHeight: '200px', overflow: 'auto' }}
+                  />
                 </div>
               </div>
-            </div>
-          </form>
+              <div className="flex justify-end mt-3">
+                <button
+                  type="submit"
+                  disabled={submitting || !newComment.trim()}
+                  style={{
+                    padding: '10px 24px',
+                    backgroundColor: '#10B981',
+                    color: 'white',
+                    fontWeight: '600',
+                    borderRadius: '9999px',
+                    border: 'none',
+                    cursor: submitting || !newComment.trim() ? 'not-allowed' : 'pointer',
+                    opacity: submitting || !newComment.trim() ? 0.5 : 1,
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => !submitting && newComment.trim() && (e.currentTarget.style.backgroundColor = '#0ea472')}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#10B981'}
+                >
+                  {submitting ? 'Replying...' : 'Reply'}
+                </button>
+              </div>
+            </form>
+          </div>
         )}
 
         {/* Comments */}
         <div>
           {comments.length === 0 ? (
-            <div className="p-12 text-center">
-              <MessageCircle className="w-12 h-12 text-gray-700 mx-auto mb-3" />
-              <p className="text-gray-500">No comments yet. Be the first to reply!</p>
+            <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] shadow-sm" style={{ paddingTop: '80px', paddingBottom: '80px', paddingLeft: '40px', paddingRight: '40px' }}>
+              <div className="flex flex-col items-center justify-center">
+                <MessageCircle className="w-24 h-24 text-[#8E8E93] mb-6 opacity-25" />
+                <p className="text-[#8E8E93] text-lg">No comments yet. Be the first to reply!</p>
+              </div>
             </div>
           ) : (
-            comments.map((comment) => (
-              <div key={comment.id} className="p-4 border-b border-gray-800 hover:bg-gray-900/30 transition-colors">
-                <div className="flex gap-3">
-                  <Link href={`/profile/${comment.profiles.username}`}>
-                    {comment.profiles.avatar_url ? (
-                      <img
-                        src={comment.profiles.avatar_url}
-                        alt={comment.profiles.username}
-                        className="w-10 h-10 rounded-full object-cover ring-2 ring-gray-800"
-                      />
-                    ) : (
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold ring-2 ring-gray-800">
-                        {comment.profiles.username[0].toUpperCase()}
-                      </div>
-                    )}
-                  </Link>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Link href={`/profile/${comment.profiles.username}`} className="font-bold hover:underline">
-                        {comment.profiles.full_name || comment.profiles.username}
-                      </Link>
-                      <Link href={`/profile/${comment.profiles.username}`} className="text-gray-500 text-sm hover:underline">
-                        @{comment.profiles.username}
-                      </Link>
-                      <span className="text-gray-600">·</span>
-                      <span className="text-gray-500 text-sm">
-                        {formatDate(comment.created_at)}
-                      </span>
-                      {currentUser?.id === comment.user_id && (
-                        <button
-                          onClick={() => handleDeleteComment(comment.id)}
-                          className="ml-auto p-1.5 text-gray-500 hover:text-red-500 hover:bg-red-500/10 rounded-full transition-all"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+            <div className="space-y-3">
+              {comments.map((comment) => (
+                <div key={comment.id} className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] shadow-sm hover:bg-[#252527] transition-all" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '16px', paddingBottom: '16px' }}>
+                  <div className="flex gap-3">
+                    <Link href={`/profile/${comment.profiles.username}`}>
+                      {comment.profiles.avatar_url ? (
+                        <img
+                          src={comment.profiles.avatar_url}
+                          alt={comment.profiles.username}
+                          className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+                          {comment.profiles.username[0].toUpperCase()}
+                        </div>
                       )}
+                    </Link>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Link href={`/profile/${comment.profiles.username}`} className="font-bold text-[#FFFFFF] hover:underline">
+                          {comment.profiles.full_name || comment.profiles.username}
+                        </Link>
+                        <Link href={`/profile/${comment.profiles.username}`} className="text-[#8E8E93] text-sm hover:underline">
+                          @{comment.profiles.username}
+                        </Link>
+                        <span className="text-[#8E8E93]">·</span>
+                        <span className="text-[#8E8E93] text-sm">
+                          {formatDate(comment.created_at)}
+                        </span>
+                        {currentUser?.id === comment.user_id && (
+                          <button
+                            onClick={() => handleDeleteComment(comment.id)}
+                            className="ml-auto p-1.5 text-[#8E8E93] hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-[#FFFFFF] whitespace-pre-wrap break-words leading-relaxed">{comment.content}</p>
                     </div>
-                    <p className="text-white whitespace-pre-wrap">{comment.content}</p>
                   </div>
                 </div>
-              </div>
-            ))
+              ))}
+            </div>
           )}
         </div>
-      </div>
+      </main>
     </div>
   )
 }

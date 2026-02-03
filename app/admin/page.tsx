@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { isAdmin, getAllUsers, updateUserRole, createFocusGroup } from '@/lib/supabase/admin'
+import { isAdmin, getAllUsers, updateUserRole, banUser, unbanUser } from '@/lib/supabase/admin'
 import { getCurrentProfile } from '@/lib/supabase/profiles'
 import { fetchFocusGroups } from '@/lib/supabase/focusgroups'
-import { Shield, Users, Target, Plus, Edit } from 'lucide-react'
+import { Shield, Users, Target, Plus, Edit, Ban, UserCheck } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export default function AdminDashboard() {
@@ -18,6 +18,14 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     checkAdminAndLoadData()
+    
+    // Check for expired bans every minute
+    const interval = setInterval(async () => {
+      const { checkExpiredBans } = await import('@/lib/supabase/admin')
+      await checkExpiredBans()
+    }, 60000)
+    
+    return () => clearInterval(interval)
   }, [])
 
   const checkAdminAndLoadData = async () => {
@@ -53,6 +61,76 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error('Error updating role:', error)
       toast.error('Failed to update role')
+    }
+  }
+
+  const handleBanUser = async (userId: string, username: string) => {
+    const reason = prompt(`Enter reason for banning @${username}:`)
+    if (reason === null) return // User cancelled
+    
+    const durationInput = prompt(
+      `Enter timeout duration:\n` +
+      `- "1h" for 1 hour\n` +
+      `- "24h" for 24 hours\n` +
+      `- "7d" for 7 days\n` +
+      `- "30d" for 30 days\n` +
+      `- Leave empty for permanent ban`
+    )
+    
+    if (durationInput === null) return // User cancelled
+    
+    let durationHours: number | undefined
+    if (durationInput.trim()) {
+      const match = durationInput.match(/^(\d+)(h|d)$/)
+      if (!match) {
+        toast.error('Invalid duration format. Use format like "24h" or "7d"')
+        return
+      }
+      const [, amount, unit] = match
+      durationHours = unit === 'h' ? parseInt(amount) : parseInt(amount) * 24
+    }
+    
+    const banType = durationHours ? `${durationInput} timeout` : 'permanent ban'
+    const confirmed = confirm(`Are you sure you want to give @${username} a ${banType}?`)
+    if (!confirmed) return
+
+    try {
+      await banUser(userId, reason, durationHours)
+      try {
+        toast.success(`User @${username} has been banned`)
+      } catch (e) {
+        console.log(`User @${username} has been banned`)
+      }
+      await checkAdminAndLoadData()
+    } catch (error) {
+      console.error('Error banning user:', error)
+      try {
+        toast.error('Failed to ban user')
+      } catch (e) {
+        console.error('Failed to ban user')
+      }
+    }
+  }
+
+  const handleUnbanUser = async (userId: string, username: string) => {
+    const confirmed = confirm(`Are you sure you want to unban @${username}?`)
+    if (!confirmed) return
+
+    try {
+      await unbanUser(userId)
+      try {
+        toast.success(`User @${username} has been unbanned`)
+      } catch (e) {
+        console.log(`User @${username} has been unbanned`)
+      }
+      await checkAdminAndLoadData()
+    } catch (error) {
+      console.error('Error unbanning user:', error)
+      try {
+        toast.error('Failed to unban user')
+      } catch (e) {
+        console.error('Failed to unban user')
+      }
     }
   }
 
@@ -142,20 +220,46 @@ export default function AdminDashboard() {
                         value={user.role || 'user'}
                         onChange={(e) => handleRoleChange(user.id, e.target.value)}
                         className="bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-green-500"
+                        disabled={user.role === 'banned'}
                       >
                         <option value="user">User</option>
                         <option value="mentor">Mentor</option>
                         <option value="admin">Admin</option>
+                        <option value="banned">Banned</option>
                       </select>
+                      {user.role === 'banned' && user.banned_until && (
+                        <div className="text-xs text-yellow-500 mt-1">
+                          Until: {new Date(user.banned_until).toLocaleString()}
+                        </div>
+                      )}
                     </td>
                     <td className="p-4 text-gray-400">{user.posts_count}</td>
                     <td className="p-4">
-                      <button
-                        onClick={() => router.push(`/profile/${user.username}`)}
-                        className="text-green-500 hover:text-green-400 text-sm font-medium"
-                      >
-                        View Profile
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => router.push(`/profile/${user.username}`)}
+                          className="text-green-500 hover:text-green-400 text-sm font-medium"
+                        >
+                          View
+                        </button>
+                        {user.role === 'banned' ? (
+                          <button
+                            onClick={() => handleUnbanUser(user.id, user.username)}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded text-sm font-medium transition-colors"
+                          >
+                            <UserCheck className="w-4 h-4" />
+                            Unban
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleBanUser(user.id, user.username)}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded text-sm font-medium transition-colors"
+                          >
+                            <Ban className="w-4 h-4" />
+                            Ban
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}

@@ -1,5 +1,6 @@
 import { supabase } from './client';
 import { Database } from '@/types/database.types';
+import { validateImageUpload } from '@/lib/security/upload';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 type ProfileInsert = Database['public']['Tables']['profiles']['Insert'];
@@ -63,7 +64,7 @@ export async function createProfile(profile: ProfileInsert): Promise<Profile | n
 
     if (existingProfile) {
       // Update existing profile
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('profiles')
         .update({
           username: profile.username,
@@ -147,6 +148,14 @@ export async function uploadAvatar(userId: string, dataUrl: string): Promise<str
     const response = await fetch(dataUrl);
     const blob = await response.blob();
 
+    // Validate file
+    const file = new File([blob], 'avatar.jpg', { type: blob.type });
+    const validation = validateImageUpload(file);
+    if (!validation.isValid) {
+      console.error('Avatar validation failed:', validation.error);
+      throw new Error(validation.error);
+    }
+
     // Determine file extension from blob type
     const fileExt = blob.type.split('/')[1] || 'jpg';
     const fileName = `${userId}-${Date.now()}.${fileExt}`;
@@ -182,6 +191,14 @@ export async function uploadBanner(userId: string, dataUrl: string): Promise<str
     // Convert data URL to blob
     const response = await fetch(dataUrl);
     const blob = await response.blob();
+
+    // Validate file
+    const file = new File([blob], 'banner.jpg', { type: blob.type });
+    const validation = validateImageUpload(file);
+    if (!validation.isValid) {
+      console.error('Banner validation failed:', validation.error);
+      throw new Error(validation.error);
+    }
 
     // Determine file extension from blob type
     const fileExt = blob.type.split('/')[1] || 'jpg';

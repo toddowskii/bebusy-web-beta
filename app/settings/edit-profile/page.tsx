@@ -223,9 +223,16 @@ export default function EditProfilePage() {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    // Set canvas size to match image aspect ratio (max 500px)
-    const maxSize = 500
-    const scale = Math.min(maxSize / imageToCrop.width, maxSize / imageToCrop.height)
+    // Set canvas size to fit container (max width based on viewport)
+    const maxWidth = Math.min(600, window.innerWidth - 80) // 40px padding on each side
+    const maxHeight = window.innerHeight - 300 // Leave room for header, buttons, etc.
+    
+    const scale = Math.min(
+      maxWidth / imageToCrop.width,
+      maxHeight / imageToCrop.height,
+      1 // Don't scale up
+    )
+    
     canvas.width = imageToCrop.width * scale
     canvas.height = imageToCrop.height * scale
 
@@ -251,8 +258,20 @@ export default function EditProfilePage() {
 
     // Draw crop border
     ctx.strokeStyle = '#10B981'
-    ctx.lineWidth = 2
+    ctx.lineWidth = 3
     ctx.strokeRect(cropX, cropY, cropSize, cropSize)
+    
+    // Draw corner handles
+    ctx.fillStyle = '#10B981'
+    const handleSize = 12
+    // Top-left
+    ctx.fillRect(cropX - handleSize/2, cropY - handleSize/2, handleSize, handleSize)
+    // Top-right
+    ctx.fillRect(cropX + cropSize - handleSize/2, cropY - handleSize/2, handleSize, handleSize)
+    // Bottom-left
+    ctx.fillRect(cropX - handleSize/2, cropY + cropSize - handleSize/2, handleSize, handleSize)
+    // Bottom-right
+    ctx.fillRect(cropX + cropSize - handleSize/2, cropY + cropSize - handleSize/2, handleSize, handleSize)
   }, [showCropModal, imageToCrop, cropArea])
 
   const handleSave = async () => {
@@ -469,9 +488,9 @@ export default function EditProfilePage() {
 
       {/* Crop Modal */}
       {showCropModal && (
-        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
-          <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] max-w-2xl w-full p-6">
-            <div className="flex items-center justify-between mb-4">
+        <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] max-w-3xl w-full my-8" style={{ padding: '24px' }}>
+            <div className="flex items-center justify-between" style={{ marginBottom: '20px' }}>
               <h3 className="text-xl font-bold text-[#ECEDEE]">Crop Profile Picture</h3>
               <button
                 onClick={() => {
@@ -484,29 +503,30 @@ export default function EditProfilePage() {
               </button>
             </div>
 
-            <div className="mb-4">
+            <div className="flex justify-center" style={{ marginBottom: '20px' }}>
               <canvas
                 ref={cropCanvasRef}
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
-                className="w-full cursor-move border border-[#2C2C2E] rounded-xl"
+                className="max-w-full h-auto cursor-move border-2 border-[#2C2C2E] rounded-xl"
+                style={{ touchAction: 'none' }}
               />
             </div>
 
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4" style={{ marginBottom: '16px' }}>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => handleZoom(-50)}
-                  className="px-4 py-2 bg-[#2C2C2E] hover:bg-[#3C3C3E] text-[#ECEDEE] rounded-lg transition-colors"
+                  className="px-4 py-2 bg-[#2C2C2E] hover:bg-[#3C3C3E] text-[#ECEDEE] rounded-lg transition-colors font-semibold"
                 >
-                  -
+                  −
                 </button>
-                <span className="text-sm text-[#9BA1A6]">Zoom</span>
+                <span className="text-sm text-[#9BA1A6] font-medium">Zoom</span>
                 <button
                   onClick={() => handleZoom(50)}
-                  className="px-4 py-2 bg-[#2C2C2E] hover:bg-[#3C3C3E] text-[#ECEDEE] rounded-lg transition-colors"
+                  className="px-4 py-2 bg-[#2C2C2E] hover:bg-[#3C3C3E] text-[#ECEDEE] rounded-lg transition-colors font-semibold"
                 >
                   +
                 </button>
@@ -518,13 +538,13 @@ export default function EditProfilePage() {
                     setShowCropModal(false)
                     setImageToCrop(null)
                   }}
-                  className="px-6 py-2 bg-[#2C2C2E] hover:bg-[#3C3C3E] text-[#ECEDEE] rounded-full transition-colors"
+                  className="px-6 py-2.5 bg-[#2C2C2E] hover:bg-[#3C3C3E] text-[#ECEDEE] font-semibold rounded-full transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleCropConfirm}
-                  className="px-6 py-2 bg-[#10B981] hover:bg-[#059669] text-white rounded-full transition-colors"
+                  className="px-6 py-2.5 bg-[#10B981] hover:bg-[#059669] text-white font-semibold rounded-full transition-colors"
                 >
                   Apply
                 </button>
@@ -532,7 +552,7 @@ export default function EditProfilePage() {
             </div>
 
             <p className="text-sm text-[#9BA1A6] text-center">
-              Drag the highlighted area to adjust your crop. Use zoom buttons to resize.
+              Drag to move • Use zoom buttons to resize the crop area
             </p>
           </div>
         </div>

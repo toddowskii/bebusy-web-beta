@@ -173,7 +173,17 @@ export default function MessagesPage() {
                         )}
                       </div>
                       <p className="text-[#9BA1A6] text-sm truncate">
-                        {item.lastMessage?.content || 'No messages yet'}
+                        {(() => {
+                          if (!item.lastMessage) return 'No messages yet';
+                          if (item.lastMessage.content) return item.lastMessage.content;
+                          if (item.lastMessage.file_url) {
+                            if (item.lastMessage.file_type?.startsWith('image/')) return '📷 Image';
+                            if (item.lastMessage.file_type?.startsWith('video/')) return '🎥 Video';
+                            if (item.lastMessage.file_type === 'application/pdf') return '📄 PDF';
+                            return '📎 File';
+                          }
+                          return 'No messages yet';
+                        })()}
                       </p>
                     </div>
                   </div>

@@ -8,9 +8,10 @@ import { fetchPosts } from '@/lib/supabase/posts'
 import { followUser, unfollowUser, isFollowing } from '@/lib/supabase/profiles'
 import { PostCard } from '@/components/PostCard'
 import { AppLayout } from '@/components/AppLayout'
-import { ArrowLeft, Calendar, MapPin, Link as LinkIcon, Settings } from 'lucide-react'
+import { ArrowLeft, Calendar, MapPin, Link as LinkIcon, Settings, MessageSquare } from 'lucide-react'
 import toast from 'react-hot-toast'
 import Link from 'next/link'
+import { getOrCreateConversation } from '@/lib/supabase/messages'
 
 export default function ProfilePage() {
   const params = useParams()
@@ -93,6 +94,7 @@ export default function ProfilePage() {
           )
         `)
         .eq('user_id', (profileData as any).id)
+        .is('group_id', null)
         .order('created_at', { ascending: false })
 
       if (postsData && currentProfile) {
@@ -133,6 +135,22 @@ export default function ProfilePage() {
       toast.error('Failed to update follow status')
     } finally {
       setIsFollowLoading(false)
+    }
+  }
+
+  const handleMessage = async () => {
+    if (!currentUser || !profile) return
+    
+    try {
+      const { conversationId, error } = await getOrCreateConversation(profile.id)
+      if (error) {
+        toast.error('Failed to start conversation')
+        return
+      }
+      router.push(`/messages/${conversationId}`)
+    } catch (error) {
+      console.error('Error creating conversation:', error)
+      toast.error('Failed to start conversation')
     }
   }
 
@@ -201,18 +219,28 @@ export default function ProfilePage() {
               Edit Profile
             </Link>
           ) : (
-            <button
-              onClick={handleFollow}
-              disabled={isFollowLoading}
-              className={`mt-3 rounded-full font-semibold transition-all ${
-                isFollowingUser
-                  ? 'bg-[#2C2C2E] hover:bg-red-500/10 hover:border hover:border-red-500 text-[#ECEDEE] hover:text-red-500'
-                  : 'bg-[#10B981] hover:bg-[#059669] text-white'
-              }`}
-              style={{ paddingLeft: '24px', paddingRight: '24px', paddingTop: '8px', paddingBottom: '8px' }}
-            >
-              {isFollowLoading ? '...' : isFollowingUser ? 'Following' : 'Follow'}
-            </button>
+            <div className="mt-3 flex gap-2">
+              <button
+                onClick={handleMessage}
+                className="bg-[#2C2C2E] hover:bg-[#3C3C3E] rounded-full font-semibold transition-colors text-[#ECEDEE] flex items-center gap-2"
+                style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '8px', paddingBottom: '8px' }}
+              >
+                <MessageSquare className="w-4 h-4" />
+                Message
+              </button>
+              <button
+                onClick={handleFollow}
+                disabled={isFollowLoading}
+                className={`rounded-full font-semibold transition-all ${
+                  isFollowingUser
+                    ? 'bg-[#2C2C2E] hover:bg-red-500/10 hover:border hover:border-red-500 text-[#ECEDEE] hover:text-red-500'
+                    : 'bg-[#10B981] hover:bg-[#059669] text-white'
+                }`}
+                style={{ paddingLeft: '24px', paddingRight: '24px', paddingTop: '8px', paddingBottom: '8px' }}
+              >
+                {isFollowLoading ? '...' : isFollowingUser ? 'Following' : 'Follow'}
+              </button>
+            </div>
           )}
         </div>
 

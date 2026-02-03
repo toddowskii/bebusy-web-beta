@@ -79,7 +79,7 @@ export async function applyToFocusGroup(focusGroupId: string) {
     .eq('id', focusGroupId)
     .single();
 
-  const status = focusGroup?.is_full ? 'waitlist' : 'active';
+  const status = (focusGroup as any)?.is_full ? 'waitlist' : 'active';
 
   // Add to focus group members
   const { error } = await supabase
@@ -93,11 +93,11 @@ export async function applyToFocusGroup(focusGroupId: string) {
   if (error) throw error;
   
   // If accepted (not waitlist) and group exists, add to the group chat
-  if (status === 'active' && focusGroup?.group_id) {
+  if (status === 'active' && (focusGroup as any)?.group_id) {
     const { error: groupError } = await supabase
       .from('group_members')
       .insert({
-        group_id: focusGroup.group_id,
+        group_id: (focusGroup as any).group_id,
         user_id: userId,
         role: 'member'
       } as any);
@@ -129,7 +129,7 @@ export async function isFocusGroupMember(focusGroupId: string) {
 
   return { 
     isMember: !!data, 
-    status: data?.status || null 
+    status: (data as any)?.status || null 
   };
 }
 
@@ -161,11 +161,11 @@ export async function leaveFocusGroup(focusGroupId: string) {
   if (error) throw error;
   
   // Also remove from the associated group chat
-  if (focusGroup?.group_id) {
+  if ((focusGroup as any)?.group_id) {
     const { error: groupError } = await supabase
       .from('group_members')
       .delete()
-      .eq('group_id', focusGroup.group_id)
+      .eq('group_id', (focusGroup as any).group_id)
       .eq('user_id', userId);
     
     if (groupError) {

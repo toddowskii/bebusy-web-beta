@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Heart, MessageCircle, Share2, Trash2 } from 'lucide-react'
+import { Heart, MessageCircle, Share2, Trash2, AlertTriangle } from 'lucide-react'
 import { likePost, unlikePost, deletePost } from '@/lib/supabase/posts'
 import { supabase } from '@/config/supabase'
 import toast from 'react-hot-toast'
@@ -28,15 +28,28 @@ interface PostCardProps {
 
 export function PostCard({ post }: PostCardProps) {
   const [isLiked, setIsLiked] = useState(post.is_liked || false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [likeCount, setLikeCount] = useState(post.likes.length)
   const [isLiking, setIsLiking] = useState(false)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     const getCurrentUser = async () => {
       const { data } = await supabase.auth.getUser()
       setCurrentUserId(data.user?.id || null)
+      
+      // Fetch user's role
+      if (data.user?.id) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .single()
+        
+        setCurrentUserRole((profile as any)?.role || null)
+      }
     }
     getCurrentUser()
   }, [])
@@ -71,15 +84,13 @@ export function PostCard({ post }: PostCardProps) {
   const handleDelete = async () => {
     if (isDeleting) return
     
-    const confirmed = window.confirm('Are you sure you want to delete this post?')
-    if (!confirmed) return
-
     setIsDeleting(true)
     try {
       const { error } = await deletePost(post.id)
       if (error) throw error
       
       toast.success('Post deleted')
+      setShowDeleteModal(false)
       window.location.reload() // Refresh to update feed
     } catch (error) {
       toast.error('Failed to delete post')
@@ -104,8 +115,9 @@ export function PostCard({ post }: PostCardProps) {
   }
 
   return (
-    <Link href={`/post/${post.id}`} className="block" style={{ marginBottom: '16px' }}>
-      <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] hover:bg-[#252527] transition-all cursor-pointer shadow-sm" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '16px', paddingBottom: '16px' }}>
+    <>
+      <Link href={`/post/${post.id}`} className="block" style={{ marginBottom: '16px' }}>
+        <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] hover:bg-[#252527] transition-all cursor-pointer shadow-sm" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '16px', paddingBottom: '16px' }}>
         {/* Header */}
         <div className="flex items-start gap-3 mb-3">
           <div className="flex-shrink-0">
@@ -137,11 +149,11 @@ export function PostCard({ post }: PostCardProps) {
             <span className="text-sm text-[#8E8E93]">{formatDate(post.created_at)}</span>
           </div>
 
-          {currentUserId === post.user_id && (
+          {(currentUserId === post.user_id || currentUserRole === 'admin') && (
             <button
               onClick={(e) => {
                 e.preventDefault()
-                handleDelete()
+                setShowDeleteModal(true)
               }}
               disabled={isDeleting}
               className="p-1.5 hover:bg-red-500/10 rounded-lg transition-all text-[#8E8E93] hover:text-red-500"
@@ -153,13 +165,13 @@ export function PostCard({ post }: PostCardProps) {
         </div>
 
         {/* Content */}
-        <div className="mb-3">
+        <div className="mb-3" style={{ marginBottom: '12px' }}>
           <p className="text-[#FFFFFF] whitespace-pre-wrap break-words leading-relaxed">{post.content}</p>
         </div>
 
         {/* Image */}
         {post.image_url && (
-          <div className="mb-3 rounded-xl overflow-hidden">
+          <div className="mb-3 rounded-xl overflow-hidden" style={{ marginBottom: '12px' }}>
             <img
               src={post.image_url}
               alt="Post image"
@@ -169,7 +181,7 @@ export function PostCard({ post }: PostCardProps) {
         )}
 
         {/* Actions */}
-        <div className="flex items-center gap-6 pt-3 border-t border-[#2C2C2E]">
+        <div className="flex items-center gap-6 border-t border-[#2C2C2E]" style={{ paddingTop: '12px', marginTop: '12px' }}>
           <button
             onClick={(e) => {
               e.preventDefault()
@@ -194,6 +206,67 @@ export function PostCard({ post }: PostCardProps) {
         </div>
       </div>
     </Link>
+
+    {/* Delete Confirmation Modal - Outside Link to prevent navigation interference */}
+    {showDeleteModal && (
+      <div 
+        className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+        onClick={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          setShowDeleteModal(false)
+        }}
+      >
+        <div 
+          className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] max-w-sm w-full"
+          style={{ padding: '28px' }}
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+          }}
+        >
+          <div className="flex flex-col items-center text-center">
+            <div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center" style={{ marginBottom: '20px' }}>
+              <AlertTriangle className="w-8 h-8 text-red-500" />
+            </div>
+            
+            <h3 className="text-xl font-bold text-[#FFFFFF]" style={{ marginBottom: '8px' }}>
+              Delete Post?
+            </h3>
+            
+            <p className="text-[#9BA1A6] text-sm" style={{ marginBottom: '24px' }}>
+              This action cannot be undone. Your post will be permanently deleted.
+            </p>
+
+            <div className="flex gap-3 w-full">
+              <button
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  setShowDeleteModal(false)
+                }}
+                disabled={isDeleting}
+                className="flex-1 px-6 py-3 bg-[#2C2C2E] hover:bg-[#3C3C3E] text-[#FFFFFF] font-semibold rounded-full transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  handleDelete()
+                }}
+                disabled={isDeleting}
+                className="flex-1 px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-full transition-colors disabled:opacity-50"
+              >
+                {isDeleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+  </>
   )
 }
 

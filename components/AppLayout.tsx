@@ -2,7 +2,9 @@
 
 import Link from 'next/link'
 import { Home, Users, MessageSquare, Bell, User, Target, Settings } from 'lucide-react'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase/client'
 
 interface AppLayoutProps {
   children: React.ReactNode
@@ -11,6 +13,40 @@ interface AppLayoutProps {
 
 export function AppLayout({ children, username }: AppLayoutProps) {
   const pathname = usePathname()
+  const router = useRouter()
+  const [isCheckingBan, setIsCheckingBan] = useState(true)
+
+  useEffect(() => {
+    const checkBanStatus = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (session) {
+        const { data: profile } = await (supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single() as any)
+        
+        if (profile?.role === 'banned') {
+          console.log('AppLayout: User is banned, redirecting to /banned')
+          router.push('/banned')
+          return
+        }
+      }
+      
+      setIsCheckingBan(false)
+    }
+    
+    checkBanStatus()
+    
+    // Check every 5 seconds
+    const interval = setInterval(checkBanStatus, 5000)
+    return () => clearInterval(interval)
+  }, [router])
+
+  if (isCheckingBan) {
+    return null // or a loading spinner
+  }
 
   const isActive = (path: string) => pathname === path
 
@@ -19,7 +55,9 @@ export function AppLayout({ children, username }: AppLayoutProps) {
       {/* Top Header */}
       <header className="fixed top-0 left-0 right-0 bg-[#000000] border-b border-[#2D2D2D] z-50">
         <div className="h-14 flex items-center justify-between" style={{ marginLeft: '20px', marginRight: '20px' }}>
-          <h1 className="text-xl font-bold text-[#10B981]">BeBusy</h1>
+          <Link href="/" className="hover:opacity-80 transition-opacity">
+            <h1 className="text-xl font-bold text-[#10B981]">BeBusy</h1>
+          </Link>
           
           <div className="flex items-center gap-2">
             <Link href="/settings/account" className="p-2 hover:bg-[#151718] rounded-lg transition-colors">

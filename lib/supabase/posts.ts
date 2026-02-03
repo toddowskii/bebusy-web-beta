@@ -1,5 +1,7 @@
 import { supabase } from './client';
 import { Database } from '@/types/database.types';
+import { sanitizePlainText } from '@/lib/security/sanitize';
+import { validateContent } from '@/lib/security/moderation';
 
 type Post = Database['public']['Tables']['posts']['Row'];
 type PostInsert = Database['public']['Tables']['posts']['Insert'];
@@ -40,6 +42,7 @@ export async function fetchPosts(limit: number = 20, offset: number = 0) {
         id
       )
     `)
+    .is('group_id', null)
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
 
@@ -75,9 +78,28 @@ export async function createPost(content: string, imageUrl?: string | null, grou
     return { data: null, error: new Error('User not authenticated') };
   }
 
+  // Check if user is banned
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', userId)
+    .single();
+
+  if (profile?.role === 'banned') {
+    return { data: null, error: new Error('Your account has been banned. You cannot create posts.') };
+  }
+
+  // Validate and sanitize content
+  const validation = validateContent(content);
+  if (!validation.isValid) {
+    return { data: null, error: new Error(validation.error) };
+  }
+
+  const sanitizedContent = sanitizePlainText(content);
+
   const newPost: PostInsert = {
     user_id: userId,
-    content,
+    content: sanitizedContent,
     image_url: imageUrl || undefined,
     group_id: groupId || undefined,
   };
@@ -182,15 +204,31 @@ export async function getPostById(postId: string) {
  * Delete a post
  */
 export async function deletePost(postId: string) {
-  const { error } = await supabase
-    .from('posts')
-    .delete()
-    .eq('id', postId);
+  try {
+    // Get current user's session token
+    const { data: { session } } = await supabase.auth.getSession()
+    
+    if (!session) {
+      return { error: new Error('Not authenticated') }
+    }
 
-  if (error) {
-    console.error('Error deleting post:', error);
-    return { error };
+    // Call the API route which has access to service role key
+    const response = await fetch(`/api/posts/${postId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      const data = await response.json()
+      return { error: new Error(data.error || 'Failed to delete post') }
+    }
+
+    return { error: null }
+  } catch (error) {
+    console.error('Error deleting post:', error)
+    return { error: error as Error }
   }
-
-  return { error: null };
 }

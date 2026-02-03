@@ -21,7 +21,7 @@ export async function isAdmin(): Promise<boolean> {
       .eq('id', user.id)
       .single();
 
-    return data?.role === 'admin';
+    return (data as any)?.role === 'admin';
   } catch (error) {
     console.error('Error checking admin status:', error);
     return false;
@@ -136,4 +136,68 @@ export async function deleteFocusGroup(focusGroupId: string) {
     .eq('id', focusGroupId);
 
   if (error) throw error;
+}
+
+/**
+ * Ban a user (admin only)
+ */
+export async function banUser(userId: string, reason?: string, durationHours?: number) {
+  const bannedUntil = durationHours 
+    ? new Date(Date.now() + durationHours * 60 * 60 * 1000).toISOString()
+    : null;
+
+  const { data, error } = await supabaseAdmin
+    .from('profiles')
+    .update({ 
+      role: 'banned',
+      bio: reason ? `[BANNED] ${reason}` : '[BANNED]',
+      banned_until: bannedUntil
+    } as any)
+    .eq('id', userId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Unban a user (admin only)
+ */
+export async function unbanUser(userId: string) {
+  const { data, error } = await supabaseAdmin
+    .from('profiles')
+    .update({ 
+      role: 'user',
+      bio: null,
+      banned_until: null
+    } as any)
+    .eq('id', userId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Check and auto-unban users whose timeout has expired
+ */
+export async function checkExpiredBans() {
+  const now = new Date().toISOString();
+  
+  const { data, error } = await supabaseAdmin
+    .from('profiles')
+    .update({ 
+      role: 'user',
+      bio: null,
+      banned_until: null
+    } as any)
+    .eq('role', 'banned')
+    .not('banned_until', 'is', null)
+    .lte('banned_until', now)
+    .select();
+
+  if (error) throw error;
+  return data;
 }

@@ -49,12 +49,14 @@ export async function updateGroup(groupId: string, name: string, description: st
     throw new Error('User not authenticated');
   }
 
-  const { data, error } = await supabase
+  const updateData = {
+    name,
+    description,
+  };
+
+  const { data, error } = await (supabase as any)
     .from('groups')
-    .update({
-      name,
-      description,
-    } as any)
+    .update(updateData)
     .eq('id', groupId)
     .eq('created_by', userId)
     .select()
@@ -65,10 +67,18 @@ export async function updateGroup(groupId: string, name: string, description: st
 }
 
 /**
- * Get all groups
+ * Get all groups (excluding focus group chats)
  */
 export async function fetchGroups() {
-  const { data, error } = await supabase
+  // Get all focus group IDs that have associated groups
+  const { data: focusGroups } = await supabase
+    .from('focus_groups')
+    .select('group_id')
+    .not('group_id', 'is', null);
+
+  const focusGroupIds = focusGroups?.map(fg => fg.group_id).filter(Boolean) || [];
+
+  let query = supabase
     .from('groups')
     .select(`
       *,
@@ -84,18 +94,33 @@ export async function fetchGroups() {
     `)
     .order('created_at', { ascending: false });
 
+  // Filter out focus group chats
+  if (focusGroupIds.length > 0) {
+    query = query.not('id', 'in', `(${focusGroupIds.join(',')})`)
+  }
+
+  const { data, error } = await query;
+
   if (error) throw error;
   return data || [];
 }
 
 /**
- * Fetch user's groups (groups they are a member of)
+ * Fetch user's groups (groups they are a member of, excluding focus group chats)
  */
 export async function fetchUserGroups() {
   const { data: session } = await supabase.auth.getSession();
   const userId = session?.session?.user?.id;
 
   if (!userId) return [];
+
+  // Get all focus group IDs that have associated groups
+  const { data: focusGroups } = await supabase
+    .from('focus_groups')
+    .select('group_id')
+    .not('group_id', 'is', null);
+
+  const focusGroupIds = focusGroups?.map(fg => fg.group_id).filter(Boolean) || [];
 
   const { data, error } = await supabase
     .from('group_members')
@@ -119,7 +144,12 @@ export async function fetchUserGroups() {
 
   if (error) throw error;
   
-  return (data || []).map((item: any) => ({
+  // Filter out focus group chats
+  const filteredData = (data || []).filter((item: any) => 
+    !focusGroupIds.includes(item.group_id)
+  );
+  
+  return filteredData.map((item: any) => ({
     ...item.groups,
     user_role: item.role
   }));
