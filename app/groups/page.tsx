@@ -102,15 +102,6 @@ export default function GroupsPage() {
             <p className="text-[#9BA1A6] mb-4">
               {activeTab === 'explore' ? 'Create the first group to get started!' : 'Join a group to get started!'}
             </p>
-            {activeTab === 'explore' && (
-              <Link
-                href="/groups/create"
-                className="inline-block bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-full hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg"
-                style={{ paddingLeft: '24px', paddingRight: '24px', paddingTop: '12px', paddingBottom: '12px', boxShadow: '0 10px 15px -3px rgba(16, 185, 129, 0.2)' }}
-              >
-                Create Group
-              </Link>
-            )}
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>

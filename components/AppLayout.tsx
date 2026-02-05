@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Home, Users, MessageSquare, Bell, User, Target, Settings, Search } from 'lucide-react'
+import { Home, Users, MessageSquare, Bell, User, Target, Settings, Search, Shield, Award } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
@@ -18,6 +18,7 @@ export function AppLayout({ children, username }: AppLayoutProps) {
   const [unreadCount, setUnreadCount] = useState(0)
   const [unreadNotifCount, setUnreadNotifCount] = useState(0)
   const [userId, setUserId] = useState<string | null>(null)
+  const [userRole, setUserRole] = useState<string | null>(null)
 
   useEffect(() => {
     const checkBanStatus = async () => {
@@ -36,6 +37,8 @@ export function AppLayout({ children, username }: AppLayoutProps) {
           router.push('/banned')
           return
         }
+        
+        setUserRole(profile?.role || null)
       }
       
       setIsCheckingBan(false)
@@ -131,6 +134,24 @@ export function AppLayout({ children, username }: AppLayoutProps) {
             <Link href="/search" className="p-2 hover:bg-[#151718] rounded-lg transition-colors">
               <Search className="w-5 h-5 text-[#9BA1A6]" />
             </Link>
+            {(userRole === 'mentor' || userRole === 'admin') && (
+              <Link 
+                href="/mentor" 
+                className="p-2 hover:bg-[#151718] rounded-lg transition-colors" 
+                title="Mentor Dashboard"
+              >
+                <Award className="w-5 h-5 text-[#10B981]" />
+              </Link>
+            )}
+            {userRole === 'admin' && (
+              <Link 
+                href="/admin" 
+                className="p-2 hover:bg-[#151718] rounded-lg transition-colors" 
+                title="Admin Dashboard"
+              >
+                <Shield className="w-5 h-5 text-purple-500" />
+              </Link>
+            )}
             <Link href="/settings/account" className="p-2 hover:bg-[#151718] rounded-lg transition-colors">
               <Settings className="w-5 h-5 text-[#9BA1A6]" />
             </Link>

@@ -67,13 +67,14 @@ export default function FocusGroupDetailPage() {
       if (status === 'waitlist') {
         toast.success('Added to waitlist!')
       } else {
-        toast.success('Application submitted!')
+        toast.success('Successfully joined!')
       }
       
       await loadFocusGroup()
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error applying:', error)
-      toast.error('Failed to apply')
+      const errorMessage = error?.message || error?.error_description || 'Failed to apply'
+      toast.error(errorMessage)
     } finally {
       setActionLoading(false)
     }

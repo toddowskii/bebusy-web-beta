@@ -26,11 +26,21 @@ export function sanitizeInput(input: string): string {
  */
 export function sanitizePlainText(input: string): string {
   if (!input) return '';
-  
-  const clean = DOMPurify.sanitize(input, {
-    ALLOWED_TAGS: [],
-    ALLOWED_ATTR: [],
-  });
-  
+
+  // Preserve symbols like < and > for math while stripping control chars
+  const clean = input.replace(/[\u0000-\u001F\u007F]/g, '');
+
   return clean.trim();
+}
+
+/**
+ * Detect obvious script injection patterns
+ * @param input - The user input to check
+ * @returns true if input contains script-like patterns
+ */
+export function containsScriptLike(input: string): boolean {
+  if (!input) return false;
+
+  const pattern = /<\s*script|javascript:|on\w+\s*=/i;
+  return pattern.test(input);
 }

@@ -4,13 +4,16 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { isMentor, getMentorFocusGroups } from '@/lib/supabase/mentor'
-import { ArrowLeft, Plus, Users, Calendar, Edit } from 'lucide-react'
+import { Plus, Users, Calendar, Edit, Award } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { AppLayout } from '@/components/AppLayout'
+import { getCurrentProfile } from '@/lib/supabase/profiles'
 
 export default function MentorDashboardPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [focusGroups, setFocusGroups] = useState<any[]>([])
+  const [profile, setProfile] = useState<any>(null)
 
   useEffect(() => {
     checkMentorAndLoadData()
@@ -25,8 +28,12 @@ export default function MentorDashboardPage() {
         return
       }
 
-      const groups = await getMentorFocusGroups()
+      const [groups, currentProfile] = await Promise.all([
+        getMentorFocusGroups(),
+        getCurrentProfile()
+      ])
       setFocusGroups(groups)
+      setProfile(currentProfile)
     } catch (error) {
       console.error('Error loading data:', error)
       toast.error('Failed to load data')
@@ -37,117 +44,113 @@ export default function MentorDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="animate-spin h-10 w-10 border-4 border-[#10B981] border-t-transparent rounded-full"></div>
+      <div className="min-h-screen bg-[#000000] flex items-center justify-center">
+        <div className="animate-spin h-8 w-8 border-4 border-[#10B981] border-t-transparent rounded-full"></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="max-w-[1200px] mx-auto p-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => router.back()}
-              className="p-2 hover:bg-gray-900 rounded-lg transition-colors"
-            >
-              <ArrowLeft className="w-6 h-6" />
-            </button>
-            <div>
-              <h1 className="text-3xl font-bold">Mentor Dashboard</h1>
-              <p className="text-gray-400 mt-1">Manage your focus groups</p>
-            </div>
+    <AppLayout username={profile?.username}>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4" style={{ marginBottom: '24px' }}>
+        <div>
+          <div className="flex items-center gap-3" style={{ marginBottom: '8px' }}>
+            <Award className="w-8 h-8 text-[#10B981]" />
+            <h1 className="text-3xl font-bold text-[#ECEDEE]">Mentor Dashboard</h1>
           </div>
-
-          <Link
-            href="/mentor/create-focus-group"
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all font-semibold shadow-lg shadow-green-500/20"
-          >
-            <Plus className="w-5 h-5" />
-            Create Focus Group
-          </Link>
+          <p className="text-[#9BA1A6]">Manage your focus groups</p>
         </div>
 
-        {/* Focus Groups */}
-        <div className="bg-gray-900 rounded-lg border border-gray-800">
-          <div className="p-6 border-b border-gray-800">
-            <h2 className="text-xl font-bold">My Focus Groups</h2>
-            <p className="text-gray-400 text-sm mt-1">
-              {focusGroups.length} focus group{focusGroups.length !== 1 ? 's' : ''}
-            </p>
+        <Link
+          href="/mentor/create-focus-group"
+          className="flex items-center justify-center gap-2 bg-[#10B981] hover:bg-[#059669] text-white rounded-full font-semibold transition-colors shadow-lg"
+          style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '12px', paddingBottom: '12px' }}
+        >
+          <Plus className="w-5 h-5" />
+          Create Focus Group
+        </Link>
+      </div>
+
+      {/* Focus Groups */}
+      <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E]">
+        <div className="border-b border-[#2C2C2E]" style={{ padding: '24px' }}>
+          <h2 className="text-xl font-bold text-[#ECEDEE]">My Focus Groups</h2>
+          <p className="text-[#9BA1A6] text-sm" style={{ marginTop: '4px' }}>
+            {focusGroups.length} focus group{focusGroups.length !== 1 ? 's' : ''}
+          </p>
+        </div>
+
+        {focusGroups.length === 0 ? (
+          <div className="text-center" style={{ padding: '48px' }}>
+            <div className="text-5xl" style={{ marginBottom: '16px' }}>🎯</div>
+            <h3 className="text-xl font-semibold text-[#ECEDEE]" style={{ marginBottom: '8px' }}>No focus groups yet</h3>
+            <p className="text-[#9BA1A6]" style={{ marginBottom: '24px' }}>Create your first focus group to start mentoring</p>
+            <Link
+              href="/mentor/create-focus-group"
+              className="inline-flex items-center gap-2 bg-[#10B981] hover:bg-[#059669] text-white rounded-full font-semibold transition-colors"
+              style={{ paddingLeft: '24px', paddingRight: '24px', paddingTop: '12px', paddingBottom: '12px' }}
+            >
+              <Plus className="w-5 h-5" />
+              Create Focus Group
+            </Link>
           </div>
-
-          {focusGroups.length === 0 ? (
-            <div className="p-12 text-center">
-              <div className="mb-4 text-5xl">🎯</div>
-              <h3 className="text-xl font-semibold mb-2">No focus groups yet</h3>
-              <p className="text-gray-500 mb-6">Create your first focus group to start mentoring</p>
-              <Link
-                href="/mentor/create-focus-group"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all font-semibold"
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4" style={{ padding: '24px' }}>
+            {focusGroups.map((group) => (
+              <div
+                key={group.id}
+                className="bg-[#000000] border border-[#2C2C2E] rounded-[20px] hover:border-[#10B981]/50 transition-all"
+                style={{ padding: '24px' }}
               >
-                <Plus className="w-5 h-5" />
-                Create Focus Group
-              </Link>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6">
-              {focusGroups.map((group) => (
-                <div
-                  key={group.id}
-                  className="bg-black border border-gray-800 rounded-lg p-6 hover:border-green-500/50 transition-all"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <h3 className="font-bold text-lg mb-2">{group.title}</h3>
-                      <p className="text-gray-400 text-sm line-clamp-2">{group.description}</p>
-                    </div>
-                    <Link
-                      href={`/mentor/edit-focus-group/${group.id}`}
-                      className="p-2 hover:bg-gray-900 rounded-lg transition-colors text-green-500"
-                    >
-                      <Edit className="w-5 h-5" />
-                    </Link>
+                <div className="flex items-start justify-between" style={{ marginBottom: '16px' }}>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-lg text-[#ECEDEE]" style={{ marginBottom: '8px' }}>{group.title}</h3>
+                    <p className="text-[#9BA1A6] text-sm line-clamp-2">{group.description}</p>
                   </div>
+                  <Link
+                    href={`/mentor/edit-focus-group/${group.id}`}
+                    className="p-2 hover:bg-[#1C1C1E] rounded-lg transition-colors text-[#10B981]"
+                  >
+                    <Edit className="w-5 h-5" />
+                  </Link>
+                </div>
 
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Users className="w-4 h-4 text-gray-500" />
-                      <span className="text-gray-400">
-                        {group.current_members} / {group.total_spots} members
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Users className="w-4 h-4 text-[#8E8E93]" />
+                    <span className="text-[#9BA1A6]">
+                      {group.current_members} / {group.total_spots} members
+                    </span>
+                    {group.current_members >= group.total_spots && (
+                      <span className="text-xs bg-yellow-500/20 text-yellow-500 rounded-full" style={{ paddingLeft: '8px', paddingRight: '8px', paddingTop: '2px', paddingBottom: '2px' }}>
+                        Full
                       </span>
-                      {group.current_members >= group.total_spots && (
-                        <span className="text-xs bg-yellow-500/20 text-yellow-500 px-2 py-1 rounded">
-                          Full
-                        </span>
-                      )}
-                    </div>
-
-                    {(group.start_date || group.end_date) && (
-                      <div className="flex items-center gap-2 text-sm text-gray-400">
-                        <Calendar className="w-4 h-4 text-gray-500" />
-                        <span>
-                          {group.start_date && new Date(group.start_date).toLocaleDateString()}
-                          {group.start_date && group.end_date && ' - '}
-                          {group.end_date && new Date(group.end_date).toLocaleDateString()}
-                        </span>
-                      </div>
                     )}
                   </div>
 
-                  <div className="mt-4 pt-4 border-t border-gray-800">
-                    <div className="text-xs text-gray-500">
-                      Created {new Date(group.created_at).toLocaleDateString()}
+                  {(group.start_date || group.end_date) && (
+                    <div className="flex items-center gap-2 text-sm text-[#9BA1A6]">
+                      <Calendar className="w-4 h-4 text-[#8E8E93]" />
+                      <span>
+                        {group.start_date && new Date(group.start_date).toLocaleDateString()}
+                        {group.start_date && group.end_date && ' - '}
+                        {group.end_date && new Date(group.end_date).toLocaleDateString()}
+                      </span>
                     </div>
+                  )}
+                </div>
+
+                <div className="border-t border-[#2C2C2E]" style={{ marginTop: '16px', paddingTop: '16px' }}>
+                  <div className="text-xs text-[#8E8E93]">
+                    Created {new Date(group.created_at).toLocaleDateString()}
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-    </div>
+    </AppLayout>
   )
 }

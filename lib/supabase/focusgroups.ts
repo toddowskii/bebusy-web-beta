@@ -1,4 +1,5 @@
 import { supabase } from './client';
+import { getCurrentProfile } from './profiles';
 import { Database } from '@/types/database.types';
 
 type FocusGroup = Database['public']['Tables']['focus_groups']['Row'];
@@ -72,14 +73,46 @@ export async function applyToFocusGroup(focusGroupId: string) {
     throw new Error('User not authenticated');
   }
 
+  // Check if user is already a member
+  const { data: existingMember } = await supabase
+    .from('focus_group_members')
+    .select('id')
+    .eq('focus_group_id', focusGroupId)
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (existingMember) {
+    throw new Error('You are already a member of this focus group');
+  }
+
+  // Get user's profile to check role
+  const userProfile = await getCurrentProfile();
+  const isAdminOrMentor = userProfile?.role === 'admin' || userProfile?.role === 'mentor';
+
   // Check if group is full and get group_id
-  const { data: focusGroup } = await supabase
+  const { data: focusGroup, error: fetchError } = await supabase
     .from('focus_groups')
-    .select('available_spots, is_full, group_id')
+    .select('available_spots, is_full, group_id, total_spots')
     .eq('id', focusGroupId)
     .single();
 
-  const status = (focusGroup as any)?.is_full ? 'waitlist' : 'active';
+  if (fetchError) {
+    console.error('Error fetching focus group:', fetchError);
+    throw new Error('Focus group not found');
+  }
+
+  // For regular users: check if group is full
+  // For admins/mentors: they can always join
+  let status = 'active';
+  
+  if (!isAdminOrMentor) {
+    status = (focusGroup as any)?.is_full ? 'waitlist' : 'active';
+    
+    // For regular users, check if there are available spots
+    if ((focusGroup as any)?.available_spots <= 0 && status === 'active') {
+      status = 'waitlist';
+    }
+  }
 
   // Add to focus group members
   const { error } = await supabase
@@ -90,7 +123,10 @@ export async function applyToFocusGroup(focusGroupId: string) {
       status 
     } as any);
 
-  if (error) throw error;
+  if (error) {
+    console.error('Error inserting focus group member:', error);
+    throw new Error(error.message || 'Failed to join focus group');
+  }
   
   // If accepted (not waitlist) and group exists, add to the group chat
   if (status === 'active' && (focusGroup as any)?.group_id) {
@@ -144,12 +180,26 @@ export async function leaveFocusGroup(focusGroupId: string) {
     throw new Error('User not authenticated');
   }
 
-  // Get group_id before leaving
+  // Get user's profile to check role
+  const userProfile = await getCurrentProfile();
+  const isAdminOrMentor = userProfile?.role === 'admin' || userProfile?.role === 'mentor';
+
+  // Get group_id and current member status before leaving
   const { data: focusGroup } = await supabase
     .from('focus_groups')
-    .select('group_id')
+    .select('group_id, available_spots, total_spots')
     .eq('id', focusGroupId)
     .single();
+
+  // Get member status to know if they were active
+  const { data: memberData } = await supabase
+    .from('focus_group_members')
+    .select('status')
+    .eq('focus_group_id', focusGroupId)
+    .eq('user_id', userId)
+    .single();
+
+  const wasActive = (memberData as any)?.status === 'active';
 
   // Remove from focus group members
   const { error } = await supabase

@@ -2,15 +2,13 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { supabase } from '@/lib/supabase/client'
-import { Home, Users, MessageSquare, Bell, User, Target, Settings, Search } from 'lucide-react'
 import { fetchPosts } from '@/lib/supabase/posts'
 import { getCurrentProfile } from '@/lib/supabase/profiles'
-import { getUnreadNotificationCount } from '@/lib/supabase/notifications'
 import { CreatePost } from '@/components/CreatePost'
 import { PostCard } from '@/components/PostCard'
 import { FeedSkeleton } from '@/components/PostSkeleton'
+import { AppLayout } from '@/components/AppLayout'
 
 export default function HomePage() {
   const router = useRouter()
@@ -19,7 +17,6 @@ export default function HomePage() {
   const [posts, setPosts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingPosts, setLoadingPosts] = useState(false)
-  const [unreadNotifCount, setUnreadNotifCount] = useState(0)
 
   useEffect(() => {
     const getUser = async () => {
@@ -43,39 +40,6 @@ export default function HomePage() {
     getUser()
   }, [])
 
-  // Fetch unread notification count
-  useEffect(() => {
-    if (!profile) return
-
-    const fetchUnreadCount = async () => {
-      const count = await getUnreadNotificationCount()
-      setUnreadNotifCount(count)
-    }
-
-    fetchUnreadCount()
-
-    // Real-time subscription for notifications
-    const notifsChannel = supabase
-      .channel('unread-notifications-feed')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${profile.id}`,
-        },
-        () => {
-          fetchUnreadCount()
-        }
-      )
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(notifsChannel)
-    }
-  }, [profile])
-
   useEffect(() => {
     if (!loading) {
       loadPosts()
@@ -95,13 +59,6 @@ export default function HomePage() {
     }
   }
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    document.cookie = 'sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT'
-    router.push('/login')
-    router.refresh()
-  }
-
   if (loading) {
     return (
       <div className="min-h-screen bg-[#000000] flex items-center justify-center">
@@ -111,89 +68,36 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#000000]">
-      {/* Top Header */}
-      <header className="fixed top-0 left-0 right-0 bg-[#000000] border-b border-[#2D2D2D] z-50">
-        <div className="h-14 flex items-center justify-between" style={{ marginLeft: '20px', marginRight: '20px' }}>
-          <h1 className="text-xl font-bold text-[#10B981]">BeBusy</h1>
-          
-          <div className="flex items-center gap-2">
-            <Link href="/search" className="p-2 hover:bg-[#151718] rounded-lg transition-colors">
-              <Search className="w-5 h-5 text-[#9BA1A6]" />
-            </Link>
-            <Link href="/settings/account" className="p-2 hover:bg-[#151718] rounded-lg transition-colors">
-              <Settings className="w-5 h-5 text-[#9BA1A6]" />
-            </Link>
-            <Link href="/notifications" className="p-2 hover:bg-[#151718] rounded-lg transition-colors relative">
-              <Bell className="w-5 h-5 text-[#9BA1A6]" />
-              {unreadNotifCount > 0 && (
-                <span className="absolute top-1 right-1 bg-[#10B981] text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                  {unreadNotifCount > 9 ? '9+' : unreadNotifCount}
-                </span>
-              )}
-            </Link>
+    <AppLayout username={profile?.username}>
+      <div>
+        {/* Create Post */}
+        {profile && (
+          <div style={{ marginBottom: '24px' }}>
+            <CreatePost 
+              userAvatar={profile.avatar_url}
+              username={profile.username}
+              onPostCreated={loadPosts}
+            />
           </div>
-        </div>
-      </header>
+        )}
 
-      {/* Main Content */}
-      <main style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '80px', paddingBottom: '80px' }}>
-        <div>
-          {/* Create Post */}
-          {profile && (
-            <div style={{ marginBottom: '24px' }}>
-              <CreatePost 
-                userAvatar={profile.avatar_url}
-                username={profile.username}
-                onPostCreated={loadPosts}
-              />
-            </div>
-          )}
-
-          {/* Posts Feed */}
-          {loadingPosts ? (
-            <FeedSkeleton />
-          ) : posts.length === 0 ? (
-            <div className="p-12 text-center">
-              <div className="text-5xl mb-4">📝</div>
-              <h3 className="text-xl font-semibold mb-2 text-[#ECEDEE]">No posts yet</h3>
-              <p className="text-[#9BA1A6]">Be the first to share something!</p>
-            </div>
-          ) : (
-            <div>
-              {posts.map((post: any) => (
-                <PostCard key={post.id} post={post} />
-              ))}
-            </div>
-          )}
-        </div>
-      </main>
-
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-[#000000] border-t border-[#2D2D2D] z-50">
-        <div className="h-16 flex items-center justify-around" style={{ marginLeft: '20px', marginRight: '20px' }}>
-          <Link href="/" className="flex flex-col items-center gap-1 text-[#10B981]">
-            <Home className="w-6 h-6" />
-            <span className="text-xs font-medium">Feed</span>
-          </Link>
-          <Link href="/groups" className="flex flex-col items-center gap-1 text-[#9BA1A6] hover:text-[#ECEDEE] transition-colors">
-            <Users className="w-6 h-6" />
-            <span className="text-xs">Groups</span>
-          </Link>
-          <Link href="/focus-groups" className="flex flex-col items-center gap-1 text-[#9BA1A6] hover:text-[#ECEDEE] transition-colors">
-            <Target className="w-6 h-6" />
-            <span className="text-xs">Focus</span>
-          </Link>
-          <Link href="/messages" className="flex flex-col items-center gap-1 text-[#9BA1A6] hover:text-[#ECEDEE] transition-colors">
-            <MessageSquare className="w-6 h-6" />
-            <span className="text-xs">Messages</span>
-          </Link>
-          <Link href={`/profile/${profile?.username}`} className="flex flex-col items-center gap-1 text-[#9BA1A6] hover:text-[#ECEDEE] transition-colors">
-            <User className="w-6 h-6" />
-            <span className="text-xs">Profile</span>
-          </Link>
-        </div>
-      </nav>
-    </div>
+        {/* Posts Feed */}
+        {loadingPosts ? (
+          <FeedSkeleton />
+        ) : posts.length === 0 ? (
+          <div className="p-12 text-center">
+            <div className="text-5xl mb-4">📝</div>
+            <h3 className="text-xl font-semibold mb-2 text-[#ECEDEE]">No posts yet</h3>
+            <p className="text-[#9BA1A6]">Be the first to share something!</p>
+          </div>
+        ) : (
+          <div>
+            {posts.map((post: any) => (
+              <PostCard key={post.id} post={post} />
+            ))}
+          </div>
+        )}
+      </div>
+    </AppLayout>
   )
 }

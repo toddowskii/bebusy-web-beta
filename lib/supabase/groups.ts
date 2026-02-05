@@ -16,26 +16,45 @@ export async function createGroup(name: string, description: string, isPrivate: 
     .from('groups')
     .insert({
       name,
-      description,
+      description: description?.trim() || '',
       created_by: userId,
     } as any)
-    .select()
+    .select('id')
     .single();
 
   if (error) throw error;
 
-  // Add creator as member
+  let createdGroup = data as any;
+  if (!createdGroup?.id) {
+    const { data: fallback, error: fallbackError } = await supabase
+      .from('groups')
+      .select('id')
+      .eq('created_by', userId)
+      .eq('name', name)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (fallbackError) throw fallbackError;
+    createdGroup = fallback as any;
+  }
+
+  if (!createdGroup?.id) {
+    throw new Error('Group created but no ID returned');
+  }
+
+  // Add creator as member (upsert to avoid duplicates if a trigger already did this)
   const { error: memberError } = await supabase
     .from('group_members')
-    .insert({
-      group_id: (data as any).id,
+    .upsert({
+      group_id: createdGroup.id,
       user_id: userId,
       role: 'admin'
-    } as any);
+    } as any, { onConflict: 'group_id,user_id', ignoreDuplicates: true });
 
   if (memberError) throw memberError;
 
-  return data;
+  return createdGroup;
 }
 
 /**
@@ -78,7 +97,7 @@ export async function fetchGroups() {
 
   const focusGroupIds = focusGroups?.map((fg: any) => fg.group_id).filter(Boolean) || [];
 
-  let query = supabase
+  const { data, error } = await supabase
     .from('groups')
     .select(`
       *,
@@ -94,15 +113,14 @@ export async function fetchGroups() {
     `)
     .order('created_at', { ascending: false });
 
-  // Filter out focus group chats
-  if (focusGroupIds.length > 0) {
-    query = query.not('id', 'in', `(${focusGroupIds.join(',')})`)
-  }
-
-  const { data, error } = await query;
-
   if (error) throw error;
-  return data || [];
+
+  // Filter out focus group chats client-side
+  const filteredData = (data || []).filter((item: any) => 
+    !focusGroupIds.includes(item.id)
+  );
+
+  return filteredData;
 }
 
 /**
@@ -325,4 +343,42 @@ export async function getGroupPosts(groupId: string) {
     console.warn('Error in getGroupPosts:', error);
     return [];
   }
+}
+
+/**
+ * Delete a group (only the creator can do this)
+ */
+export async function deleteGroup(groupId: string) {
+  const { data: session } = await supabase.auth.getSession();
+  const userId = session?.session?.user?.id;
+
+  if (!userId) {
+    throw new Error('User not authenticated');
+  }
+
+  // Get the group to verify ownership
+  const group = await getGroup(groupId);
+  if (!group) {
+    throw new Error('Group not found');
+  }
+
+  if ((group as any).created_by !== userId) {
+    throw new Error('Only the group creator can delete it');
+  }
+
+  // Delete group members first
+  const { error: membersError } = await supabase
+    .from('group_members')
+    .delete()
+    .eq('group_id', groupId);
+
+  if (membersError) throw membersError;
+
+  // Delete the group
+  const { error } = await supabase
+    .from('groups')
+    .delete()
+    .eq('id', groupId);
+
+  if (error) throw error;
 }

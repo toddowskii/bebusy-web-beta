@@ -216,6 +216,11 @@ export default function PostDetailPage() {
   const handleReportComment = async () => {
     if (isReporting || !reportingComment) return
     
+    if (!reportDescription.trim()) {
+      toast.error('Please provide a reason for your report')
+      return
+    }
+    
     setIsReporting(true)
     try {
       const result = await createReport({
@@ -223,7 +228,7 @@ export default function PostDetailPage() {
         content_type: 'comment',
         content_id: reportingComment.id,
         reason: reportReason,
-        description: reportDescription || undefined
+        description: reportDescription
       })
 
       if (result.error) throw new Error(result.error)
@@ -311,7 +316,7 @@ export default function PostDetailPage() {
           {/* Image */}
           {post.image_url && (
             <div className="mb-6 rounded-xl overflow-hidden">
-              <img src={post.image_url} alt="Post image" className="w-full h-auto object-cover" />
+              <img src={post.image_url} alt="Post image" className="w-full max-w-[500px] h-auto object-contain" />
             </div>
           )}
 
@@ -574,8 +579,8 @@ export default function PostDetailPage() {
           >
             <div className="flex flex-col">
               <div className="flex items-center gap-3" style={{ marginBottom: '20px' }}>
-                <div className="w-12 h-12 rounded-full bg-yellow-500/10 flex items-center justify-center">
-                  <Flag className="w-6 h-6 text-yellow-500" />
+                <div className="w-12 h-12 rounded-full bg-[#10B981]/10 flex items-center justify-center">
+                  <Flag className="w-6 h-6 text-[#10B981]" />
                 </div>
                 <h3 className="text-xl font-bold text-[#FFFFFF]">Report Comment</h3>
               </div>
@@ -604,12 +609,12 @@ export default function PostDetailPage() {
 
               <div style={{ marginBottom: '24px' }}>
                 <label className="block text-sm font-medium text-[#FFFFFF]" style={{ marginBottom: '8px' }}>
-                  Additional Details (Optional)
+                  Additional Details <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   value={reportDescription}
                   onChange={(e) => setReportDescription(e.target.value)}
-                  placeholder="Provide more context..."
+                  placeholder="Please explain why you're reporting this..."
                   rows={3}
                   className="w-full px-4 py-3 bg-[#2C2C2E] border border-[#3C3C3E] rounded-xl text-[#FFFFFF] placeholder-[#8E8E93] focus:outline-none focus:border-green-500 resize-none"
                 />
@@ -619,14 +624,15 @@ export default function PostDetailPage() {
                 <button
                   onClick={() => setReportingComment(null)}
                   disabled={isReporting}
-                  className="flex-1 px-6 py-3 bg-[#2C2C2E] hover:bg-[#3C3C3E] text-[#FFFFFF] font-semibold rounded-full transition-colors disabled:opacity-50"
+                  className="flex-1 px-8 py-4 bg-[#2C2C2E] hover:bg-[#3C3C3E] text-[#FFFFFF] font-semibold rounded-full transition-colors disabled:opacity-50 text-base"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleReportComment}
-                  disabled={isReporting}
-                  className="flex-1 px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-full transition-colors disabled:opacity-50"
+                  disabled={isReporting || !reportDescription.trim()}
+                  className="flex-1 px-8 py-4 bg-yellow-500 hover:bg-yellow-600 disabled:bg-yellow-500/50 text-white font-semibold rounded-full transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-base"
+                  style={{ boxShadow: '0 10px 15px -3px rgba(234, 179, 8, 0.2)' }}
                 >
                   {isReporting ? 'Submitting...' : 'Submit Report'}
                 </button>

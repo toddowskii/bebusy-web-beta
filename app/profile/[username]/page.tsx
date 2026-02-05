@@ -8,7 +8,7 @@ import { fetchPosts } from '@/lib/supabase/posts'
 import { followUser, unfollowUser, isFollowing } from '@/lib/supabase/profiles'
 import { PostCard } from '@/components/PostCard'
 import { AppLayout } from '@/components/AppLayout'
-import { ArrowLeft, Calendar, MapPin, Link as LinkIcon, Settings, MessageSquare, FileText, Image, Heart, Flag } from 'lucide-react'
+import { ArrowLeft, Calendar, MapPin, Link as LinkIcon, Settings, MessageSquare, FileText, Image, Heart, Flag, Users, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 import Link from 'next/link'
 import { getOrCreateConversation } from '@/lib/supabase/messages'
@@ -28,7 +28,11 @@ export default function ProfilePage() {
   const [followersCount, setFollowersCount] = useState(0)
   const [followingCount, setFollowingCount] = useState(0)
   const [isFollowLoading, setIsFollowLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'posts' | 'media' | 'likes'>('posts')
+  const [activeTab, setActiveTab] = useState<'posts' | 'media' | 'likes' | 'followers' | 'following'>('posts')
+  const [followers, setFollowers] = useState<any[]>([])
+  const [following, setFollowing] = useState<any[]>([])
+  const [loadingFollowers, setLoadingFollowers] = useState(false)
+  const [loadingFollowing, setLoadingFollowing] = useState(false)
   const [showReportModal, setShowReportModal] = useState(false)
   const [reportReason, setReportReason] = useState<ReportReason>('spam')
   const [reportDescription, setReportDescription] = useState('')
@@ -41,11 +45,9 @@ export default function ProfilePage() {
   const loadProfile = async () => {
     setLoading(true)
     try {
-      // Get current user
       const currentProfile = await getCurrentProfile()
       setCurrentUser(currentProfile)
 
-      // Get profile by username
       const { data: profileData, error } = await supabase
         .from('profiles')
         .select('*')
@@ -60,7 +62,6 @@ export default function ProfilePage() {
 
       setProfile(profileData as any)
 
-      // Get follower/following counts
       const { count: followersCount } = await supabase
         .from('followers')
         .select('*', { count: 'exact', head: true })
@@ -74,13 +75,63 @@ export default function ProfilePage() {
       setFollowersCount(followersCount || 0)
       setFollowingCount(followingCount || 0)
 
-      // Check if current user follows this profile
+      setLoadingFollowers(true)
+      setLoadingFollowing(true)
+
+      const [followersData, followingData] = await Promise.all([
+        supabase
+          .from('followers')
+          .select(`
+            follower_id,
+            profiles:follower_id (
+              id,
+              username,
+              full_name,
+              avatar_url
+            )
+          `)
+          .eq('following_id', (profileData as any).id)
+          .order('created_at', { ascending: false }),
+        supabase
+          .from('followers')
+          .select(`
+            following_id,
+            profiles:following_id (
+              id,
+              username,
+              full_name,
+              avatar_url
+            )
+          `)
+          .eq('follower_id', (profileData as any).id)
+          .order('created_at', { ascending: false })
+      ])
+
+      if (followersData.error) {
+        console.error('Error loading followers:', followersData.error)
+        setFollowers([])
+      } else {
+        const cleanedFollowers = (followersData.data || [])
+          .map((item: any) => item.profiles)
+          .filter(Boolean)
+        setFollowers(cleanedFollowers)
+      }
+
+      if (followingData.error) {
+        console.error('Error loading following:', followingData.error)
+        setFollowing([])
+      } else {
+        const cleanedFollowing = (followingData.data || [])
+          .map((item: any) => item.profiles)
+          .filter(Boolean)
+        setFollowing(cleanedFollowing)
+      }
+
       if (currentProfile && currentProfile.id !== (profileData as any).id) {
         const { isFollowing: following } = await isFollowing((profileData as any).id)
         setIsFollowingUser(following)
       }
 
-      // Load user's posts
       const { data: postsData } = await supabase
         .from('posts')
         .select(`
@@ -114,7 +165,6 @@ export default function ProfilePage() {
         setPosts(postsData || [])
       }
 
-      // Load liked posts
       const { data: likesData } = await supabase
         .from('likes')
         .select(`
@@ -159,6 +209,8 @@ export default function ProfilePage() {
       console.error('Error loading profile:', error)
       toast.error('Failed to load profile')
     } finally {
+      setLoadingFollowers(false)
+      setLoadingFollowing(false)
       setLoading(false)
     }
   }
@@ -205,6 +257,11 @@ export default function ProfilePage() {
 
   const handleReportUser = async () => {
     if (isReporting || !currentUser || !profile) return
+    
+    if (!reportDescription.trim()) {
+      toast.error('Please provide a reason for your report')
+      return
+    }
 
     setIsReporting(true)
     try {
@@ -212,7 +269,7 @@ export default function ProfilePage() {
         reported_user_id: profile.id,
         content_type: 'user',
         reason: reportReason,
-        description: reportDescription || undefined
+        description: reportDescription
       })
 
       if (result.error) throw new Error(result.error)
@@ -294,11 +351,10 @@ export default function ProfilePage() {
               Edit Profile
             </Link>
           ) : (
-            <div className="mt-3 flex gap-2">
+            <div className="mt-3 flex flex-col sm:flex-row gap-2 w-full sm:w-auto items-end sm:items-start justify-end sm:justify-start">
               <button
                 onClick={handleMessage}
-                className="bg-[#2C2C2E] hover:bg-[#3C3C3E] rounded-full font-semibold transition-colors text-[#ECEDEE] flex items-center gap-2"
-                style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '8px', paddingBottom: '8px' }}
+                className="max-w-[180px] sm:max-w-none w-full sm:w-auto bg-[#2C2C2E] hover:bg-[#3C3C3E] rounded-full font-semibold transition-colors text-[#ECEDEE] flex items-center justify-center gap-2 text-sm sm:text-base px-4 py-2 sm:px-5"
               >
                 <MessageSquare className="w-4 h-4" />
                 Message
@@ -306,19 +362,17 @@ export default function ProfilePage() {
               <button
                 onClick={handleFollow}
                 disabled={isFollowLoading}
-                className={`rounded-full font-semibold transition-all ${
+                className={`max-w-[180px] sm:max-w-none w-full sm:w-auto rounded-full font-semibold transition-all text-sm sm:text-base px-4 py-2 sm:px-6 ${
                   isFollowingUser
                     ? 'bg-[#2C2C2E] hover:bg-red-500/10 hover:border hover:border-red-500 text-[#ECEDEE] hover:text-red-500'
                     : 'bg-[#10B981] hover:bg-[#059669] text-white'
                 }`}
-                style={{ paddingLeft: '24px', paddingRight: '24px', paddingTop: '8px', paddingBottom: '8px' }}
               >
                 {isFollowLoading ? '...' : isFollowingUser ? 'Following' : 'Follow'}
               </button>
               <button
                 onClick={() => setShowReportModal(true)}
-                className="bg-[#2C2C2E] hover:bg-yellow-500/10 rounded-full font-semibold transition-colors text-[#ECEDEE] hover:text-yellow-500 flex items-center gap-2"
-                style={{ paddingLeft: '16px', paddingRight: '16px', paddingTop: '8px', paddingBottom: '8px' }}
+                className="max-w-[180px] sm:max-w-none w-full sm:w-auto bg-[#2C2C2E] hover:bg-yellow-500/10 rounded-full font-semibold transition-colors text-[#ECEDEE] hover:text-yellow-500 flex items-center justify-center gap-2 text-sm sm:text-base px-4 py-2 sm:px-4"
               >
                 <Flag className="w-4 h-4" />
                 Report
@@ -351,11 +405,11 @@ export default function ProfilePage() {
 
         {/* Follow Stats */}
         <div className="flex gap-4 text-sm">
-          <button className="hover:underline">
+          <button className="hover:underline" onClick={() => setActiveTab('following')}>
             <span className="font-bold text-[#FFFFFF]">{followingCount}</span>
             <span className="text-[#8E8E93]"> Following</span>
           </button>
-          <button className="hover:underline">
+          <button className="hover:underline" onClick={() => setActiveTab('followers')}>
             <span className="font-bold text-[#FFFFFF]">{followersCount}</span>
             <span className="text-[#8E8E93]"> Followers</span>
           </button>
@@ -460,6 +514,150 @@ export default function ProfilePage() {
         )
       )}
 
+      {/* Followers */}
+      {activeTab === 'followers' && (
+        <div
+          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+          onClick={() => setActiveTab('posts')}
+        >
+          <div
+            className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] w-full max-w-[320px] sm:max-w-md max-h-[85vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-[#2C2C2E]" style={{ padding: '20px 24px' }}>
+              <div>
+                <h3 className="text-xl font-bold text-[#ECEDEE]">Followers</h3>
+                <p className="text-sm text-[#9BA1A6]" style={{ marginTop: '2px' }}>
+                  {followers.length} {followers.length === 1 ? 'follower' : 'followers'}
+                </p>
+              </div>
+              <button
+                onClick={() => setActiveTab('posts')}
+                className="p-2 hover:bg-[#2C2C2E] rounded-full transition-colors"
+              >
+                <X className="w-5 h-5 text-[#9BA1A6]" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto" style={{ padding: '12px' }}>
+              {loadingFollowers ? (
+                <div className="flex items-center justify-center py-20">
+                  <div className="animate-spin h-8 w-8 border-4 border-[#10B981] border-t-transparent rounded-full"></div>
+                </div>
+              ) : followers.length === 0 ? (
+                <div className="text-center py-20">
+                  <Users className="w-12 h-12 text-[#9BA1A6] mx-auto" style={{ marginBottom: '12px' }} />
+                  <p className="text-[#9BA1A6]">No followers yet</p>
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  {followers.map((user: any) => (
+                    <Link
+                      key={user.id}
+                      href={`/profile/${user.username}`}
+                      className="flex items-center gap-3 hover:bg-[#2C2C2E] rounded-xl transition-colors"
+                      style={{ padding: '12px' }}
+                      onClick={() => setActiveTab('posts')}
+                    >
+                      {user.avatar_url ? (
+                        <img
+                          src={user.avatar_url}
+                          alt={user.username}
+                          className="w-14 h-14 rounded-full object-cover ring-2 ring-[#2C2C2E]"
+                        />
+                      ) : (
+                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold text-xl ring-2 ring-[#2C2C2E]">
+                          {user.username?.[0]?.toUpperCase()}
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-[#ECEDEE] truncate">
+                          {user.full_name || user.username}
+                        </p>
+                        <p className="text-sm text-[#9BA1A6] truncate" style={{ marginTop: '2px' }}>
+                          @{user.username}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Following */}
+      {activeTab === 'following' && (
+        <div
+          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+          onClick={() => setActiveTab('posts')}
+        >
+          <div
+            className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] w-full max-w-[320px] sm:max-w-md max-h-[85vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-[#2C2C2E]" style={{ padding: '20px 24px' }}>
+              <div>
+                <h3 className="text-xl font-bold text-[#ECEDEE]">Following</h3>
+                <p className="text-sm text-[#9BA1A6]" style={{ marginTop: '2px' }}>
+                  {following.length} {following.length === 1 ? 'person' : 'people'}
+                </p>
+              </div>
+              <button
+                onClick={() => setActiveTab('posts')}
+                className="p-2 hover:bg-[#2C2C2E] rounded-full transition-colors"
+              >
+                <X className="w-5 h-5 text-[#9BA1A6]" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto" style={{ padding: '12px' }}>
+              {loadingFollowing ? (
+                <div className="flex items-center justify-center py-20">
+                  <div className="animate-spin h-8 w-8 border-4 border-[#10B981] border-t-transparent rounded-full"></div>
+                </div>
+              ) : following.length === 0 ? (
+                <div className="text-center py-20">
+                  <Users className="w-12 h-12 text-[#9BA1A6] mx-auto" style={{ marginBottom: '12px' }} />
+                  <p className="text-[#9BA1A6]">Not following anyone yet</p>
+                </div>
+              ) : (
+                <div className="space-y-1">
+                  {following.map((user: any) => (
+                    <Link
+                      key={user.id}
+                      href={`/profile/${user.username}`}
+                      className="flex items-center gap-3 hover:bg-[#2C2C2E] rounded-xl transition-colors"
+                      style={{ padding: '12px' }}
+                      onClick={() => setActiveTab('posts')}
+                    >
+                      {user.avatar_url ? (
+                        <img
+                          src={user.avatar_url}
+                          alt={user.username}
+                          className="w-14 h-14 rounded-full object-cover ring-2 ring-[#2C2C2E]"
+                        />
+                      ) : (
+                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold text-xl ring-2 ring-[#2C2C2E]">
+                          {user.username?.[0]?.toUpperCase()}
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-[#ECEDEE] truncate">
+                          {user.full_name || user.username}
+                        </p>
+                        <p className="text-sm text-[#9BA1A6] truncate" style={{ marginTop: '2px' }}>
+                          @{user.username}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {showReportModal && !isOwnProfile && (
         <div
           className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
@@ -472,8 +670,8 @@ export default function ProfilePage() {
           >
             <div className="flex flex-col">
               <div className="flex items-center gap-3" style={{ marginBottom: '20px' }}>
-                <div className="w-12 h-12 rounded-full bg-yellow-500/10 flex items-center justify-center">
-                  <Flag className="w-6 h-6 text-yellow-500" />
+                <div className="w-12 h-12 rounded-full bg-[#10B981]/10 flex items-center justify-center">
+                  <Flag className="w-6 h-6 text-[#10B981]" />
                 </div>
                 <h3 className="text-xl font-bold text-[#FFFFFF]">Report User</h3>
               </div>
@@ -502,12 +700,12 @@ export default function ProfilePage() {
 
               <div style={{ marginBottom: '24px' }}>
                 <label className="block text-sm font-medium text-[#FFFFFF]" style={{ marginBottom: '8px' }}>
-                  Additional Details (Optional)
+                  Additional Details <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   value={reportDescription}
                   onChange={(e) => setReportDescription(e.target.value)}
-                  placeholder="Provide more context..."
+                  placeholder="Please explain why you're reporting this..."
                   rows={3}
                   className="w-full px-4 py-3 bg-[#2C2C2E] border border-[#3C3C3E] rounded-xl text-[#FFFFFF] placeholder-[#8E8E93] focus:outline-none focus:border-green-500 resize-none"
                 />
@@ -517,14 +715,15 @@ export default function ProfilePage() {
                 <button
                   onClick={() => setShowReportModal(false)}
                   disabled={isReporting}
-                  className="flex-1 px-6 py-3 bg-[#2C2C2E] hover:bg-[#3C3C3E] text-[#FFFFFF] font-semibold rounded-full transition-colors disabled:opacity-50"
+                  className="flex-1 px-8 py-4 bg-[#2C2C2E] hover:bg-[#3C3C3E] text-[#FFFFFF] font-semibold rounded-full transition-colors disabled:opacity-50 text-base"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleReportUser}
-                  disabled={isReporting}
-                  className="flex-1 px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-full transition-colors disabled:opacity-50"
+                  disabled={isReporting || !reportDescription.trim()}
+                  className="flex-1 px-8 py-4 bg-yellow-500 hover:bg-yellow-600 disabled:bg-yellow-500/50 text-white font-semibold rounded-full transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-base"
+                  style={{ boxShadow: '0 10px 15px -3px rgba(234, 179, 8, 0.2)' }}
                 >
                   {isReporting ? 'Submitting...' : 'Submit Report'}
                 </button>

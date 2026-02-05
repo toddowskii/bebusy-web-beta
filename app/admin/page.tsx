@@ -8,6 +8,7 @@ import { getCurrentProfile } from '@/lib/supabase/profiles'
 import { fetchFocusGroups } from '@/lib/supabase/focusgroups'
 import { Shield, Users, Target, Plus, Edit, Ban, UserCheck, Flag } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { AppLayout } from '@/components/AppLayout'
 
 export default function AdminDashboard() {
   const router = useRouter()
@@ -15,7 +16,7 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'users' | 'focus-groups'>('users')
   const [users, setUsers] = useState<any[]>([])
   const [focusGroups, setFocusGroups] = useState<any[]>([])
-  const [showCreateFocusGroup, setShowCreateFocusGroup] = useState(false)
+  const [profile, setProfile] = useState<any>(null)
 
   useEffect(() => {
     checkAdminAndLoadData()
@@ -40,12 +41,14 @@ export default function AdminDashboard() {
     }
 
     try {
-      const [usersData, focusGroupsData] = await Promise.all([
+      const [usersData, focusGroupsData, currentProfile] = await Promise.all([
         getAllUsers(),
-        fetchFocusGroups()
+        fetchFocusGroups(),
+        getCurrentProfile()
       ])
       setUsers(usersData)
       setFocusGroups(focusGroupsData)
+      setProfile(currentProfile)
     } catch (error) {
       console.error('Error loading data:', error)
       toast.error('Failed to load data')
@@ -137,97 +140,101 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="animate-spin h-10 w-10 border-4 border-[#10B981] border-t-transparent rounded-full"></div>
+      <div className="min-h-screen bg-[#000000] flex items-center justify-center">
+        <div className="animate-spin h-8 w-8 border-4 border-[#10B981] border-t-transparent rounded-full"></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="max-w-[1200px] mx-auto p-6">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <Shield className="w-8 h-8 text-green-500" />
-            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-          </div>
-          <p className="text-gray-400">Manage users and focus groups</p>
+    <AppLayout username={profile?.username}>
+      {/* Header */}
+      <div style={{ marginBottom: '24px' }}>
+        <div className="flex items-center gap-3" style={{ marginBottom: '8px' }}>
+          <Shield className="w-8 h-8 text-purple-500" />
+          <h1 className="text-3xl font-bold text-[#ECEDEE]">Admin Dashboard</h1>
         </div>
+        <p className="text-[#9BA1A6]">Manage users and focus groups</p>
+      </div>
 
-        {/* Tabs */}
-        <div className="flex gap-4 mb-6 border-b border-gray-800">
-          <button
-            onClick={() => setActiveTab('users')}
-            className={`flex items-center gap-2 px-4 py-3 font-medium transition-colors border-b-2 ${
-              activeTab === 'users'
-                ? 'border-green-500 text-green-500'
-                : 'border-transparent text-gray-400 hover:text-white'
-            }`}
-          >
-            <Users className="w-5 h-5" />
-            Users ({users.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('focus-groups')}
-            className={`flex items-center gap-2 px-4 py-3 font-medium transition-colors border-b-2 ${
-              activeTab === 'focus-groups'
-                ? 'border-green-500 text-green-500'
-                : 'border-transparent text-gray-400 hover:text-white'
-            }`}
-          >
-            <Target className="w-5 h-5" />
-            Focus Groups ({focusGroups.length})
-          </button>
-          <Link
-            href="/admin/reports"
-            className="flex items-center gap-2 px-4 py-3 font-medium transition-colors border-b-2 border-transparent text-gray-400 hover:text-white"
-          >
-            <Flag className="w-5 h-5" />
-            Reports
-          </Link>
-        </div>
+      {/* Tabs */}
+      <div className="flex gap-4 border-b border-[#2C2C2E]" style={{ marginBottom: '24px' }}>
+        <button
+          onClick={() => setActiveTab('users')}
+          className={`flex items-center gap-2 py-3 font-medium transition-colors border-b-2 ${
+            activeTab === 'users'
+              ? 'border-[#10B981] text-[#10B981]'
+              : 'border-transparent text-[#9BA1A6] hover:text-[#ECEDEE]'
+          }`}
+          style={{ paddingLeft: '16px', paddingRight: '16px' }}
+        >
+          <Users className="w-5 h-5" />
+          Users ({users.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('focus-groups')}
+          className={`flex items-center gap-2 py-3 font-medium transition-colors border-b-2 ${
+            activeTab === 'focus-groups'
+              ? 'border-[#10B981] text-[#10B981]'
+              : 'border-transparent text-[#9BA1A6] hover:text-[#ECEDEE]'
+          }`}
+          style={{ paddingLeft: '16px', paddingRight: '16px' }}
+        >
+          <Target className="w-5 h-5" />
+          Focus Groups ({focusGroups.length})
+        </button>
+        <Link
+          href="/admin/reports"
+          className="flex items-center gap-2 py-3 font-medium transition-colors border-b-2 border-transparent text-[#9BA1A6] hover:text-[#ECEDEE]"
+          style={{ paddingLeft: '16px', paddingRight: '16px' }}
+        >
+          <Flag className="w-5 h-5" />
+          Reports
+        </Link>
+      </div>
 
-        {/* Users Tab */}
-        {activeTab === 'users' && (
-          <div className="bg-gray-900 rounded-lg border border-gray-800 overflow-hidden">
+      {/* Users Tab */}
+      {activeTab === 'users' && (
+        <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] overflow-hidden">
+          <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-800">
+              <thead className="bg-[#2C2C2E]">
                 <tr>
-                  <th className="text-left p-4 font-semibold">User</th>
-                  <th className="text-left p-4 font-semibold">Email</th>
-                  <th className="text-left p-4 font-semibold">Username</th>
-                  <th className="text-left p-4 font-semibold">Role</th>
-                  <th className="text-left p-4 font-semibold">Posts</th>
-                  <th className="text-left p-4 font-semibold">Actions</th>
+                  <th className="text-left font-semibold text-[#ECEDEE]" style={{ padding: '16px' }}>User</th>
+                  <th className="text-left font-semibold text-[#ECEDEE]" style={{ padding: '16px' }}>Email</th>
+                  <th className="text-left font-semibold text-[#ECEDEE]" style={{ padding: '16px' }}>Username</th>
+                  <th className="text-left font-semibold text-[#ECEDEE]" style={{ padding: '16px' }}>Role</th>
+                  <th className="text-left font-semibold text-[#ECEDEE]" style={{ padding: '16px' }}>Posts</th>
+                  <th className="text-left font-semibold text-[#ECEDEE]" style={{ padding: '16px' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {users.map((user) => (
-                  <tr key={user.id} className="border-t border-gray-800 hover:bg-gray-800/50">
-                    <td className="p-4">
+                  <tr key={user.id} className="border-t border-[#2C2C2E] hover:bg-[#252527]">
+                    <td style={{ padding: '16px' }}>
                       <div className="flex items-center gap-3">
                         {user.avatar_url ? (
                           <img
                             src={user.avatar_url}
                             alt={user.full_name}
-                            className="w-10 h-10 rounded-full"
+                            className="w-10 h-10 rounded-full object-cover"
                           />
                         ) : (
                           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold">
                             {user.full_name?.[0] || '?'}
                           </div>
                         )}
-                        <span className="font-medium">{user.full_name}</span>
+                        <span className="font-medium text-[#ECEDEE]">{user.full_name}</span>
                       </div>
                     </td>
-                    <td className="p-4 text-gray-400">{user.email}</td>
-                    <td className="p-4 text-gray-400">@{user.username || 'N/A'}</td>
-                    <td className="p-4">
+                    <td className="text-[#9BA1A6]" style={{ padding: '16px' }}>{user.email}</td>
+                    <td className="text-[#9BA1A6]" style={{ padding: '16px' }}>@{user.username || 'N/A'}</td>
+                    <td style={{ padding: '16px' }}>
                       <select
                         value={user.role || 'user'}
                         onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                        className="bg-gray-800 border border-gray-700 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-green-500"
+                        className="bg-[#2C2C2E] border border-[#3C3C3E] rounded-lg text-[#ECEDEE] text-sm focus:outline-none focus:border-[#10B981]"
+                        style={{ paddingLeft: '12px', paddingRight: '12px', paddingTop: '6px', paddingBottom: '6px' }}
                         disabled={user.role === 'banned'}
                       >
                         <option value="user">User</option>
@@ -236,24 +243,25 @@ export default function AdminDashboard() {
                         <option value="banned">Banned</option>
                       </select>
                       {user.role === 'banned' && user.banned_until && (
-                        <div className="text-xs text-yellow-500 mt-1">
+                        <div className="text-xs text-yellow-500" style={{ marginTop: '4px' }}>
                           Until: {new Date(user.banned_until).toLocaleString()}
                         </div>
                       )}
                     </td>
-                    <td className="p-4 text-gray-400">{user.posts_count}</td>
-                    <td className="p-4">
+                    <td className="text-[#9BA1A6]" style={{ padding: '16px' }}>{user.posts_count}</td>
+                    <td style={{ padding: '16px' }}>
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => router.push(`/profile/${user.username}`)}
-                          className="text-green-500 hover:text-green-400 text-sm font-medium"
+                          className="text-[#10B981] hover:text-[#059669] text-sm font-medium transition-colors"
                         >
                           View
                         </button>
                         {user.role === 'banned' ? (
                           <button
                             onClick={() => handleUnbanUser(user.id, user.username)}
-                            className="flex items-center gap-1 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded text-sm font-medium transition-colors"
+                            className="flex items-center gap-1 bg-[#10B981] hover:bg-[#059669] text-white rounded-full font-medium transition-colors text-sm"
+                            style={{ paddingLeft: '12px', paddingRight: '12px', paddingTop: '6px', paddingBottom: '6px' }}
                           >
                             <UserCheck className="w-4 h-4" />
                             Unban
@@ -261,7 +269,8 @@ export default function AdminDashboard() {
                         ) : (
                           <button
                             onClick={() => handleBanUser(user.id, user.username)}
-                            className="flex items-center gap-1 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded text-sm font-medium transition-colors"
+                            className="flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white rounded-full font-medium transition-colors text-sm"
+                            style={{ paddingLeft: '12px', paddingRight: '12px', paddingTop: '6px', paddingBottom: '6px' }}
                           >
                             <Ban className="w-4 h-4" />
                             Ban
@@ -274,69 +283,71 @@ export default function AdminDashboard() {
               </tbody>
             </table>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Focus Groups Tab */}
-        {activeTab === 'focus-groups' && (
-          <div>
-            <div className="flex justify-end mb-4">
-              <button
-                onClick={() => router.push('/admin/create-focus-group')}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all font-semibold shadow-lg shadow-green-500/20"
-              >
-                <Plus className="w-5 h-5" />
-                Create Focus Group
-              </button>
-            </div>
-
-            <div className="grid gap-4">
-              {focusGroups.map((fg) => (
-                <div
-                  key={fg.id}
-                  className="bg-gray-900 rounded-lg border border-gray-800 p-6 hover:border-gray-700 transition-colors"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h3 className="text-xl font-bold mb-2">{fg.title}</h3>
-                      <p className="text-gray-400 text-sm mb-3">{fg.description}</p>
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <span>Mentor: {fg.mentor_name}</span>
-                        <span>•</span>
-                        <span>
-                          {fg.total_spots - fg.available_spots}/{fg.total_spots} spots filled
-                        </span>
-                        <span>•</span>
-                        <span className={fg.is_full ? 'text-yellow-500' : 'text-green-500'}>
-                          {fg.is_full ? 'Full' : `${fg.available_spots} available`}
-                        </span>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => router.push(`/admin/edit-focus-group/${fg.id}`)}
-                      className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
-                    >
-                      <Edit className="w-5 h-5 text-gray-400" />
-                    </button>
-                  </div>
-                  {(fg.start_date || fg.end_date) && (
-                    <div className="text-sm text-gray-500">
-                      Duration: {new Date(fg.start_date).toLocaleDateString()} -{' '}
-                      {new Date(fg.end_date).toLocaleDateString()}
-                    </div>
-                  )}
-                </div>
-              ))}
-
-              {focusGroups.length === 0 && (
-                <div className="text-center py-12 text-gray-500">
-                  <Target className="w-16 h-16 mx-auto mb-4 opacity-20" />
-                  <p>No focus groups created yet</p>
-                </div>
-              )}
-            </div>
+      {/* Focus Groups Tab */}
+      {activeTab === 'focus-groups' && (
+        <div>
+          <div className="flex justify-end" style={{ marginBottom: '16px' }}>
+            <button
+              onClick={() => router.push('/admin/create-focus-group')}
+              className="flex items-center gap-2 bg-[#10B981] hover:bg-[#059669] text-white rounded-full font-semibold transition-colors shadow-lg"
+              style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '12px', paddingBottom: '12px' }}
+            >
+              <Plus className="w-5 h-5" />
+              Create Focus Group
+            </button>
           </div>
-        )}
-      </div>
-    </div>
+
+          <div className="space-y-4">
+            {focusGroups.map((fg) => (
+              <div
+                key={fg.id}
+                className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] hover:bg-[#252527] transition-all"
+                style={{ padding: '24px' }}
+              >
+                <div className="flex items-start justify-between" style={{ marginBottom: '16px' }}>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold text-[#ECEDEE]" style={{ marginBottom: '8px' }}>{fg.title}</h3>
+                    <p className="text-[#9BA1A6] text-sm" style={{ marginBottom: '12px' }}>{fg.description}</p>
+                    <div className="flex items-center gap-4 text-sm text-[#8E8E93]">
+                      <span>Mentor: <span className="text-[#10B981]">{fg.mentor_name}</span></span>
+                      <span>•</span>
+                      <span>
+                        {fg.total_spots - fg.available_spots}/{fg.total_spots} spots filled
+                      </span>
+                      <span>•</span>
+                      <span className={fg.is_full ? 'text-yellow-500' : 'text-[#10B981]'}>
+                        {fg.is_full ? 'Full' : `${fg.available_spots} available`}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => router.push(`/admin/edit-focus-group/${fg.id}`)}
+                    className="p-2 hover:bg-[#2C2C2E] rounded-lg transition-colors"
+                  >
+                    <Edit className="w-5 h-5 text-[#9BA1A6]" />
+                  </button>
+                </div>
+                {(fg.start_date || fg.end_date) && (
+                  <div className="text-sm text-[#8E8E93]">
+                    Duration: {new Date(fg.start_date).toLocaleDateString()} -{' '}
+                    {new Date(fg.end_date).toLocaleDateString()}
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {focusGroups.length === 0 && (
+              <div className="text-center bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E]" style={{ padding: '48px' }}>
+                <Target className="w-16 h-16 mx-auto text-[#3C3C3E]" style={{ marginBottom: '16px' }} />
+                <p className="text-[#9BA1A6]">No focus groups created yet</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </AppLayout>
   )
 }

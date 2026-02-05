@@ -23,11 +23,21 @@ export default function CreateGroupPage() {
     setCreating(true)
     try {
       const group = await createGroup(name.trim(), description.trim(), false)
+      const groupId = (group as any)?.id
+
+      if (!groupId) {
+        toast.error('Group created but could not load it')
+        router.push('/groups')
+        return
+      }
+
       toast.success('Group created!')
-      router.push(`/groups/${(group as any).id}`)
+      router.push(`/groups/${groupId}`)
     } catch (error) {
-      console.error('Error creating group:', error)
-      toast.error('Failed to create group')
+      const err = error as any
+      const message = err?.message || err?.error_description || err?.details || err?.hint
+      console.error('Error creating group:', message || err, err)
+      toast.error(message || 'Failed to create group')
     } finally {
       setCreating(false)
     }

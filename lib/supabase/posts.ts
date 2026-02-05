@@ -1,7 +1,7 @@
 import { supabase } from './client';
 import { Database } from '@/types/database.types';
 import { createNotification } from './notifications';
-import { sanitizePlainText } from '@/lib/security/sanitize';
+import { sanitizePlainText, containsScriptLike } from '@/lib/security/sanitize';
 import { validateContent } from '@/lib/security/moderation';
 
 type Post = Database['public']['Tables']['posts']['Row'];
@@ -90,13 +90,23 @@ export async function createPost(content: string, imageUrl?: string | null, grou
     return { data: null, error: new Error('Your account has been banned. You cannot create posts.') };
   }
 
-  // Validate and sanitize content
-  const validation = validateContent(content);
-  if (!validation.isValid) {
-    return { data: null, error: new Error(validation.error) };
+  if (containsScriptLike(content)) {
+    return { data: null, error: new Error('Scripts are not allowed in posts.') };
   }
 
   const sanitizedContent = sanitizePlainText(content);
+
+  if (!sanitizedContent && !imageUrl) {
+    return { data: null, error: new Error('Post must include text or an image.') };
+  }
+
+  if (sanitizedContent) {
+    // Validate and sanitize content
+    const validation = validateContent(sanitizedContent);
+    if (!validation.isValid) {
+      return { data: null, error: new Error(validation.error) };
+    }
+  }
 
   const newPost: PostInsert = {
     user_id: userId,
