@@ -61,8 +61,8 @@ export default function HomePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#000000] flex items-center justify-center">
-        <div className="animate-spin h-8 w-8 border-4 border-[#10B981] border-t-transparent rounded-full"></div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
       </div>
     )
   }
@@ -87,8 +87,8 @@ export default function HomePage() {
         ) : posts.length === 0 ? (
           <div className="p-12 text-center">
             <div className="text-5xl mb-4">📝</div>
-            <h3 className="text-xl font-semibold mb-2 text-[#ECEDEE]">No posts yet</h3>
-            <p className="text-[#9BA1A6]">Be the first to share something!</p>
+            <h3 className="text-xl font-semibold mb-2 text-foreground">No posts yet</h3>
+            <p className="text-muted-foreground">Be the first to share something!</p>
           </div>
         ) : (
           <div>

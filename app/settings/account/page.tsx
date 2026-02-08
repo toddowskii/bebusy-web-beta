@@ -60,7 +60,7 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#000000] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
         <div className="animate-spin h-8 w-8 border-4 border-[#10B981] border-t-transparent rounded-full"></div>
       </div>
     )
@@ -68,130 +68,132 @@ export default function SettingsPage() {
 
   return (
     <AppLayout username={profile?.username}>
-      <h1 className="text-2xl font-bold text-[#ECEDEE]" style={{ marginBottom: '24px' }}>Settings</h1>
+      <h1 className="text-2xl font-bold" style={{ marginBottom: '24px', color: 'var(--text-primary)' }}>Settings</h1>
 
       {/* Account Section */}
-      <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] overflow-hidden" style={{ marginBottom: '16px' }}>
-        <div className="border-b border-[#2C2C2E]" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '12px', paddingBottom: '12px' }}>
-          <h2 className="text-sm font-semibold text-[#9BA1A6] uppercase">Account</h2>
+      <div className="rounded-[20px] border overflow-hidden" style={{ marginBottom: '16px', backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
+        <div className="border-b" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '12px', paddingBottom: '12px', borderColor: 'var(--border)' }}>
+          <h2 className="text-sm font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>Account</h2>
         </div>
         
-        <Link href="/settings/edit-profile" className="flex items-center justify-between hover:bg-[#252527] transition-colors border-b border-[#2C2C2E]" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '16px', paddingBottom: '16px' }}>
+        <Link href="/settings/edit-profile" className="flex items-center justify-between transition-colors border-b" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '16px', paddingBottom: '16px', borderColor: 'var(--border)' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-[#10B981]/10 flex items-center justify-center">
-              <User className="w-5 h-5 text-[#10B981]" />
+              <User className="w-5 h-5" style={{ color: 'var(--primary)' }} />
             </div>
             <div>
-              <p className="font-medium text-[#ECEDEE]">Edit Profile</p>
-              <p className="text-sm text-[#8E8E93]">Change your profile information</p>
+              <p className="font-medium" style={{ color: 'var(--text-primary)' }}>Edit Profile</p>
+              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Change your profile information</p>
             </div>
           </div>
-          <ChevronRight className="w-5 h-5 text-[#8E8E93]" />
+          <ChevronRight className="w-5 h-5" style={{ color: 'var(--text-muted)' }} />
         </Link>
 
-        <Link href="/settings/notifications" className="flex items-center justify-between hover:bg-[#252527] transition-colors border-b border-[#2C2C2E]" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '16px', paddingBottom: '16px' }}>
+        <Link href="/settings/notifications" className="flex items-center justify-between transition-colors border-b" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '16px', paddingBottom: '16px', borderColor: 'var(--border)' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-[#10B981]/10 flex items-center justify-center">
-              <Bell className="w-5 h-5 text-[#10B981]" />
+              <Bell className="w-5 h-5" style={{ color: 'var(--primary)' }} />
             </div>
             <div>
-              <p className="font-medium text-[#ECEDEE]">Notifications</p>
-              <p className="text-sm text-[#8E8E93]">Manage notification preferences</p>
+              <p className="font-medium" style={{ color: 'var(--text-primary)' }}>Notifications</p>
+              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Manage notification preferences</p>
             </div>
           </div>
-          <ChevronRight className="w-5 h-5 text-[#8E8E93]" />
+          <ChevronRight className="w-5 h-5" style={{ color: 'var(--text-muted)' }} />
         </Link>
 
-        <Link href="/settings/privacy" className="flex items-center justify-between hover:bg-[#252527] transition-colors" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '16px', paddingBottom: '16px' }}>
+        <Link href="/settings/privacy" className="flex items-center justify-between transition-colors" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '16px', paddingBottom: '16px' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-[#10B981]/10 flex items-center justify-center">
-              <Lock className="w-5 h-5 text-[#10B981]" />
+              <Lock className="w-5 h-5" style={{ color: 'var(--primary)' }} />
             </div>
             <div>
-              <p className="font-medium text-[#ECEDEE]">Privacy & Security</p>
-              <p className="text-sm text-[#8E8E93]">Control your privacy settings</p>
+              <p className="font-medium" style={{ color: 'var(--text-primary)' }}>Privacy & Security</p>
+              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Control your privacy settings</p>
             </div>
           </div>
-          <ChevronRight className="w-5 h-5 text-[#8E8E93]" />
+          <ChevronRight className="w-5 h-5" style={{ color: 'var(--text-muted)' }} />
         </Link>
       </div>
 
       {/* Preferences Section */}
-      <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] overflow-hidden" style={{ marginBottom: '16px' }}>
-        <div className="border-b border-[#2C2C2E]" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '12px', paddingBottom: '12px' }}>
-          <h2 className="text-sm font-semibold text-[#9BA1A6] uppercase">Preferences</h2>
+      <div className="rounded-[20px] border overflow-hidden" style={{ marginBottom: '16px', backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
+        <div className="border-b" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '12px', paddingBottom: '12px', borderColor: 'var(--border)' }}>
+          <h2 className="text-sm font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>Preferences</h2>
         </div>
         
-        <Link href="/settings/appearance" className="flex items-center justify-between hover:bg-[#252527] transition-colors border-b border-[#2C2C2E]" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '16px', paddingBottom: '16px' }}>
+        <Link href="/settings/appearance" className="flex items-center justify-between transition-colors border-b" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '16px', paddingBottom: '16px', borderColor: 'var(--border)' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-[#10B981]/10 flex items-center justify-center">
-              <Palette className="w-5 h-5 text-[#10B981]" />
+              <Palette className="w-5 h-5" style={{ color: 'var(--primary)' }} />
             </div>
             <div>
-              <p className="font-medium text-[#ECEDEE]">Appearance</p>
-              <p className="text-sm text-[#8E8E93]">Theme and display settings</p>
+              <p className="font-medium" style={{ color: 'var(--text-primary)' }}>Appearance</p>
+              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Theme and display settings</p>
             </div>
           </div>
-          <ChevronRight className="w-5 h-5 text-[#8E8E93]" />
+          <ChevronRight className="w-5 h-5" style={{ color: 'var(--text-muted)' }} />
         </Link>
 
-        <Link href="/settings/language" className="flex items-center justify-between hover:bg-[#252527] transition-colors" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '16px', paddingBottom: '16px' }}>
+        <Link href="/settings/language" className="flex items-center justify-between transition-colors" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '16px', paddingBottom: '16px' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-[#10B981]/10 flex items-center justify-center">
-              <Globe className="w-5 h-5 text-[#10B981]" />
+              <Globe className="w-5 h-5" style={{ color: 'var(--primary)' }} />
             </div>
             <div>
-              <p className="font-medium text-[#ECEDEE]">Language</p>
-              <p className="text-sm text-[#8E8E93]">English</p>
+              <p className="font-medium" style={{ color: 'var(--text-primary)' }}>Language</p>
+              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>English</p>
             </div>
           </div>
-          <ChevronRight className="w-5 h-5 text-[#8E8E93]" />
+          <ChevronRight className="w-5 h-5" style={{ color: 'var(--text-muted)' }} />
         </Link>
       </div>
 
       {/* Support Section */}
-      <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] overflow-hidden" style={{ marginBottom: '16px' }}>
-        <div className="border-b border-[#2C2C2E]" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '12px', paddingBottom: '12px' }}>
-          <h2 className="text-sm font-semibold text-[#9BA1A6] uppercase">Support</h2>
+      <div className="rounded-[20px] border overflow-hidden" style={{ marginBottom: '16px', backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
+        <div className="border-b" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '12px', paddingBottom: '12px', borderColor: 'var(--border)' }}>
+          <h2 className="text-sm font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>Support</h2>
         </div>
         
-        <Link href="/settings/help" className="flex items-center justify-between hover:bg-[#252527] transition-colors border-b border-[#2C2C2E]" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '16px', paddingBottom: '16px' }}>
+        <Link href="/settings/help" className="flex items-center justify-between transition-colors border-b" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '16px', paddingBottom: '16px', borderColor: 'var(--border)' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-[#10B981]/10 flex items-center justify-center">
-              <HelpCircle className="w-5 h-5 text-[#10B981]" />
+              <HelpCircle className="w-5 h-5" style={{ color: 'var(--primary)' }} />
             </div>
             <div>
-              <p className="font-medium text-[#ECEDEE]">Help & Support</p>
-              <p className="text-sm text-[#8E8E93]">Get help with BeBusy</p>
+              <p className="font-medium" style={{ color: 'var(--text-primary)' }}>Help & Support</p>
+              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Get help with BeBusy</p>
             </div>
           </div>
-          <ChevronRight className="w-5 h-5 text-[#8E8E93]" />
+          <ChevronRight className="w-5 h-5" style={{ color: 'var(--text-muted)' }} />
         </Link>
 
-        <Link href="/settings/about" className="flex items-center justify-between hover:bg-[#252527] transition-colors" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '16px', paddingBottom: '16px' }}>
+        <Link href="/settings/about" className="flex items-center justify-between transition-colors" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '16px', paddingBottom: '16px' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-[#10B981]/10 flex items-center justify-center">
-              <Shield className="w-5 h-5 text-[#10B981]" />
+              <Shield className="w-5 h-5" style={{ color: 'var(--primary)' }} />
             </div>
             <div>
-              <p className="font-medium text-[#ECEDEE]">About BeBusy</p>
-              <p className="text-sm text-[#8E8E93]">Version 1.0.0</p>
+              <p className="font-medium" style={{ color: 'var(--text-primary)' }}>About BeBusy</p>
+              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Version 1.0.0</p>
             </div>
           </div>
-          <ChevronRight className="w-5 h-5 text-[#8E8E93]" />
+          <ChevronRight className="w-5 h-5" style={{ color: 'var(--text-muted)' }} />
         </Link>
       </div>
 
       {/* Danger Zone */}
-      <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] overflow-hidden" style={{ marginBottom: '24px' }}>
-        <div className="border-b border-[#2C2C2E]" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '12px', paddingBottom: '12px' }}>
-          <h2 className="text-sm font-semibold text-[#9BA1A6] uppercase">Danger Zone</h2>
+      <div className="rounded-[20px] border overflow-hidden" style={{ marginBottom: '24px', backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
+        <div className="border-b" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '12px', paddingBottom: '12px', borderColor: 'var(--border)' }}>
+          <h2 className="text-sm font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>Danger Zone</h2>
         </div>
         
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-between hover:bg-[#252527] transition-colors border-b border-[#2C2C2E]"
-          style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '16px', paddingBottom: '16px' }}
+          className="w-full flex items-center justify-between transition-colors border-b"
+          style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '16px', paddingBottom: '16px', borderColor: 'var(--border)' }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center">
@@ -199,23 +201,23 @@ export default function SettingsPage() {
             </div>
             <div className="text-left">
               <p className="font-medium text-red-500">Log Out</p>
-              <p className="text-sm text-[#8E8E93]">Sign out of your account</p>
+              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Sign out of your account</p>
             </div>
           </div>
-          <ChevronRight className="w-5 h-5 text-[#8E8E93]" />
+          <ChevronRight className="w-5 h-5" style={{ color: 'var(--text-muted)' }} />
         </button>
 
-        <Link href="/settings/delete-account" className="flex items-center justify-between hover:bg-[#252527] transition-colors" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '16px', paddingBottom: '16px' }}>
+        <Link href="/settings/delete-account" className="flex items-center justify-between transition-colors" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '16px', paddingBottom: '16px' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center">
               <Trash2 className="w-5 h-5 text-red-500" />
             </div>
             <div>
               <p className="font-medium text-red-500">Delete Account</p>
-              <p className="text-sm text-[#8E8E93]">Permanently delete your account</p>
+              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Permanently delete your account</p>
             </div>
           </div>
-          <ChevronRight className="w-5 h-5 text-[#8E8E93]" />
+          <ChevronRight className="w-5 h-5" style={{ color: 'var(--text-muted)' }} />
         </Link>
       </div>
     </AppLayout>

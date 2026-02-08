@@ -49,6 +49,7 @@ export async function createMentorFocusGroup(focusGroup: {
   total_spots: number;
   start_date?: string;
   end_date?: string;
+  tags?: string[];
 }) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
@@ -61,6 +62,7 @@ export async function createMentorFocusGroup(focusGroup: {
       description: `Private group chat for ${focusGroup.title} focus group members`,
       created_by: user.id,
       members_count: 0,
+      tags: focusGroup.tags || null,
     } as any)
     .select()
     .single();
@@ -81,6 +83,7 @@ export async function createMentorFocusGroup(focusGroup: {
       mentor_id: user.id,
       start_date: focusGroup.start_date || null,
       end_date: focusGroup.end_date || null,
+      tags: focusGroup.tags || null,
       group_id: (groupData as any).id,
     } as any)
     .select()
@@ -103,6 +106,7 @@ export async function updateMentorFocusGroup(
     total_spots?: number;
     start_date?: string;
     end_date?: string;
+    tags?: string[];
   }
 ) {
   const { data: { user } } = await supabase.auth.getUser();

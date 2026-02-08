@@ -103,7 +103,7 @@ export default function FocusGroupDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#000000] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
         <div className="animate-spin h-8 w-8 border-4 border-[#10B981] border-t-transparent rounded-full"></div>
       </div>
     )
@@ -115,14 +115,14 @@ export default function FocusGroupDetailPage() {
     <AppLayout username={currentUser?.username}>
       {/* Back Button */}
       <div style={{ marginBottom: '24px' }}>
-        <button onClick={() => router.back()} className="flex items-center text-[#9BA1A6] hover:text-[#FFFFFF] transition-colors" style={{ gap: '8px' }}>
+        <button onClick={() => router.back()} className="flex items-center transition-colors" style={{ gap: '8px', color: 'var(--text-muted)' }}>
           <ArrowLeft className="w-5 h-5" />
-          <span className="text-sm font-medium">Back</span>
+          <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Back</span>
         </button>
       </div>
 
       {/* Focus Group Info */}
-      <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E]" style={{ padding: '32px' }}>
+      <div className="rounded-[20px] border" style={{ padding: '32px', backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
         {/* Mentor */}
         <div className="flex items-center" style={{ gap: '20px', marginBottom: '32px' }}>
             {focusGroup.mentor_image_url ? (
@@ -137,50 +137,55 @@ export default function FocusGroupDetailPage() {
               </div>
             )}
             <div>
-              <p className="text-sm text-[#8E8E93]" style={{ marginBottom: '4px' }}>Mentor</p>
+              <p className="text-sm" style={{ marginBottom: '4px', color: 'var(--text-muted)' }}>Mentor</p>
               <h3 className="text-xl font-bold text-[#10B981]">{focusGroup.mentor_name}</h3>
-              <p className="text-sm text-[#9BA1A6]">{focusGroup.mentor_role}</p>
+              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{focusGroup.mentor_role}</p>
             </div>
           </div>
 
           {/* Title & Description */}
-          <h1 className="text-2xl font-bold text-[#FFFFFF]" style={{ marginBottom: '16px' }}>{focusGroup.title}</h1>
-          <p className="text-[#ECEDEE] leading-relaxed" style={{ marginBottom: '32px' }}>{focusGroup.description}</p>
+          <h1 className="text-2xl font-bold" style={{ marginBottom: '12px', color: 'var(--text-primary)' }}>{focusGroup.title}</h1>
+          <div className="flex items-center gap-2 mb-3">
+            {(focusGroup.tags || []).map((t: string) => (
+              <span key={t} className="px-3 py-1 rounded-full text-sm bg-gray-700">{t.replace(/_/g, ' ')}</span>
+            ))}
+          </div>
+          <p className="leading-relaxed" style={{ marginBottom: '32px', color: 'var(--text-primary)' }}>{focusGroup.description}</p>
 
           {/* Stats Grid */}
           <div className="grid grid-cols-2" style={{ gap: '16px', marginBottom: '24px' }}>
-            <div className="bg-[#1C1C1E] rounded-[12px]" style={{ padding: '20px' }}>
-              <div className="flex items-center text-[#9BA1A6]" style={{ gap: '8px', marginBottom: '8px' }}>
+            <div className="rounded-[12px]" style={{ padding: '20px', backgroundColor: 'var(--bg-secondary)' }}>
+              <div className="flex items-center" style={{ gap: '8px', marginBottom: '8px', color: 'var(--text-muted)' }}>
                 <Users className="w-4 h-4" />
                 <span className="text-sm">Participants</span>
               </div>
-              <p className="text-2xl font-bold text-[#FFFFFF]">{focusGroup.total_spots - focusGroup.available_spots}/{focusGroup.total_spots}</p>
+              <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{focusGroup.total_spots - focusGroup.available_spots}/{focusGroup.total_spots}</p>
             </div>
-            <div className="bg-[#1C1C1E] rounded-[12px]" style={{ padding: '20px' }}>
-              <div className="flex items-center text-[#9BA1A6]" style={{ gap: '8px', marginBottom: '8px' }}>
+            <div className="rounded-[12px]" style={{ padding: '20px', backgroundColor: 'var(--bg-secondary)' }}>
+              <div className="flex items-center" style={{ gap: '8px', marginBottom: '8px', color: 'var(--text-muted)' }}>
                 <Target className="w-4 h-4" />
                 <span className="text-sm">Spots Left</span>
               </div>
-              <p className="text-2xl font-bold text-[#FFFFFF]">{focusGroup.available_spots}</p>
+              <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{focusGroup.available_spots}</p>
             </div>
           </div>
 
           {/* Dates */}
           {(focusGroup.start_date || focusGroup.end_date) && (
-            <div className="bg-[#1C1C1E] rounded-[12px]" style={{ padding: '20px', marginBottom: '24px' }}>
-              <div className="flex items-center text-[#9BA1A6]" style={{ gap: '8px', marginBottom: '16px' }}>
+            <div className="rounded-[12px]" style={{ padding: '20px', marginBottom: '24px', backgroundColor: 'var(--bg-secondary)' }}>
+              <div className="flex items-center" style={{ gap: '8px', marginBottom: '16px', color: 'var(--text-muted)' }}>
                 <Calendar className="w-4 h-4" />
                 <span className="text-sm font-medium">Duration</span>
               </div>
               <div className="flex items-center" style={{ gap: '16px' }}>
                 <div>
-                  <p className="text-xs text-[#8E8E93]" style={{ marginBottom: '4px' }}>Start</p>
-                  <p className="font-semibold text-[#FFFFFF]">{formatDate(focusGroup.start_date)}</p>
+                  <p className="text-xs" style={{ marginBottom: '4px', color: 'var(--text-muted)' }}>Start</p>
+                  <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>{formatDate(focusGroup.start_date)}</p>
                 </div>
-                <div className="text-[#2C2C2E]">→</div>
+                <div style={{ color: 'var(--border)' }}>→</div>
                 <div>
-                  <p className="text-xs text-[#8E8E93]" style={{ marginBottom: '4px' }}>End</p>
-                  <p className="font-semibold text-[#FFFFFF]">{formatDate(focusGroup.end_date)}</p>
+                  <p className="text-xs" style={{ marginBottom: '4px', color: 'var(--text-muted)' }}>End</p>
+                  <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>{formatDate(focusGroup.end_date)}</p>
                 </div>
               </div>
             </div>
@@ -194,7 +199,7 @@ export default function FocusGroupDetailPage() {
                 <p className="font-semibold text-[#10B981]">
                   {membershipStatus.status === 'waitlist' ? 'On Waitlist' : 'Member'}
                 </p>
-                <p className="text-sm text-[#9BA1A6]">
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
                   {membershipStatus.status === 'waitlist' 
                     ? 'You\'ll be notified when a spot opens up' 
                     : 'You have access to this focus group'}
@@ -206,7 +211,7 @@ export default function FocusGroupDetailPage() {
               <Clock className="w-5 h-5 text-yellow-500" />
               <div>
                 <p className="font-semibold text-yellow-500">Full - Join Waitlist</p>
-                <p className="text-sm text-[#9BA1A6]">Be notified when spots become available</p>
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Be notified when spots become available</p>
               </div>
             </div>
           )}
@@ -250,11 +255,11 @@ export default function FocusGroupDetailPage() {
                   <MessageSquare className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-[#FFFFFF] text-lg">Group Chat</h3>
-                  <p className="text-[#9BA1A6] text-sm">Chat with other members</p>
+                  <h3 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>Group Chat</h3>
+                  <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Chat with other members</p>
                 </div>
               </div>
-              <ArrowRight className="w-5 h-5 text-[#9BA1A6]" />
+              <ArrowRight className="w-5 h-5" style={{ color: 'var(--text-muted)' }} />
             </div>
           </Link>
         )}
@@ -267,21 +272,21 @@ export default function FocusGroupDetailPage() {
             onClick={() => setShowLeaveModal(false)}
           >
           <div 
-            className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] w-full max-w-md"
-            style={{ padding: '28px' }}
+            className="rounded-[20px] border w-full max-w-md"
+            style={{ padding: '28px', backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-xl font-bold text-[#FFFFFF]" style={{ marginBottom: '12px' }}>
+            <h3 className="text-xl font-bold" style={{ marginBottom: '12px', color: 'var(--text-primary)' }}>
               Leave Focus Group
             </h3>
-            <p className="text-[#9BA1A6]" style={{ marginBottom: '28px' }}>
+            <p style={{ marginBottom: '28px', color: 'var(--text-muted)' }}>
               Are you sure you want to leave this focus group?
             </p>
             <div className="flex" style={{ gap: '12px' }}>
               <button
                 onClick={() => setShowLeaveModal(false)}
-                className="flex-1 rounded-[12px] font-semibold border border-[#2C2C2E] text-[#FFFFFF] hover:bg-[#252527] transition-all"
-                style={{ paddingTop: '12px', paddingBottom: '12px' }}
+                className="flex-1 rounded-[12px] font-semibold border transition-all"
+                style={{ paddingTop: '12px', paddingBottom: '12px', borderColor: 'var(--border)', color: 'var(--text-primary)', backgroundColor: 'var(--bg-tertiary)' }}
               >
                 Cancel
               </button>

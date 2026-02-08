@@ -86,21 +86,21 @@ export default function ReportsAdminPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#000000] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
         <div className="animate-spin h-10 w-10 border-4 border-[#10B981] border-t-transparent rounded-full"></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#000000] text-white" style={{ padding: '24px' }}>
+    <div className="min-h-screen" style={{ padding: '24px', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       <div className="flex items-center gap-3" style={{ marginBottom: '24px' }}>
         <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center">
           <ShieldAlert className="w-5 h-5 text-red-500" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-[#FFFFFF]">Reports</h1>
-          <p className="text-sm text-[#8E8E93]">Review and resolve user reports</p>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Reports</h1>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Review and resolve user reports</p>
         </div>
       </div>
 
@@ -112,8 +112,9 @@ export default function ReportsAdminPage() {
             className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
               activeStatus === tab.value
                 ? 'bg-[#10B981]/10 text-[#10B981]'
-                : 'bg-[#1C1C1E] text-[#8E8E93] hover:bg-[#2C2C2E]'
+                : ''
             }`}
+            style={activeStatus !== tab.value ? { backgroundColor: 'var(--bg-secondary)', color: 'var(--text-muted)' } : undefined}
           >
             {tab.label}
           </button>
@@ -121,20 +122,20 @@ export default function ReportsAdminPage() {
       </div>
 
       {reports.length === 0 ? (
-        <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] p-12 text-center">
-          <p className="text-[#8E8E93]">No reports found.</p>
+        <div className="rounded-[20px] border p-12 text-center" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
+          <p style={{ color: 'var(--text-muted)' }}>No reports found.</p>
         </div>
       ) : (
         <div className="space-y-3">
           {reports.map((report) => (
-            <div key={report.id} className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] p-5">
+            <div key={report.id} className="rounded-[20px] border p-5" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 flex-wrap" style={{ marginBottom: '8px' }}>
-                    <span className="text-xs px-2 py-1 rounded-full bg-[#2C2C2E] text-[#9BA1A6]">
+                      <span className="text-xs px-2 py-1 rounded-full" style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-muted)' }}>
                       {report.content_type.toUpperCase()}
                     </span>
-                    <span className="text-xs px-2 py-1 rounded-full bg-[#2C2C2E] text-[#9BA1A6]">
+                      <span className="text-xs px-2 py-1 rounded-full" style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-muted)' }}>
                       {report.reason.replace('_', ' ')}
                     </span>
                     <span className="text-xs px-2 py-1 rounded-full bg-[#10B981]/10 text-[#10B981]">
@@ -142,9 +143,9 @@ export default function ReportsAdminPage() {
                     </span>
                   </div>
 
-                  <div className="text-sm text-[#9BA1A6]" style={{ marginBottom: '6px' }}>
-                    Reported by <span className="text-[#ECEDEE]">@{report.reporter?.username || 'unknown'}</span>
-                    {' '}against <span className="text-[#ECEDEE]">@{report.reported_user?.username || 'unknown'}</span>
+                    <div className="text-sm" style={{ marginBottom: '6px', color: 'var(--text-muted)' }}>
+                      Reported by <span style={{ color: 'var(--text-primary)' }}>@{report.reporter?.username || 'unknown'}</span>
+                      {' '}against <span style={{ color: 'var(--text-primary)' }}>@{report.reported_user?.username || 'unknown'}</span>
                   </div>
 
                   {report.content_id && (
@@ -154,7 +155,7 @@ export default function ReportsAdminPage() {
                   )}
 
                   {report.description && (
-                    <p className="text-sm text-[#ECEDEE]" style={{ marginTop: '8px' }}>{report.description}</p>
+                      <p className="text-sm" style={{ marginTop: '8px', color: 'var(--text-primary)' }}>{report.description}</p>
                   )}
                 </div>
 
@@ -162,7 +163,8 @@ export default function ReportsAdminPage() {
                   <button
                     onClick={() => handleStatusChange(report.id, 'reviewing')}
                     disabled={updatingId === report.id}
-                    className="px-3 py-2 rounded-full bg-[#2C2C2E] hover:bg-[#3C3C3E] text-[#FFFFFF] text-xs font-semibold"
+                      className="px-3 py-2 rounded-full text-xs font-semibold"
+                      style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}
                   >
                     <Eye className="w-4 h-4 inline mr-1" />
                     Review

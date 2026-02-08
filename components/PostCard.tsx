@@ -154,7 +154,7 @@ export function PostCard({ post }: PostCardProps) {
   return (
     <>
       <Link href={`/post/${post.id}`} className="block" style={{ marginBottom: '16px' }}>
-        <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] hover:bg-[#252527] transition-all cursor-pointer shadow-sm" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '16px', paddingBottom: '16px' }}>
+        <div className="rounded-[20px] transition-all cursor-pointer shadow-sm" style={{ backgroundColor: 'var(--bg-secondary)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--border)', paddingLeft: '20px', paddingRight: '20px', paddingTop: '16px', paddingBottom: '16px' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}>
         {/* Header */}
         <div className="flex items-start gap-3 mb-3">
           <div className="flex-shrink-0">
@@ -173,17 +173,17 @@ export function PostCard({ post }: PostCardProps) {
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-0.5">
-              <span className="font-bold text-[#FFFFFF] truncate text-base">
+              <span className="font-bold truncate text-base" style={{ color: 'var(--text-primary)' }}>
                 {post.profiles?.full_name || post.profiles?.username || 'Unknown User'}
               </span>
               {post.profiles?.role && (
                 <>
-                  <span className="text-[#8E8E93]">·</span>
-                  <span className="text-sm text-[#8E8E93]">{post.profiles.role}</span>
+                  <span style={{ color: 'var(--text-muted)' }}>·</span>
+                  <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{post.profiles.role}</span>
                 </>
               )}
             </div>
-            <span className="text-sm text-[#8E8E93]">{formatDate(post.created_at)}</span>
+            <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{formatDate(post.created_at)}</span>
           </div>
 
           {(currentUserId === post.user_id || currentUserRole === 'admin') && (
@@ -193,7 +193,8 @@ export function PostCard({ post }: PostCardProps) {
                 setShowDeleteModal(true)
               }}
               disabled={isDeleting}
-              className="p-1.5 hover:bg-red-500/10 rounded-lg transition-all text-[#8E8E93] hover:text-red-500"
+              className="p-1.5 hover:bg-red-500/10 rounded-lg transition-all hover:text-red-500"
+              style={{ color: 'var(--text-muted)' }}
               title="Delete post"
             >
               <Trash2 className="w-4 h-4" />
@@ -206,7 +207,8 @@ export function PostCard({ post }: PostCardProps) {
                 e.preventDefault()
                 setShowReportModal(true)
               }}
-              className="p-1.5 hover:bg-yellow-500/10 rounded-lg transition-all text-[#8E8E93] hover:text-yellow-500"
+              className="p-1.5 hover:bg-yellow-500/10 rounded-lg transition-all hover:text-yellow-500"
+              style={{ color: 'var(--text-muted)' }}
               title="Report post"
             >
               <Flag className="w-4 h-4" />
@@ -216,7 +218,7 @@ export function PostCard({ post }: PostCardProps) {
 
         {/* Content */}
         <div className="mb-3" style={{ marginBottom: '12px' }}>
-          <p className="text-[#FFFFFF] whitespace-pre-wrap break-words leading-relaxed">{post.content}</p>
+          <p className="whitespace-pre-wrap break-words leading-relaxed" style={{ color: 'var(--text-primary)' }}>{post.content}</p>
         </div>
 
         {/* Image */}
@@ -231,25 +233,26 @@ export function PostCard({ post }: PostCardProps) {
         )}
 
         {/* Actions */}
-        <div className="flex items-center gap-6 border-t border-[#2C2C2E]" style={{ paddingTop: '12px', marginTop: '12px' }}>
+        <div className="flex items-center gap-6 border-t" style={{ borderColor: 'var(--border)', paddingTop: '12px', marginTop: '12px' }}>
           <button
             onClick={(e) => {
               e.preventDefault()
               handleLike()
             }}
             disabled={isLiking}
-            className="flex items-center gap-2 text-[#8E8E93] hover:text-red-500 transition-colors"
+            className="flex items-center gap-2 hover:text-red-500 transition-colors"
+            style={{ color: 'var(--text-muted)' }}
           >
             <Heart className={`w-5 h-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
             <span className="text-sm font-medium">{likeCount}</span>
           </button>
 
-          <button className="flex items-center gap-2 text-[#8E8E93] hover:text-blue-500 transition-colors">
+          <button className="flex items-center gap-2 hover:text-blue-500 transition-colors" style={{ color: 'var(--text-muted)' }}>
             <MessageCircle className="w-5 h-5" />
             <span className="text-sm font-medium">{post.comments.length}</span>
           </button>
 
-          <button className="flex items-center gap-2 text-[#8E8E93] hover:text-green-500 transition-colors">
+          <button className="flex items-center gap-2 hover:text-green-500 transition-colors" style={{ color: 'var(--text-muted)' }}>
             <Share2 className="w-5 h-5" />
             <span className="text-sm font-medium">{post.comments.length > 0 ? '2' : ''}</span>
           </button>
@@ -268,8 +271,8 @@ export function PostCard({ post }: PostCardProps) {
         }}
       >
         <div 
-          className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] max-w-sm w-full"
-          style={{ padding: '28px' }}
+          className="rounded-[20px] max-w-sm w-full"
+          style={{ backgroundColor: 'var(--bg-secondary)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--border)', padding: '28px' }}
           onClick={(e) => {
             e.preventDefault()
             e.stopPropagation()
@@ -280,11 +283,11 @@ export function PostCard({ post }: PostCardProps) {
               <AlertTriangle className="w-8 h-8 text-red-500" />
             </div>
             
-            <h3 className="text-xl font-bold text-[#FFFFFF]" style={{ marginBottom: '8px' }}>
+            <h3 className="text-xl font-bold" style={{ color: 'var(--text-primary)', marginBottom: '8px' }}>
               Delete Post?
             </h3>
             
-            <p className="text-[#9BA1A6] text-sm" style={{ marginBottom: '24px' }}>
+            <p className="text-sm" style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>
               This action cannot be undone. Your post will be permanently deleted.
             </p>
 
@@ -296,7 +299,10 @@ export function PostCard({ post }: PostCardProps) {
                   setShowDeleteModal(false)
                 }}
                 disabled={isDeleting}
-                className="flex-1 px-6 py-3 bg-[#2C2C2E] hover:bg-[#3C3C3E] text-[#FFFFFF] font-semibold rounded-full transition-colors disabled:opacity-50"
+                className="flex-1 px-6 py-3 font-semibold rounded-full transition-colors disabled:opacity-50"
+                style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}
+                onMouseEnter={(e) => !isDeleting && (e.currentTarget.style.backgroundColor = 'var(--bg-hover)')}
+                onMouseLeave={(e) => !isDeleting && (e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)')}
               >
                 Cancel
               </button>
@@ -328,8 +334,8 @@ export function PostCard({ post }: PostCardProps) {
         }}
       >
         <div 
-          className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] max-w-md w-full"
-          style={{ padding: '28px' }}
+          className="rounded-[20px] max-w-md w-full"
+          style={{ backgroundColor: 'var(--bg-secondary)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--border)', padding: '28px' }}
           onClick={(e) => {
             e.preventDefault()
             e.stopPropagation()
@@ -337,24 +343,25 @@ export function PostCard({ post }: PostCardProps) {
         >
           <div className="flex flex-col">
             <div className="flex items-center gap-3" style={{ marginBottom: '20px' }}>
-              <div className="w-12 h-12 rounded-full bg-[#10B981]/10 flex items-center justify-center">
-                <Flag className="w-6 h-6 text-[#10B981]" />
+              <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)' }}>
+                <Flag className="w-6 h-6" style={{ color: 'var(--primary)' }} />
               </div>
-              <h3 className="text-xl font-bold text-[#FFFFFF]">Report Post</h3>
+              <h3 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Report Post</h3>
             </div>
             
-            <p className="text-[#9BA1A6] text-sm" style={{ marginBottom: '20px' }}>
+            <p className="text-sm" style={{ color: 'var(--text-muted)', marginBottom: '20px' }}>
               Help us understand what's wrong with this post.
             </p>
 
             <div style={{ marginBottom: '20px' }}>
-              <label className="block text-sm font-medium text-[#FFFFFF]" style={{ marginBottom: '8px' }}>
+              <label className="block text-sm font-medium" style={{ color: 'var(--text-primary)', marginBottom: '8px' }}>
                 Reason
               </label>
               <select
                 value={reportReason}
                 onChange={(e) => setReportReason(e.target.value as ReportReason)}
-                className="w-full px-4 py-3 bg-[#2C2C2E] border border-[#3C3C3E] rounded-xl text-[#FFFFFF] focus:outline-none focus:border-green-500"
+                className="w-full px-4 py-3 rounded-xl focus:outline-none focus:border-green-500"
+                style={{ backgroundColor: 'var(--bg-tertiary)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--bg-hover)', color: 'var(--text-primary)' }}
               >
                 <option value="spam">Spam</option>
                 <option value="harassment">Harassment</option>
@@ -366,15 +373,22 @@ export function PostCard({ post }: PostCardProps) {
             </div>
 
             <div style={{ marginBottom: '24px' }}>
-              <label className="block text-sm font-medium text-[#FFFFFF]" style={{ marginBottom: '8px' }}>
+              <label className="block text-sm font-medium" style={{ color: 'var(--text-primary)', marginBottom: '8px' }}>
                 Additional Details <span className="text-red-500">*</span>
               </label>
+              <style jsx>{`
+                textarea::placeholder {
+                  color: var(--text-muted);
+                  opacity: 1;
+                }
+              `}</style>
               <textarea
                 value={reportDescription}
                 onChange={(e) => setReportDescription(e.target.value)}
                 placeholder="Please explain why you're reporting this..."
                 rows={3}
-                className="w-full px-4 py-3 bg-[#2C2C2E] border border-[#3C3C3E] rounded-xl text-[#FFFFFF] placeholder-[#8E8E93] focus:outline-none focus:border-green-500 resize-none"
+                className="w-full px-4 py-3 rounded-xl focus:outline-none focus:border-green-500 resize-none"
+                style={{ backgroundColor: 'var(--bg-tertiary)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--bg-hover)', color: 'var(--text-primary)' }}
               />
             </div>
 
@@ -386,7 +400,10 @@ export function PostCard({ post }: PostCardProps) {
                   setShowReportModal(false)
                 }}
                 disabled={isReporting}
-                className="flex-1 px-8 py-4 bg-[#2C2C2E] hover:bg-[#3C3C3E] text-[#FFFFFF] font-semibold rounded-full transition-colors disabled:opacity-50 text-base"
+                className="flex-1 px-8 py-4 font-semibold rounded-full transition-colors disabled:opacity-50 text-base"
+                style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}
+                onMouseEnter={(e) => !isReporting && (e.currentTarget.style.backgroundColor = 'var(--bg-hover)')}
+                onMouseLeave={(e) => !isReporting && (e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)')}
               >
                 Cancel
               </button>

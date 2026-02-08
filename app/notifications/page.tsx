@@ -145,8 +145,8 @@ export default function NotificationsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#000000] flex items-center justify-center">
-        <div className="animate-spin h-8 w-8 border-4 border-[#10B981] border-t-transparent rounded-full"></div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
       </div>
     )
   }
@@ -157,15 +157,15 @@ export default function NotificationsPage() {
     <AppLayout username={profile?.username}>
       <div className="flex items-center justify-between" style={{ marginBottom: '20px' }}>
         <div>
-          <h1 className="text-2xl font-bold text-[#ECEDEE]">Notifications</h1>
-          <p className="text-sm text-[#8E8E93]">
+          <h1 className="text-2xl font-bold text-foreground">Notifications</h1>
+          <p className="text-sm text-muted">
             {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up'}
           </p>
         </div>
         {unreadCount > 0 && (
           <button
             onClick={handleMarkAllAsRead}
-            className="bg-[#2C2C2E] hover:bg-[#3C3C3E] text-[#ECEDEE] font-semibold rounded-full transition-colors"
+            className="bg-muted hover:bg-muted/80 text-foreground font-semibold rounded-full transition-colors"
             style={{ paddingLeft: '16px', paddingRight: '16px', paddingTop: '8px', paddingBottom: '8px' }}
           >
             Mark all as read
@@ -175,10 +175,10 @@ export default function NotificationsPage() {
 
       {/* Notifications List */}
       {notifications.length === 0 ? (
-        <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] p-12 text-center">
-          <Bell className="w-16 h-16 text-[#2D2D2D] mx-auto mb-4" />
-          <h3 className="text-xl font-semibold mb-2 text-[#ECEDEE]">No notifications yet</h3>
-          <p className="text-[#9BA1A6]">When you get notifications, they'll show up here</p>
+        <div className="bg-card rounded-[20px] border border-border p-12 text-center">
+          <Bell className="w-16 h-16 text-muted mx-auto mb-4" />
+          <h3 className="text-xl font-semibold mb-2 text-foreground">No notifications yet</h3>
+          <p className="text-muted-foreground">When you get notifications, they'll show up here</p>
         </div>
       ) : (
         <div className="space-y-8">
@@ -200,13 +200,13 @@ export default function NotificationsPage() {
                   }
                 }
               }}
-              className={`bg-[#1C1C1E] rounded-[20px] border hover:bg-[#252527] transition-all cursor-pointer ${
-                !notification.is_read ? 'border-[#10B981]/40' : 'border-[#2C2C2E]'
+              className={`bg-card rounded-[20px] border hover:bg-card-hover transition-all cursor-pointer ${
+                !notification.is_read ? 'border-primary/40' : 'border-border'
               }`}
               style={{ paddingLeft: '18px', paddingRight: '18px', paddingTop: '16px', paddingBottom: '16px' }}
             >
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-[#2C2C2E] flex items-center justify-center flex-shrink-0">
+                <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
                   {getNotificationIcon(notification.type)}
                 </div>
 
@@ -223,11 +223,11 @@ export default function NotificationsPage() {
                 )}
 
                 <div className="flex-1 min-w-0">
-                  <p className="text-[#FFFFFF]">
+                  <p className="text-foreground">
                     <span className="font-semibold">
                       {notification.profiles?.full_name || notification.profiles?.username || 'Someone'}
                     </span>{' '}
-                    <span className="text-[#9BA1A6]">
+                    <span className="text-muted-foreground">
                       {notification.type === 'like' && 'liked your post'}
                       {notification.type === 'comment' && 'commented on your post'}
                       {notification.type === 'follow' && 'started following you'}
@@ -235,18 +235,18 @@ export default function NotificationsPage() {
                   </p>
 
                   {notification.posts?.content && (
-                    <p className="text-[#9BA1A6] text-sm mt-1 line-clamp-1">
+                    <p className="text-muted-foreground text-sm mt-1 line-clamp-1">
                       "{notification.posts.content}"
                     </p>
                   )}
 
-                  <p className="text-[#8E8E93] text-sm mt-1">
+                  <p className="text-muted text-sm mt-1">
                     {formatTime(notification.created_at)}
                   </p>
                 </div>
 
                 {!notification.is_read && (
-                  <div className="w-2 h-2 bg-[#10B981] rounded-full flex-shrink-0"></div>
+                  <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0"></div>
                 )}
               </div>
             </div>

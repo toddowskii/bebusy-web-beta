@@ -97,27 +97,28 @@ export default function MentorEditFocusGroupPage({ params }: { params: { id: str
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="text-gray-400">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+        <div style={{ color: 'var(--text-muted)' }}>Loading...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       <div className="max-w-[800px] mx-auto p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.back()}
-              className="p-2 hover:bg-gray-900 rounded-lg transition-colors"
+              className="p-2 rounded-lg transition-colors"
+              style={{ backgroundColor: 'var(--bg-secondary)' }}
             >
               <ArrowLeft className="w-6 h-6" />
             </button>
             <div>
               <h1 className="text-2xl font-bold">Edit Focus Group</h1>
-              <p className="text-gray-400 text-sm">Update your mentorship program</p>
+              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Update your mentorship program</p>
             </div>
           </div>
 

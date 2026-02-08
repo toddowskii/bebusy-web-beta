@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
-:root {
+/* Dark theme (default) */
+:root,
+:root.dark {
   --background: #000000;
   --foreground: #ECEDEE;
   --text-secondary: #9BA1A6;
@@ -10,6 +12,37 @@
   --card-background: #151718;
   --surface: #151718;
   --surface-highlight: #1E1E1E;
+  --scrollbar-hover: #404040;
+  
+  /* Additional theme colors */
+  --bg-primary: #000000;
+  --bg-secondary: #1C1C1E;
+  --bg-tertiary: #2C2C2E;
+  --bg-hover: #252527;
+  --text-primary: #ECEDEE;
+  --text-muted: #8E8E93;
+}
+
+/* Light theme */
+:root.light {
+  --background: #FFFFFF;
+  --foreground: #1F2937;
+  --text-secondary: #6B7280;
+  --primary: #10B981;
+  --primary-hover: #059669;
+  --border: #E5E7EB;
+  --card-background: #F9FAFB;
+  --surface: #F9FAFB;
+  --surface-highlight: #F3F4F6;
+  --scrollbar-hover: #D1D5DB;
+  
+  /* Additional theme colors */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F9FAFB;
+  --bg-tertiary: #E5E7EB;
+  --bg-hover: #F3F4F6;
+  --text-primary: #1F2937;
+  --text-muted: #6B7280;
 }
 
 @theme inline {
@@ -22,6 +55,15 @@
   --color-card-background: var(--card-background);
   --color-surface: var(--surface);
   --color-surface-highlight: var(--surface-highlight);
+  
+  /* Make colors available to Tailwind */
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-tertiary: var(--bg-tertiary);
+  --color-bg-hover: var(--bg-hover);
+  --color-text-primary: var(--text-primary);
+  --color-text-muted: var(--text-muted);
+  
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -30,6 +72,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 * {
@@ -53,5 +96,38 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #404040;
+  background: var(--scrollbar-hover);
+}
+
+/* Utility classes for theme-aware styling */
+.bg-theme-primary {
+  background-color: var(--bg-primary);
+}
+
+.bg-theme-secondary {
+  background-color: var(--bg-secondary);
+}
+
+.bg-theme-tertiary {
+  background-color: var(--bg-tertiary);
+}
+
+.bg-theme-card {
+  background-color: var(--card-background);
+}
+
+.text-theme-primary {
+  color: var(--text-primary);
+}
+
+.text-theme-muted {
+  color: var(--text-muted);
+}
+
+.border-theme {
+  border-color: var(--border);
+}
+
+.hover\:bg-theme-hover:hover {
+  background-color: var(--bg-hover);
 }

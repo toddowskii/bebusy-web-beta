@@ -258,7 +258,7 @@ export default function PostDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#000000] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-spin h-8 w-8 border-4 border-[#10B981] border-t-transparent rounded-full"></div>
       </div>
     )
@@ -267,20 +267,20 @@ export default function PostDetailPage() {
   if (!post) return null
 
   return (
-    <div className="min-h-screen bg-[#000000]">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 bg-[#000000] border-b border-[#2D2D2D] z-50">
+      <header className="fixed top-0 left-0 right-0 bg-background border-b border-border z-50">
         <div className="h-14 flex items-center gap-4" style={{ marginLeft: '20px', marginRight: '20px' }}>
           <button onClick={() => router.back()} className="p-2 hover:bg-[#151718] rounded-lg transition-colors">
-            <ArrowLeft className="w-5 h-5 text-[#9BA1A6]" />
+            <ArrowLeft className="w-5 h-5 text-muted-foreground" />
           </button>
-          <h2 className="text-xl font-bold text-[#ECEDEE]">Post</h2>
+          <h2 className="text-xl font-bold text-foreground">Post</h2>
         </div>
       </header>
 
       <main style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '80px', paddingBottom: '80px' }}>
         {/* Post Card */}
-        <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] shadow-sm" style={{ marginBottom: '20px', paddingLeft: '24px', paddingRight: '24px', paddingTop: '28px', paddingBottom: '28px' }}>
+        <div className="bg-card rounded-[20px] border border-border shadow-sm" style={{ marginBottom: '20px', paddingLeft: '24px', paddingRight: '24px', paddingTop: '28px', paddingBottom: '28px' }}>
           {/* Header */}
           <div className="flex items-start gap-3 mb-5">
             <Link href={`/profile/${post.profiles.username}`}>
@@ -298,11 +298,11 @@ export default function PostDetailPage() {
             </Link>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
-                <Link href={`/profile/${post.profiles.username}`} className="font-bold text-[#FFFFFF] truncate text-base hover:underline">
+                <Link href={`/profile/${post.profiles.username}`} className="font-bold text-foreground truncate text-base hover:underline">
                   {post.profiles.full_name || post.profiles.username}
                 </Link>
               </div>
-              <Link href={`/profile/${post.profiles.username}`} className="text-sm text-[#8E8E93] hover:underline">
+              <Link href={`/profile/${post.profiles.username}`} className="text-sm text-muted-foreground hover:underline">
                 @{post.profiles.username}
               </Link>
             </div>
@@ -310,7 +310,7 @@ export default function PostDetailPage() {
 
           {/* Content */}
           <div className="mb-6">
-            <p className="text-[#FFFFFF] text-base whitespace-pre-wrap break-words leading-relaxed">{post.content}</p>
+            <p className="text-foreground text-base whitespace-pre-wrap break-words leading-relaxed">{post.content}</p>
           </div>
 
           {/* Image */}
@@ -321,17 +321,17 @@ export default function PostDetailPage() {
           )}
 
           {/* Timestamp */}
-          <p className="text-[#8E8E93] text-sm" style={{ marginBottom: '12px' }}>{formatDate(post.created_at)}</p>
+          <p className="text-muted-foreground text-sm" style={{ marginBottom: '12px' }}>{formatDate(post.created_at)}</p>
 
           {/* Stats */}
-          <div className="flex items-center gap-6 border-y border-[#2C2C2E]" style={{ paddingTop: '12px', paddingBottom: '12px', marginBottom: '12px' }}>
+          <div className="flex items-center gap-6 border-y border-border" style={{ paddingTop: '12px', paddingBottom: '12px', marginBottom: '12px' }}>
             <div className="flex items-center gap-1.5">
-              <span className="font-bold text-[#FFFFFF]">{likeCount}</span>
-              <span className="text-[#8E8E93] text-sm">Likes</span>
+              <span className="font-bold text-foreground">{likeCount}</span>
+              <span className="text-muted-foreground text-sm">Likes</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="font-bold text-[#FFFFFF]">{comments.length}</span>
-              <span className="text-[#8E8E93] text-sm">Comments</span>
+              <span className="font-bold text-foreground">{comments.length}</span>
+              <span className="text-muted-foreground text-sm">Comments</span>
             </div>
           </div>
 
@@ -339,14 +339,14 @@ export default function PostDetailPage() {
           <div className="flex items-center gap-6" style={{ paddingTop: '4px' }}>
             <button
               onClick={handleLike}
-              className="flex items-center gap-2 text-[#8E8E93] hover:text-red-500 transition-colors"
+              className="flex items-center gap-2 text-muted-foreground hover:text-red-500 transition-colors"
             >
               <Heart className={`w-5 h-5 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
             </button>
-            <button className="flex items-center gap-2 text-[#8E8E93] hover:text-blue-500 transition-colors">
+            <button className="flex items-center gap-2 text-muted-foreground hover:text-blue-500 transition-colors">
               <MessageCircle className="w-5 h-5" />
             </button>
-            <button className="flex items-center gap-2 text-[#8E8E93] hover:text-green-500 transition-colors">
+            <button className="flex items-center gap-2 text-muted-foreground hover:text-green-500 transition-colors">
               <Share2 className="w-5 h-5" />
             </button>
           </div>
@@ -354,12 +354,12 @@ export default function PostDetailPage() {
 
         {/* Comment Form */}
         {currentUser && (
-          <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] shadow-sm" style={{ marginBottom: '20px', paddingLeft: '20px', paddingRight: '20px', paddingTop: '20px', paddingBottom: '24px' }}>
+          <div className="rounded-[20px] border shadow-sm" style={{ marginBottom: '20px', paddingLeft: '20px', paddingRight: '20px', paddingTop: '20px', paddingBottom: '24px', backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
             {replyingTo && (
-              <div className="flex items-center justify-between bg-[#2C2C2E] rounded-lg mb-3" style={{ padding: '8px 12px' }}>
+              <div className="flex items-center justify-between rounded-lg mb-3" style={{ padding: '8px 12px', backgroundColor: 'var(--bg-tertiary)' }}>
                 <div className="flex items-center gap-2">
                   <Reply className="w-4 h-4 text-[#10B981]" />
-                  <span className="text-sm text-[#9BA1A6]">
+                  <span className="text-sm text-muted-foreground">
                     Replying to <span className="text-[#10B981]">@{replyingTo.profiles.username}</span>
                   </span>
                 </div>
@@ -368,9 +368,9 @@ export default function PostDetailPage() {
                     setReplyingTo(null)
                     setNewComment('')
                   }}
-                  className="p-1 hover:bg-[#3C3C3E] rounded transition-colors"
+                  className="p-1 hover:bg-accent rounded transition-colors"
                 >
-                  <X className="w-4 h-4 text-[#9BA1A6]" />
+                  <X className="w-4 h-4 text-muted-foreground" />
                 </button>
               </div>
             )}
@@ -396,7 +396,7 @@ export default function PostDetailPage() {
                       e.target.style.height = e.target.scrollHeight + 'px'
                     }}
                     placeholder={replyingTo ? "Post your reply..." : "Post your reply"}
-                    className="w-full bg-transparent text-[#FFFFFF] placeholder-[#8E8E93] outline-none resize-none leading-relaxed text-[15px]"
+                    className="w-full bg-transparent text-foreground placeholder-muted-foreground outline-none resize-none leading-relaxed text-[15px]"
                     rows={1}
                     disabled={submitting}
                     style={{ minHeight: '24px', maxHeight: '200px', overflow: 'auto' }}
@@ -420,16 +420,16 @@ export default function PostDetailPage() {
         {/* Comments */}
         <div>
           {comments.length === 0 ? (
-            <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] shadow-sm" style={{ paddingTop: '80px', paddingBottom: '80px', paddingLeft: '40px', paddingRight: '40px' }}>
+            <div className="rounded-[20px] border shadow-sm" style={{ paddingTop: '80px', paddingBottom: '80px', paddingLeft: '40px', paddingRight: '40px', backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
               <div className="flex flex-col items-center justify-center">
-                <MessageCircle className="w-24 h-24 text-[#8E8E93] mb-6 opacity-25" />
-                <p className="text-[#8E8E93] text-lg">No comments yet. Be the first to reply!</p>
+                <MessageCircle className="w-24 h-24 text-muted-foreground mb-6 opacity-25" />
+                <p className="text-muted-foreground text-lg">No comments yet. Be the first to reply!</p>
               </div>
             </div>
           ) : (
             <div className="space-y-3">
               {comments.map((comment) => (
-                <div key={comment.id} className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] shadow-sm hover:bg-[#252527] transition-all group" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '16px', paddingBottom: '16px' }}>
+                <div key={comment.id} className="rounded-[20px] border shadow-sm hover:bg-[#252527] transition-all group" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '16px', paddingBottom: '16px', backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
                   {editingComment?.id === comment.id ? (
                     /* Edit Mode */
                     <div className="flex gap-3">
@@ -452,13 +452,13 @@ export default function PostDetailPage() {
                             e.target.style.height = 'auto'
                             e.target.style.height = e.target.scrollHeight + 'px'
                           }}
-                          className="w-full bg-[#2C2C2E] text-[#FFFFFF] rounded-xl outline-none resize-none leading-relaxed text-[15px]"
-                          style={{ padding: '12px', minHeight: '60px', maxHeight: '200px', overflow: 'auto' }}
+                          className="w-full rounded-xl outline-none resize-none leading-relaxed text-[15px]"
+                          style={{ padding: '12px', minHeight: '60px', maxHeight: '200px', overflow: 'auto', backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}
                         />
                         <div className="flex gap-2 mt-2">
                           <button
                             onClick={handleCancelEdit}
-                            className="bg-[#2C2C2E] hover:bg-[#3C3C3E] text-[#ECEDEE] font-semibold rounded-full transition-colors"
+                            className="bg-muted hover:bg-accent text-foreground font-semibold rounded-full transition-colors"
                             style={{ paddingLeft: '16px', paddingRight: '16px', paddingTop: '6px', paddingBottom: '6px' }}
                           >
                             Cancel
@@ -492,20 +492,20 @@ export default function PostDetailPage() {
                       </Link>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start gap-2 mb-1 flex-wrap">
-                          <Link href={`/profile/${comment.profiles.username}`} className="font-bold text-[#FFFFFF] hover:underline truncate">
+                          <Link href={`/profile/${comment.profiles.username}`} className="font-bold text-foreground hover:underline truncate">
                             {comment.profiles.full_name || comment.profiles.username}
                           </Link>
-                          <Link href={`/profile/${comment.profiles.username}`} className="text-[#8E8E93] text-sm hover:underline truncate">
+                          <Link href={`/profile/${comment.profiles.username}`} className="text-muted-foreground text-sm hover:underline truncate">
                             @{comment.profiles.username}
                           </Link>
                           <div className="flex items-center gap-2 flex-shrink-0">
-                            <span className="text-[#8E8E93]">·</span>
-                            <span className="text-[#8E8E93] text-sm whitespace-nowrap">
+                            <span className="text-muted-foreground">·</span>
+                            <span className="text-muted-foreground text-sm whitespace-nowrap">
                               {formatDate(comment.created_at)}
                             </span>
                           </div>
                         </div>
-                        <p className="text-[#FFFFFF] whitespace-pre-wrap break-words leading-relaxed text-[15px] mb-2">{comment.content}</p>
+                        <p className="text-foreground whitespace-pre-wrap break-words leading-relaxed text-[15px] mb-2">{comment.content}</p>
                         
                         {/* Action Buttons */}
                         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -515,7 +515,7 @@ export default function PostDetailPage() {
                             className={`text-xs flex items-center gap-1 transition-colors ${
                               comment.is_liked
                                 ? 'text-red-500'
-                                : 'text-[#9BA1A6] hover:text-red-500'
+                                : 'text-muted-foreground hover:text-red-500'
                             }`}
                           >
                             <Heart className={`w-3 h-3 ${comment.is_liked ? 'fill-red-500' : ''}`} />
@@ -523,7 +523,7 @@ export default function PostDetailPage() {
                           </button>
                           <button
                             onClick={() => handleStartReply(comment)}
-                            className="text-xs text-[#9BA1A6] hover:text-[#10B981] flex items-center gap-1 transition-colors"
+                            className="text-xs text-muted-foreground hover:text-[#10B981] flex items-center gap-1 transition-colors"
                           >
                             <Reply className="w-3 h-3" />
                             Reply
@@ -531,7 +531,7 @@ export default function PostDetailPage() {
                           {currentUser?.id && currentUser.id !== comment.user_id && (
                             <button
                               onClick={() => setReportingComment(comment)}
-                              className="text-xs text-[#9BA1A6] hover:text-yellow-500 flex items-center gap-1 transition-colors"
+                              className="text-xs text-muted-foreground hover:text-yellow-500 flex items-center gap-1 transition-colors"
                             >
                               <Flag className="w-3 h-3" />
                               Report
@@ -541,14 +541,14 @@ export default function PostDetailPage() {
                             <>
                               <button
                                 onClick={() => handleStartEdit(comment)}
-                                className="text-xs text-[#9BA1A6] hover:text-blue-500 flex items-center gap-1 transition-colors"
+                                className="text-xs text-muted-foreground hover:text-blue-500 flex items-center gap-1 transition-colors"
                               >
                                 <Edit2 className="w-3 h-3" />
                                 Edit
                               </button>
                               <button
                                 onClick={() => handleDeleteComment(comment.id)}
-                                className="text-xs text-[#9BA1A6] hover:text-red-500 flex items-center gap-1 transition-colors"
+                                className="text-xs text-muted-foreground hover:text-red-500 flex items-center gap-1 transition-colors"
                               >
                                 <Trash2 className="w-3 h-3" />
                                 Delete
@@ -573,8 +573,8 @@ export default function PostDetailPage() {
           onClick={() => setReportingComment(null)}
         >
           <div 
-            className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] max-w-md w-full"
-            style={{ padding: '28px' }}
+            className="rounded-[20px] border max-w-md w-full"
+            style={{ padding: '28px', backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex flex-col">
@@ -582,21 +582,22 @@ export default function PostDetailPage() {
                 <div className="w-12 h-12 rounded-full bg-[#10B981]/10 flex items-center justify-center">
                   <Flag className="w-6 h-6 text-[#10B981]" />
                 </div>
-                <h3 className="text-xl font-bold text-[#FFFFFF]">Report Comment</h3>
+                <h3 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Report Comment</h3>
               </div>
               
-              <p className="text-[#9BA1A6] text-sm" style={{ marginBottom: '20px' }}>
+              <p className="text-sm" style={{ marginBottom: '20px', color: 'var(--text-muted)' }}>
                 Help us understand what's wrong with this comment.
               </p>
 
               <div style={{ marginBottom: '20px' }}>
-                <label className="block text-sm font-medium text-[#FFFFFF]" style={{ marginBottom: '8px' }}>
+                <label className="block text-sm font-medium" style={{ marginBottom: '8px', color: 'var(--text-primary)' }}>
                   Reason
                 </label>
                 <select
                   value={reportReason}
                   onChange={(e) => setReportReason(e.target.value as ReportReason)}
-                  className="w-full px-4 py-3 bg-[#2C2C2E] border border-[#3C3C3E] rounded-xl text-[#FFFFFF] focus:outline-none focus:border-green-500"
+                  className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:border-green-500"
+                  style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
                 >
                   <option value="spam">Spam</option>
                   <option value="harassment">Harassment</option>
@@ -608,7 +609,7 @@ export default function PostDetailPage() {
               </div>
 
               <div style={{ marginBottom: '24px' }}>
-                <label className="block text-sm font-medium text-[#FFFFFF]" style={{ marginBottom: '8px' }}>
+                <label className="block text-sm font-medium" style={{ marginBottom: '8px', color: 'var(--text-primary)' }}>
                   Additional Details <span className="text-red-500">*</span>
                 </label>
                 <textarea
@@ -616,7 +617,8 @@ export default function PostDetailPage() {
                   onChange={(e) => setReportDescription(e.target.value)}
                   placeholder="Please explain why you're reporting this..."
                   rows={3}
-                  className="w-full px-4 py-3 bg-[#2C2C2E] border border-[#3C3C3E] rounded-xl text-[#FFFFFF] placeholder-[#8E8E93] focus:outline-none focus:border-green-500 resize-none"
+                  className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:border-green-500 resize-none"
+                  style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
                 />
               </div>
 
@@ -624,7 +626,8 @@ export default function PostDetailPage() {
                 <button
                   onClick={() => setReportingComment(null)}
                   disabled={isReporting}
-                  className="flex-1 px-8 py-4 bg-[#2C2C2E] hover:bg-[#3C3C3E] text-[#FFFFFF] font-semibold rounded-full transition-colors disabled:opacity-50 text-base"
+                  className="flex-1 px-8 py-4 font-semibold rounded-full transition-colors disabled:opacity-50 text-base"
+                  style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}
                 >
                   Cancel
                 </button>

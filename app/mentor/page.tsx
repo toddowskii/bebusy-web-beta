@@ -44,8 +44,8 @@ export default function MentorDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#000000] flex items-center justify-center">
-        <div className="animate-spin h-8 w-8 border-4 border-[#10B981] border-t-transparent rounded-full"></div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
       </div>
     )
   }
@@ -56,15 +56,15 @@ export default function MentorDashboardPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4" style={{ marginBottom: '24px' }}>
         <div>
           <div className="flex items-center gap-3" style={{ marginBottom: '8px' }}>
-            <Award className="w-8 h-8 text-[#10B981]" />
-            <h1 className="text-3xl font-bold text-[#ECEDEE]">Mentor Dashboard</h1>
+            <Award className="w-8 h-8 text-primary" />
+            <h1 className="text-3xl font-bold text-foreground">Mentor Dashboard</h1>
           </div>
-          <p className="text-[#9BA1A6]">Manage your focus groups</p>
+          <p className="text-muted-foreground">Manage your focus groups</p>
         </div>
 
         <Link
           href="/mentor/create-focus-group"
-          className="flex items-center justify-center gap-2 bg-[#10B981] hover:bg-[#059669] text-white rounded-full font-semibold transition-colors shadow-lg"
+          className="flex items-center justify-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-full font-semibold transition-colors shadow-lg"
           style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '12px', paddingBottom: '12px' }}
         >
           <Plus className="w-5 h-5" />
@@ -73,10 +73,10 @@ export default function MentorDashboardPage() {
       </div>
 
       {/* Focus Groups */}
-      <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E]">
-        <div className="border-b border-[#2C2C2E]" style={{ padding: '24px' }}>
-          <h2 className="text-xl font-bold text-[#ECEDEE]">My Focus Groups</h2>
-          <p className="text-[#9BA1A6] text-sm" style={{ marginTop: '4px' }}>
+      <div className="bg-card rounded-[20px] border border-border">
+        <div className="border-b border-border" style={{ padding: '24px' }}>
+          <h2 className="text-xl font-bold text-foreground">My Focus Groups</h2>
+          <p className="text-muted-foreground text-sm" style={{ marginTop: '4px' }}>
             {focusGroups.length} focus group{focusGroups.length !== 1 ? 's' : ''}
           </p>
         </div>
@@ -84,11 +84,11 @@ export default function MentorDashboardPage() {
         {focusGroups.length === 0 ? (
           <div className="text-center" style={{ padding: '48px' }}>
             <div className="text-5xl" style={{ marginBottom: '16px' }}>🎯</div>
-            <h3 className="text-xl font-semibold text-[#ECEDEE]" style={{ marginBottom: '8px' }}>No focus groups yet</h3>
-            <p className="text-[#9BA1A6]" style={{ marginBottom: '24px' }}>Create your first focus group to start mentoring</p>
+            <h3 className="text-xl font-semibold text-foreground" style={{ marginBottom: '8px' }}>No focus groups yet</h3>
+            <p className="text-muted-foreground" style={{ marginBottom: '24px' }}>Create your first focus group to start mentoring</p>
             <Link
               href="/mentor/create-focus-group"
-              className="inline-flex items-center gap-2 bg-[#10B981] hover:bg-[#059669] text-white rounded-full font-semibold transition-colors"
+              className="inline-flex items-center gap-2 bg-primary hover:bg-primary-hover text-white rounded-full font-semibold transition-colors"
               style={{ paddingLeft: '24px', paddingRight: '24px', paddingTop: '12px', paddingBottom: '12px' }}
             >
               <Plus className="w-5 h-5" />
@@ -100,17 +100,17 @@ export default function MentorDashboardPage() {
             {focusGroups.map((group) => (
               <div
                 key={group.id}
-                className="bg-[#000000] border border-[#2C2C2E] rounded-[20px] hover:border-[#10B981]/50 transition-all"
+                className="bg-background border border-border rounded-[20px] hover:border-primary/50 transition-all"
                 style={{ padding: '24px' }}
               >
                 <div className="flex items-start justify-between" style={{ marginBottom: '16px' }}>
                   <div className="flex-1">
-                    <h3 className="font-bold text-lg text-[#ECEDEE]" style={{ marginBottom: '8px' }}>{group.title}</h3>
-                    <p className="text-[#9BA1A6] text-sm line-clamp-2">{group.description}</p>
+                    <h3 className="font-bold text-lg text-foreground" style={{ marginBottom: '8px' }}>{group.title}</h3>
+                    <p className="text-muted-foreground text-sm line-clamp-2">{group.description}</p>
                   </div>
                   <Link
                     href={`/mentor/edit-focus-group/${group.id}`}
-                    className="p-2 hover:bg-[#1C1C1E] rounded-lg transition-colors text-[#10B981]"
+                    className="p-2 hover:bg-card rounded-lg transition-colors text-primary"
                   >
                     <Edit className="w-5 h-5" />
                   </Link>
@@ -118,8 +118,8 @@ export default function MentorDashboardPage() {
 
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm">
-                    <Users className="w-4 h-4 text-[#8E8E93]" />
-                    <span className="text-[#9BA1A6]">
+                    <Users className="w-4 h-4 text-muted" />
+                    <span className="text-muted-foreground">
                       {group.current_members} / {group.total_spots} members
                     </span>
                     {group.current_members >= group.total_spots && (
@@ -130,8 +130,8 @@ export default function MentorDashboardPage() {
                   </div>
 
                   {(group.start_date || group.end_date) && (
-                    <div className="flex items-center gap-2 text-sm text-[#9BA1A6]">
-                      <Calendar className="w-4 h-4 text-[#8E8E93]" />
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Calendar className="w-4 h-4 text-muted" />
                       <span>
                         {group.start_date && new Date(group.start_date).toLocaleDateString()}
                         {group.start_date && group.end_date && ' - '}
@@ -141,8 +141,8 @@ export default function MentorDashboardPage() {
                   )}
                 </div>
 
-                <div className="border-t border-[#2C2C2E]" style={{ marginTop: '16px', paddingTop: '16px' }}>
-                  <div className="text-xs text-[#8E8E93]">
+                <div className="border-t border-border" style={{ marginTop: '16px', paddingTop: '16px' }}>
+                  <div className="text-xs text-muted">
                     Created {new Date(group.created_at).toLocaleDateString()}
                   </div>
                 </div>

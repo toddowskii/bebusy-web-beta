@@ -8,11 +8,14 @@ import { fetchPosts } from '@/lib/supabase/posts'
 import { followUser, unfollowUser, isFollowing } from '@/lib/supabase/profiles'
 import { PostCard } from '@/components/PostCard'
 import { AppLayout } from '@/components/AppLayout'
-import { ArrowLeft, Calendar, MapPin, Link as LinkIcon, Settings, MessageSquare, FileText, Image, Heart, Flag, Users, X } from 'lucide-react'
+import { ArrowLeft, Calendar, MapPin, Link as LinkIcon, Settings, MessageSquare, FileText, Image, Heart, Flag, Users, X, Flame, Briefcase, Star } from 'lucide-react'
+import { categorizeTag, badgeClassForCategory } from '@/lib/tagCategories'
 import toast from 'react-hot-toast'
 import Link from 'next/link'
 import { getOrCreateConversation } from '@/lib/supabase/messages'
 import { createReport, type ReportReason } from '@/lib/supabase/reports'
+import { getUserStreak } from '@/lib/supabase/checkins'
+import { getUserPortfolio } from '@/lib/supabase/portfolio'
 
 export default function ProfilePage() {
   const params = useParams()
@@ -28,7 +31,7 @@ export default function ProfilePage() {
   const [followersCount, setFollowersCount] = useState(0)
   const [followingCount, setFollowingCount] = useState(0)
   const [isFollowLoading, setIsFollowLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState<'posts' | 'media' | 'likes' | 'followers' | 'following'>('posts')
+  const [activeTab, setActiveTab] = useState<'posts' | 'media' | 'likes' | 'portfolio' | 'followers' | 'following'>('posts')
   const [followers, setFollowers] = useState<any[]>([])
   const [following, setFollowing] = useState<any[]>([])
   const [loadingFollowers, setLoadingFollowers] = useState(false)
@@ -37,6 +40,8 @@ export default function ProfilePage() {
   const [reportReason, setReportReason] = useState<ReportReason>('spam')
   const [reportDescription, setReportDescription] = useState('')
   const [isReporting, setIsReporting] = useState(false)
+  const [userStreak, setUserStreak] = useState<any>(null)
+  const [featuredProjects, setFeaturedProjects] = useState<any[]>([])
 
   useEffect(() => {
     loadProfile()
@@ -74,6 +79,19 @@ export default function ProfilePage() {
 
       setFollowersCount(followersCount || 0)
       setFollowingCount(followingCount || 0)
+
+      // Load user streak
+      const { data: streakData } = await getUserStreak((profileData as any).id)
+      if (streakData) {
+        setUserStreak(streakData)
+      }
+
+      // Load featured projects
+      const { data: portfolioData } = await getUserPortfolio((profileData as any).id)
+      if (portfolioData) {
+        const featured = portfolioData.filter((p: any) => p.is_featured)
+        setFeaturedProjects(featured)
+      }
 
       setLoadingFollowers(true)
       setLoadingFollowing(true)
@@ -288,7 +306,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#000000] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-spin h-8 w-8 border-4 border-[#10B981] border-t-transparent rounded-full"></div>
       </div>
     )
@@ -304,17 +322,17 @@ export default function ProfilePage() {
     <AppLayout username={currentUser?.username}>
       {/* Back Button */}
       <div className="flex items-center gap-3" style={{ marginBottom: '24px' }}>
-        <button onClick={() => router.back()} className="p-2 hover:bg-[#1C1C1E] rounded-full transition-colors">
-          <ArrowLeft className="w-5 h-5 text-[#ECEDEE]" />
+        <button onClick={() => router.back()} className="p-2 hover:bg-card rounded-full transition-colors">
+          <ArrowLeft className="w-5 h-5 text-foreground" />
         </button>
         <div>
-          <h2 className="text-xl font-bold text-[#ECEDEE]">{profile.full_name || profile.username}</h2>
-          <p className="text-sm text-[#8E8E93]">{posts.length} posts</p>
+          <h2 className="text-xl font-bold text-foreground">{profile.full_name || profile.username}</h2>
+          <p className="text-sm text-muted-foreground">{posts.length} posts</p>
         </div>
       </div>
 
       {/* Profile Card with integrated banner */}
-      <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] overflow-hidden" style={{ marginBottom: '24px' }}>
+      <div className="bg-card rounded-[20px] border border-border overflow-hidden" style={{ marginBottom: '24px' }}>
         {/* Cover Image */}
         {profile.cover_url ? (
           <div className="h-40 relative">
@@ -332,10 +350,10 @@ export default function ProfilePage() {
             <img
               src={profile.avatar_url}
               alt={profile.username}
-              className="w-24 h-24 rounded-full object-cover border-4 border-[#1C1C1E] ring-2 ring-[#2C2C2E]"
+              className="w-24 h-24 rounded-full object-cover border-4 border-card ring-2 ring-border"
             />
           ) : (
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold text-3xl border-4 border-[#1C1C1E] ring-2 ring-[#2C2C2E]">
+            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold text-3xl border-4 border-card ring-2 ring-border">
               {profile.username[0].toUpperCase()}
             </div>
           )}
@@ -344,7 +362,7 @@ export default function ProfilePage() {
           {isOwnProfile ? (
             <Link
               href="/settings/edit-profile"
-              className="mt-3 bg-[#2C2C2E] hover:bg-[#3C3C3E] rounded-full font-semibold transition-colors text-[#ECEDEE] flex items-center gap-2"
+              className="mt-3 bg-muted hover:bg-accent rounded-full font-semibold transition-colors text-foreground flex items-center gap-2"
               style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '8px', paddingBottom: '8px' }}
             >
               <Settings className="w-4 h-4" />
@@ -354,7 +372,7 @@ export default function ProfilePage() {
             <div className="mt-3 flex flex-col sm:flex-row gap-2 w-full sm:w-auto items-end sm:items-start justify-end sm:justify-start">
               <button
                 onClick={handleMessage}
-                className="max-w-[180px] sm:max-w-none w-full sm:w-auto bg-[#2C2C2E] hover:bg-[#3C3C3E] rounded-full font-semibold transition-colors text-[#ECEDEE] flex items-center justify-center gap-2 text-sm sm:text-base px-4 py-2 sm:px-5"
+                className="max-w-[180px] sm:max-w-none w-full sm:w-auto bg-muted hover:bg-accent rounded-full font-semibold transition-colors text-foreground flex items-center justify-center gap-2 text-sm sm:text-base px-4 py-2 sm:px-5"
               >
                 <MessageSquare className="w-4 h-4" />
                 Message
@@ -364,7 +382,7 @@ export default function ProfilePage() {
                 disabled={isFollowLoading}
                 className={`max-w-[180px] sm:max-w-none w-full sm:w-auto rounded-full font-semibold transition-all text-sm sm:text-base px-4 py-2 sm:px-6 ${
                   isFollowingUser
-                    ? 'bg-[#2C2C2E] hover:bg-red-500/10 hover:border hover:border-red-500 text-[#ECEDEE] hover:text-red-500'
+                    ? 'bg-muted hover:bg-red-500/10 hover:border hover:border-red-500 text-foreground hover:text-red-500'
                     : 'bg-[#10B981] hover:bg-[#059669] text-white'
                 }`}
               >
@@ -372,7 +390,7 @@ export default function ProfilePage() {
               </button>
               <button
                 onClick={() => setShowReportModal(true)}
-                className="max-w-[180px] sm:max-w-none w-full sm:w-auto bg-[#2C2C2E] hover:bg-yellow-500/10 rounded-full font-semibold transition-colors text-[#ECEDEE] hover:text-yellow-500 flex items-center justify-center gap-2 text-sm sm:text-base px-4 py-2 sm:px-4"
+                className="max-w-[180px] sm:max-w-none w-full sm:w-auto bg-muted hover:bg-yellow-500/10 rounded-full font-semibold transition-colors text-foreground hover:text-yellow-500 flex items-center justify-center gap-2 text-sm sm:text-base px-4 py-2 sm:px-4"
               >
                 <Flag className="w-4 h-4" />
                 Report
@@ -383,8 +401,8 @@ export default function ProfilePage() {
 
         {/* Name & Username */}
         <div className="mb-3">
-          <h1 className="text-2xl font-bold text-[#FFFFFF]">{profile.full_name || profile.username}</h1>
-          <p className="text-[#8E8E93]">@{profile.username}</p>
+          <h1 className="text-2xl font-bold text-foreground">{profile.full_name || profile.username}</h1>
+          <p className="text-muted-foreground">@{profile.username}</p>
           {profile.role && (
             <p className="text-sm text-[#10B981] mt-1">{profile.role}</p>
           )}
@@ -392,11 +410,24 @@ export default function ProfilePage() {
 
         {/* Bio */}
         {profile.bio && (
-          <p className="mb-3 text-[#ECEDEE] whitespace-pre-wrap">{profile.bio}</p>
+          <p className="mb-3 text-foreground whitespace-pre-wrap">{profile.bio}</p>
+        )}
+
+        {/* Tags */}
+        {profile.tags && profile.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-3">
+            {profile.tags.map((tag: string) => {
+              const cat = categorizeTag(tag)
+              const cls = badgeClassForCategory(cat)
+              return (
+                <span key={tag} className={`text-xs rounded-full px-3 py-1 ${cls}`}>{tag.replace(/_/g, ' ')}</span>
+              )
+            })}
+          </div>
         )}
 
         {/* Meta Info */}
-        <div className="flex flex-wrap gap-4 text-[#8E8E93] text-sm mb-3">
+        <div className="flex flex-wrap gap-4 text-muted-foreground text-sm mb-3">
           <div className="flex items-center gap-1.5">
             <Calendar className="w-4 h-4" />
             <span>Joined {new Date(profile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
@@ -404,18 +435,26 @@ export default function ProfilePage() {
         </div>
 
         {/* Follow Stats */}
-        <div className="flex gap-4 text-sm">
+        <div className="flex flex-wrap gap-4 text-sm items-center">
           <button className="hover:underline" onClick={() => setActiveTab('following')}>
-            <span className="font-bold text-[#FFFFFF]">{followingCount}</span>
-            <span className="text-[#8E8E93]"> Following</span>
+            <span className="font-bold text-foreground">{followingCount}</span>
+            <span className="text-muted-foreground"> Following</span>
           </button>
           <button className="hover:underline" onClick={() => setActiveTab('followers')}>
-            <span className="font-bold text-[#FFFFFF]">{followersCount}</span>
-            <span className="text-[#8E8E93]"> Followers</span>
+            <span className="font-bold text-foreground">{followersCount}</span>
+            <span className="text-muted-foreground"> Followers</span>
           </button>
+          {userStreak && userStreak.current_streak > 0 && (
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500/10 to-red-500/10 backdrop-blur-sm border border-orange-500/20 rounded-full shadow-sm hover:shadow transition-shadow" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '8px', paddingBottom: '8px' }}>
+              <Flame className="w-4 h-4 text-orange-500" />
+              <span className="text-sm font-bold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">{userStreak.current_streak}</span>
+              <span className="text-xs text-muted-foreground">day streak</span>
+            </div>
+          )}
         </div>
       </div>
-    </div>
+      </div>
+
 
       {/* Tabs */}
       <div className="flex gap-2" style={{ marginBottom: '24px' }}>
@@ -424,7 +463,7 @@ export default function ProfilePage() {
           className={`flex-1 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 ${
             activeTab === 'posts'
               ? 'bg-[#10B981]/10 text-[#10B981]'
-              : 'text-[#8E8E93] bg-[#1C1C1E] hover:bg-[#2C2C2E]'
+              : 'text-muted-foreground bg-card hover:bg-muted'
           }`}
           style={{ paddingTop: '12px', paddingBottom: '12px', paddingLeft: '16px', paddingRight: '16px' }}
         >
@@ -436,7 +475,7 @@ export default function ProfilePage() {
           className={`flex-1 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 ${
             activeTab === 'media'
               ? 'bg-[#10B981]/10 text-[#10B981]'
-              : 'text-[#8E8E93] bg-[#1C1C1E] hover:bg-[#2C2C2E]'
+              : 'text-muted-foreground bg-card hover:bg-muted'
           }`}
           style={{ paddingTop: '12px', paddingBottom: '12px', paddingLeft: '16px', paddingRight: '16px' }}
         >
@@ -448,12 +487,24 @@ export default function ProfilePage() {
           className={`flex-1 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 ${
             activeTab === 'likes'
               ? 'bg-[#10B981]/10 text-[#10B981]'
-              : 'text-[#8E8E93] bg-[#1C1C1E] hover:bg-[#2C2C2E]'
+              : 'text-muted-foreground bg-card hover:bg-muted'
           }`}
           style={{ paddingTop: '12px', paddingBottom: '12px', paddingLeft: '16px', paddingRight: '16px' }}
         >
           <Heart className="w-4 h-4" />
           Likes
+        </button>
+        <button
+          onClick={() => setActiveTab('portfolio')}
+          className={`flex-1 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 ${
+            activeTab === 'portfolio'
+              ? 'bg-[#10B981]/10 text-[#10B981]'
+              : 'text-muted-foreground bg-card hover:bg-muted'
+          }`}
+          style={{ paddingTop: '12px', paddingBottom: '12px', paddingLeft: '16px', paddingRight: '16px' }}
+        >
+          <Briefcase className="w-4 h-4" />
+          Portfolio
         </button>
       </div>
 
@@ -462,8 +513,8 @@ export default function ProfilePage() {
         posts.length === 0 ? (
           <div className="p-12 text-center">
             <div className="mb-4 text-5xl">📝</div>
-            <h3 className="text-xl font-semibold mb-2 text-[#ECEDEE]">No posts yet</h3>
-            <p className="text-[#9BA1A6]">
+            <h3 className="text-xl font-semibold mb-2 text-foreground">No posts yet</h3>
+            <p className="text-muted-foreground">
               {isOwnProfile ? "You haven't posted anything yet" : "This user hasn't posted anything yet"}
             </p>
           </div>
@@ -481,8 +532,8 @@ export default function ProfilePage() {
         posts.filter(post => post.image_url || post.video_url).length === 0 ? (
           <div className="p-12 text-center">
             <Image className="w-16 h-16 text-[#2D2D2D] mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2 text-[#ECEDEE]">No media yet</h3>
-            <p className="text-[#9BA1A6]">
+            <h3 className="text-xl font-semibold mb-2 text-foreground">No media yet</h3>
+            <p className="text-muted-foreground">
               {isOwnProfile ? "You haven't posted any media yet" : "This user hasn't posted any media yet"}
             </p>
           </div>
@@ -500,8 +551,8 @@ export default function ProfilePage() {
         likedPosts.length === 0 ? (
           <div className="p-12 text-center">
             <div className="mb-4 text-5xl">❤️</div>
-            <h3 className="text-xl font-semibold mb-2 text-[#ECEDEE]">No liked posts</h3>
-            <p className="text-[#9BA1A6]">
+            <h3 className="text-xl font-semibold mb-2 text-foreground">No liked posts</h3>
+            <p className="text-muted-foreground">
               {isOwnProfile ? "You haven't liked any posts yet" : "This user hasn't liked any posts yet"}
             </p>
           </div>
@@ -514,6 +565,105 @@ export default function ProfilePage() {
         )
       )}
 
+      {/* Portfolio */}
+      {activeTab === 'portfolio' && (
+        <div>
+          {featuredProjects.length === 0 ? (
+            <div className="p-12 text-center">
+              <Briefcase className="w-16 h-16 text-[#10B981] mx-auto mb-4" />
+              <h3 className="text-xl font-semibold mb-2 text-foreground">No Featured Projects</h3>
+              <p className="text-muted-foreground mb-6">
+                {isOwnProfile ? "Add projects to your portfolio and feature them to showcase here" : `${profile.full_name || profile.username} hasn't featured any projects yet`}
+              </p>
+              <Link
+                href={`/portfolio/${username}`}
+                className="inline-flex items-center gap-2 bg-[#10B981] hover:bg-[#059669] text-white font-semibold rounded-full transition-colors"
+                style={{ paddingLeft: '24px', paddingRight: '24px', paddingTop: '12px', paddingBottom: '12px' }}
+              >
+                <Briefcase className="w-4 h-4" />
+                {isOwnProfile ? "Manage Portfolio" : "View All Projects"}
+              </Link>
+            </div>
+          ) : (
+            <div>
+              <div className="grid grid-cols-1 gap-6">
+                {featuredProjects.map((project) => (
+                  <div
+                    key={project.id}
+                    className="rounded-[20px] border overflow-hidden transition-all hover:shadow-lg"
+                    style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)', padding: '0' }}
+                  >
+                    <div style={{ padding: '28px' }}>
+                      {/* Featured Badge */}
+                      <div className="inline-flex items-center gap-2 rounded-full text-xs font-medium mb-4" style={{ backgroundColor: 'rgba(245, 158, 11, 0.1)', color: '#F59E0B', padding: '4px 12px' }}>
+                        <Star className="w-3 h-3 fill-current" />
+                        Featured
+                      </div>
+
+                      {/* Project Info */}
+                      <h3 className="text-lg font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+                        {project.title}
+                      </h3>
+                      
+                      {project.description && (
+                        <p className="text-sm mb-3" style={{ color: 'var(--text-muted)' }}>
+                          {project.description}
+                        </p>
+                      )}
+
+                      {/* Technologies */}
+                      {project.technologies && project.technologies.length > 0 && (
+                        <div className="flex flex-wrap gap-3 mb-4">
+                          {project.technologies.map((tech: string, index: number) => (
+                            <span
+                              key={index}
+                              className="text-xs rounded-full bg-[rgba(255,255,255,0.04)] text-muted-foreground"
+                              style={{ padding: '6px 12px', backdropFilter: 'blur(4px)' }}
+                            >
+                              {tech.replace('_', ' ')}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Completed Date */}
+                      <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
+                        Completed {new Date(project.completed_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                      </p>
+
+                      {/* View Project Link */}
+                      {project.project_url && (
+                        <a
+                          href={project.project_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-full shadow-lg"
+                          style={{ padding: '12px 22px' }}
+                        >
+                          <LinkIcon className="w-4 h-4" />
+                          View Project
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* View All Link */}
+              <div className="mt-6 text-center">
+                <Link
+                  href={`/portfolio/${username}`}
+                  className="inline-flex items-center gap-2 text-[#10B981] hover:text-[#059669] font-semibold transition-colors"
+                >
+                  View Full Portfolio
+                  <ArrowLeft className="w-4 h-4 rotate-180" />
+                </Link>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Followers */}
       {activeTab === 'followers' && (
         <div
@@ -521,21 +671,21 @@ export default function ProfilePage() {
           onClick={() => setActiveTab('posts')}
         >
           <div
-            className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] w-full max-w-[320px] sm:max-w-md max-h-[85vh] flex flex-col"
+            className="bg-card rounded-[20px] border border-border w-full max-w-[320px] sm:max-w-md max-h-[85vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-[#2C2C2E]" style={{ padding: '20px 24px' }}>
+            <div className="flex items-center justify-between border-b border-border" style={{ padding: '20px 24px' }}>
               <div>
-                <h3 className="text-xl font-bold text-[#ECEDEE]">Followers</h3>
-                <p className="text-sm text-[#9BA1A6]" style={{ marginTop: '2px' }}>
+                <h3 className="text-xl font-bold text-foreground">Followers</h3>
+                <p className="text-sm text-muted-foreground" style={{ marginTop: '2px' }}>
                   {followers.length} {followers.length === 1 ? 'follower' : 'followers'}
                 </p>
               </div>
               <button
                 onClick={() => setActiveTab('posts')}
-                className="p-2 hover:bg-[#2C2C2E] rounded-full transition-colors"
+                className="p-2 hover:bg-muted rounded-full transition-colors"
               >
-                <X className="w-5 h-5 text-[#9BA1A6]" />
+                <X className="w-5 h-5 text-muted-foreground" />
               </button>
             </div>
             <div className="flex-1 overflow-y-auto" style={{ padding: '12px' }}>
@@ -545,8 +695,8 @@ export default function ProfilePage() {
                 </div>
               ) : followers.length === 0 ? (
                 <div className="text-center py-20">
-                  <Users className="w-12 h-12 text-[#9BA1A6] mx-auto" style={{ marginBottom: '12px' }} />
-                  <p className="text-[#9BA1A6]">No followers yet</p>
+                  <Users className="w-12 h-12 text-muted-foreground mx-auto" style={{ marginBottom: '12px' }} />
+                  <p className="text-muted-foreground">No followers yet</p>
                 </div>
               ) : (
                 <div className="space-y-1">
@@ -554,7 +704,7 @@ export default function ProfilePage() {
                     <Link
                       key={user.id}
                       href={`/profile/${user.username}`}
-                      className="flex items-center gap-3 hover:bg-[#2C2C2E] rounded-xl transition-colors"
+                      className="flex items-center gap-3 hover:bg-muted rounded-xl transition-colors"
                       style={{ padding: '12px' }}
                       onClick={() => setActiveTab('posts')}
                     >
@@ -562,18 +712,18 @@ export default function ProfilePage() {
                         <img
                           src={user.avatar_url}
                           alt={user.username}
-                          className="w-14 h-14 rounded-full object-cover ring-2 ring-[#2C2C2E]"
+                          className="w-14 h-14 rounded-full object-cover ring-2 ring-border"
                         />
                       ) : (
-                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold text-xl ring-2 ring-[#2C2C2E]">
+                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold text-xl ring-2 ring-border">
                           {user.username?.[0]?.toUpperCase()}
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-[#ECEDEE] truncate">
+                        <p className="font-semibold text-foreground truncate">
                           {user.full_name || user.username}
                         </p>
-                        <p className="text-sm text-[#9BA1A6] truncate" style={{ marginTop: '2px' }}>
+                        <p className="text-sm text-muted-foreground truncate" style={{ marginTop: '2px' }}>
                           @{user.username}
                         </p>
                       </div>
@@ -593,21 +743,21 @@ export default function ProfilePage() {
           onClick={() => setActiveTab('posts')}
         >
           <div
-            className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] w-full max-w-[320px] sm:max-w-md max-h-[85vh] flex flex-col"
+            className="bg-card rounded-[20px] border border-border w-full max-w-[320px] sm:max-w-md max-h-[85vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-[#2C2C2E]" style={{ padding: '20px 24px' }}>
+            <div className="flex items-center justify-between border-b border-border" style={{ padding: '20px 24px' }}>
               <div>
-                <h3 className="text-xl font-bold text-[#ECEDEE]">Following</h3>
-                <p className="text-sm text-[#9BA1A6]" style={{ marginTop: '2px' }}>
+                <h3 className="text-xl font-bold text-foreground">Following</h3>
+                <p className="text-sm text-muted-foreground" style={{ marginTop: '2px' }}>
                   {following.length} {following.length === 1 ? 'person' : 'people'}
                 </p>
               </div>
               <button
                 onClick={() => setActiveTab('posts')}
-                className="p-2 hover:bg-[#2C2C2E] rounded-full transition-colors"
+                className="p-2 hover:bg-muted rounded-full transition-colors"
               >
-                <X className="w-5 h-5 text-[#9BA1A6]" />
+                <X className="w-5 h-5 text-muted-foreground" />
               </button>
             </div>
             <div className="flex-1 overflow-y-auto" style={{ padding: '12px' }}>
@@ -617,8 +767,8 @@ export default function ProfilePage() {
                 </div>
               ) : following.length === 0 ? (
                 <div className="text-center py-20">
-                  <Users className="w-12 h-12 text-[#9BA1A6] mx-auto" style={{ marginBottom: '12px' }} />
-                  <p className="text-[#9BA1A6]">Not following anyone yet</p>
+                  <Users className="w-12 h-12 text-muted-foreground mx-auto" style={{ marginBottom: '12px' }} />
+                  <p className="text-muted-foreground">Not following anyone yet</p>
                 </div>
               ) : (
                 <div className="space-y-1">
@@ -626,7 +776,7 @@ export default function ProfilePage() {
                     <Link
                       key={user.id}
                       href={`/profile/${user.username}`}
-                      className="flex items-center gap-3 hover:bg-[#2C2C2E] rounded-xl transition-colors"
+                      className="flex items-center gap-3 hover:bg-muted rounded-xl transition-colors"
                       style={{ padding: '12px' }}
                       onClick={() => setActiveTab('posts')}
                     >
@@ -634,18 +784,18 @@ export default function ProfilePage() {
                         <img
                           src={user.avatar_url}
                           alt={user.username}
-                          className="w-14 h-14 rounded-full object-cover ring-2 ring-[#2C2C2E]"
+                          className="w-14 h-14 rounded-full object-cover ring-2 ring-border"
                         />
                       ) : (
-                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold text-xl ring-2 ring-[#2C2C2E]">
+                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold text-xl ring-2 ring-border">
                           {user.username?.[0]?.toUpperCase()}
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-[#ECEDEE] truncate">
+                        <p className="font-semibold text-foreground truncate">
                           {user.full_name || user.username}
                         </p>
-                        <p className="text-sm text-[#9BA1A6] truncate" style={{ marginTop: '2px' }}>
+                        <p className="text-sm text-muted-foreground truncate" style={{ marginTop: '2px' }}>
                           @{user.username}
                         </p>
                       </div>
@@ -664,7 +814,7 @@ export default function ProfilePage() {
           onClick={() => setShowReportModal(false)}
         >
           <div
-            className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] max-w-md w-full"
+            className="bg-card rounded-[20px] border border-border max-w-md w-full"
             style={{ padding: '28px' }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -673,21 +823,21 @@ export default function ProfilePage() {
                 <div className="w-12 h-12 rounded-full bg-[#10B981]/10 flex items-center justify-center">
                   <Flag className="w-6 h-6 text-[#10B981]" />
                 </div>
-                <h3 className="text-xl font-bold text-[#FFFFFF]">Report User</h3>
+                <h3 className="text-xl font-bold text-foreground">Report User</h3>
               </div>
 
-              <p className="text-[#9BA1A6] text-sm" style={{ marginBottom: '20px' }}>
+              <p className="text-muted-foreground text-sm" style={{ marginBottom: '20px' }}>
                 Help us understand what's wrong with this user.
               </p>
 
               <div style={{ marginBottom: '20px' }}>
-                <label className="block text-sm font-medium text-[#FFFFFF]" style={{ marginBottom: '8px' }}>
+                <label className="block text-sm font-medium text-foreground" style={{ marginBottom: '8px' }}>
                   Reason
                 </label>
                 <select
                   value={reportReason}
                   onChange={(e) => setReportReason(e.target.value as ReportReason)}
-                  className="w-full px-4 py-3 bg-[#2C2C2E] border border-[#3C3C3E] rounded-xl text-[#FFFFFF] focus:outline-none focus:border-green-500"
+                  className="w-full px-4 py-3 bg-muted border border-accent rounded-xl text-foreground focus:outline-none focus:border-green-500"
                 >
                   <option value="spam">Spam</option>
                   <option value="harassment">Harassment</option>
@@ -699,7 +849,7 @@ export default function ProfilePage() {
               </div>
 
               <div style={{ marginBottom: '24px' }}>
-                <label className="block text-sm font-medium text-[#FFFFFF]" style={{ marginBottom: '8px' }}>
+                <label className="block text-sm font-medium text-foreground" style={{ marginBottom: '8px' }}>
                   Additional Details <span className="text-red-500">*</span>
                 </label>
                 <textarea
@@ -707,7 +857,7 @@ export default function ProfilePage() {
                   onChange={(e) => setReportDescription(e.target.value)}
                   placeholder="Please explain why you're reporting this..."
                   rows={3}
-                  className="w-full px-4 py-3 bg-[#2C2C2E] border border-[#3C3C3E] rounded-xl text-[#FFFFFF] placeholder-[#8E8E93] focus:outline-none focus:border-green-500 resize-none"
+                  className="w-full px-4 py-3 bg-muted border border-accent rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-green-500 resize-none"
                 />
               </div>
 
@@ -715,7 +865,7 @@ export default function ProfilePage() {
                 <button
                   onClick={() => setShowReportModal(false)}
                   disabled={isReporting}
-                  className="flex-1 px-8 py-4 bg-[#2C2C2E] hover:bg-[#3C3C3E] text-[#FFFFFF] font-semibold rounded-full transition-colors disabled:opacity-50 text-base"
+                  className="flex-1 px-8 py-4 bg-muted hover:bg-accent text-foreground font-semibold rounded-full transition-colors disabled:opacity-50 text-base"
                 >
                   Cancel
                 </button>

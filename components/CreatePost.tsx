@@ -162,7 +162,7 @@ export function CreatePost({ userAvatar, username, onPostCreated }: CreatePostPr
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] hover:bg-[#252527] transition-all" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '16px', paddingBottom: '16px' }}>
+        <div className="rounded-[20px] transition-all" style={{ backgroundColor: 'var(--bg-secondary)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--border)', paddingLeft: '20px', paddingRight: '20px', paddingTop: '16px', paddingBottom: '16px' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}>
           <div className="flex items-center gap-3">
             {userAvatar ? (
               <img
@@ -177,7 +177,8 @@ export function CreatePost({ userAvatar, username, onPostCreated }: CreatePostPr
             )}
             <button
               onClick={() => setIsExpanded(true)}
-              className="flex-1 text-[#9BA1A6] text-left text-base"
+              className="flex-1 text-left text-base"
+              style={{ color: 'var(--text-muted)' }}
             >
               What are you working on?
             </button>
@@ -189,11 +190,11 @@ export function CreatePost({ userAvatar, username, onPostCreated }: CreatePostPr
 
   // Expanded state
   return (
-    <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E]" style={{ marginBottom: '16px' }}>
+    <div className="rounded-[20px]" style={{ backgroundColor: 'var(--bg-secondary)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--border)', marginBottom: '16px' }}>
       <form onSubmit={handleSubmit}>
         {/* Image Preview */}
         {imagePreview && (
-          <div className="relative border-b border-[#2C2C2E] bg-[#0F0F0F]">
+          <div className="relative border-b" style={{ borderColor: 'var(--border)', backgroundColor: '#0F0F0F' }}>
             <div className="relative inline-block w-full">
               <img
                 src={imagePreview}
@@ -203,7 +204,8 @@ export function CreatePost({ userAvatar, username, onPostCreated }: CreatePostPr
               <button
                 type="button"
                 onClick={handleRemoveImage}
-                className="absolute top-3 right-3 p-2 bg-[#000000]/80 hover:bg-red-500 rounded-full transition-all duration-200 shadow-lg"
+                className="absolute top-3 right-3 p-2 hover:bg-red-500 rounded-full transition-all duration-200 shadow-lg"
+                style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)' }}
                 disabled={isSubmitting}
               >
                 <X className="w-4 h-4 text-white" />
@@ -229,23 +231,29 @@ export function CreatePost({ userAvatar, username, onPostCreated }: CreatePostPr
             )}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
-                <span className="font-bold text-[#FFFFFF] text-base">{username}</span>
+                <span className="font-bold text-base" style={{ color: 'var(--text-primary)' }}>{username}</span>
               </div>
-              <span className="text-sm text-[#8E8E93]">Create a post</span>
+              <span className="text-sm" style={{ color: 'var(--text-muted)' }}>Create a post</span>
             </div>
           </div>
 
           {/* Input Area */}
           <div className="mb-3" style={{ marginBottom: '12px' }}>
+            <style jsx>{`
+              textarea::placeholder {
+                color: var(--text-muted);
+                opacity: 1;
+              }
+            `}</style>
             <textarea
               ref={textareaRef}
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Share what you're building, learning, or discovering..."
-              className="w-full bg-transparent text-[#FFFFFF] text-base placeholder-[#8E8E93] outline-none resize-none"
+              className="w-full bg-transparent text-base outline-none resize-none"
+              style={{ color: 'var(--text-primary)', lineHeight: '1.5' }}
               rows={4}
               disabled={isSubmitting}
-              style={{ lineHeight: '1.5' }}
             />
           </div>
 
@@ -260,12 +268,15 @@ export function CreatePost({ userAvatar, username, onPostCreated }: CreatePostPr
           />
 
           {/* Action Bar */}
-          <div className="flex items-center justify-between border-t border-[#2C2C2E]" style={{ paddingTop: '12px', marginTop: '12px' }}>
+          <div className="flex items-center justify-between border-t" style={{ borderColor: 'var(--border)', paddingTop: '12px', marginTop: '12px' }}>
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={isSubmitting || imageFile !== null}
-              className="flex items-center gap-1.5 text-[#8E8E93] hover:text-[#10B981] transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+              className="flex items-center gap-1.5 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+              style={{ color: 'var(--text-muted)' }}
+              onMouseEnter={(e) => !isSubmitting && !imageFile && (e.currentTarget.style.color = 'var(--primary)')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
             >
               <ImageIcon className="w-4 h-4" />
               <span className="text-sm">Photo</span>
@@ -276,16 +287,20 @@ export function CreatePost({ userAvatar, username, onPostCreated }: CreatePostPr
                 type="button"
                 onClick={handleClose}
                 disabled={isSubmitting || (!content.trim() && !imageFile)}
-                className="bg-[#2C2C2E] hover:bg-[#3C3C3E] rounded-full font-semibold transition-colors text-[#ECEDEE] disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '8px', paddingBottom: '8px' }}
+                className="rounded-full font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', paddingLeft: '20px', paddingRight: '20px', paddingTop: '8px', paddingBottom: '8px' }}
+                onMouseEnter={(e) => !(isSubmitting || (!content.trim() && !imageFile)) && (e.currentTarget.style.backgroundColor = 'var(--bg-hover)')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)')}
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={!isValid}
-                className="bg-[#10B981] hover:bg-[#059669] rounded-full font-semibold transition-colors text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '8px', paddingBottom: '8px' }}
+                className="rounded-full font-semibold transition-colors text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ backgroundColor: 'var(--primary)', paddingLeft: '20px', paddingRight: '20px', paddingTop: '8px', paddingBottom: '8px' }}
+                onMouseEnter={(e) => !(!isValid) && (e.currentTarget.style.backgroundColor = '#059669')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--primary)')}
               >
                 {isSubmitting ? 'Posting...' : 'Post'}
               </button>

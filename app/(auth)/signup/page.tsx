@@ -71,63 +71,63 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E]" style={{ padding: '28px' }}>
-      <h2 className="text-xl font-bold text-[#FFFFFF]" style={{ marginBottom: '24px' }}>Create Account</h2>
+    <div className="rounded-[20px] border" style={{ padding: '28px', backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
+      <h2 className="text-xl font-bold" style={{ marginBottom: '24px', color: 'var(--text-primary)' }}>Create Account</h2>
       
       <form onSubmit={handleSignup} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <div className="relative">
-          <Mail className="absolute h-5 w-5 text-[#8E8E93]" style={{ left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+          <Mail className="absolute h-5 w-5" style={{ left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
           <input
             id="email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full bg-[#000000] border border-[#2C2C2E] rounded-[12px] text-[#FFFFFF] placeholder-[#8E8E93] focus:outline-none focus:border-[#10B981] transition-colors"
-            style={{ paddingLeft: '48px', paddingRight: '16px', paddingTop: '14px', paddingBottom: '14px' }}
+            className="w-full border rounded-[12px] focus:outline-none focus:border-[#10B981] transition-colors"
+            style={{ paddingLeft: '48px', paddingRight: '16px', paddingTop: '14px', paddingBottom: '14px', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', borderColor: 'var(--border)' }}
             placeholder="you@example.com"
           />
         </div>
 
         <div className="relative">
-          <Lock className="absolute h-5 w-5 text-[#8E8E93]" style={{ left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+          <Lock className="absolute h-5 w-5" style={{ left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
           <input
             id="password"
             type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full bg-[#000000] border border-[#2C2C2E] rounded-[12px] text-[#FFFFFF] placeholder-[#8E8E93] focus:outline-none focus:border-[#10B981] transition-colors"
-            style={{ paddingLeft: '48px', paddingRight: '48px', paddingTop: '14px', paddingBottom: '14px' }}
+            className="w-full border rounded-[12px] focus:outline-none focus:border-[#10B981] transition-colors"
+            style={{ paddingLeft: '48px', paddingRight: '48px', paddingTop: '14px', paddingBottom: '14px', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', borderColor: 'var(--border)' }}
             placeholder="••••••••"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute text-[#8E8E93] hover:text-[#FFFFFF] transition-colors"
-            style={{ right: '16px', top: '50%', transform: 'translateY(-50%)' }}
+            className="absolute transition-colors"
+            style={{ right: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}
           >
             {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
           </button>
         </div>
 
         <div className="relative">
-          <Lock className="absolute h-5 w-5 text-[#8E8E93]" style={{ left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+          <Lock className="absolute h-5 w-5" style={{ left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
           <input
             id="confirmPassword"
             type={showConfirmPassword ? "text" : "password"}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
-            className="w-full bg-[#000000] border border-[#2C2C2E] rounded-[12px] text-[#FFFFFF] placeholder-[#8E8E93] focus:outline-none focus:border-[#10B981] transition-colors"
-            style={{ paddingLeft: '48px', paddingRight: '48px', paddingTop: '14px', paddingBottom: '14px' }}
+            className="w-full border rounded-[12px] focus:outline-none focus:border-[#10B981] transition-colors"
+            style={{ paddingLeft: '48px', paddingRight: '48px', paddingTop: '14px', paddingBottom: '14px', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', borderColor: 'var(--border)' }}
             placeholder="Confirm password"
           />
           <button
             type="button"
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            className="absolute text-[#8E8E93] hover:text-[#FFFFFF] transition-colors"
-            style={{ right: '16px', top: '50%', transform: 'translateY(-50%)' }}
+            className="absolute transition-colors"
+            style={{ right: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}
           >
             {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
           </button>
@@ -136,8 +136,8 @@ export default function SignupPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-[#10B981] hover:bg-[#059669] disabled:bg-[#2C2C2E] disabled:cursor-not-allowed text-white font-semibold rounded-[12px] transition-colors flex items-center justify-center gap-2"
-          style={{ paddingTop: '14px', paddingBottom: '14px', marginTop: '8px' }}
+          className="w-full bg-[#10B981] hover:bg-[#059669] disabled:cursor-not-allowed text-white font-semibold rounded-[12px] transition-colors flex items-center justify-center gap-2"
+          style={{ paddingTop: '14px', paddingBottom: '14px', marginTop: '8px', opacity: loading ? 0.5 : 1, backgroundColor: loading ? 'var(--bg-tertiary)' : undefined }}
         >
           {loading ? 'Creating account...' : 'Sign Up'}
           {!loading && <ArrowRight className="h-5 w-5" />}
@@ -145,7 +145,7 @@ export default function SignupPage() {
       </form>
 
       <div className="text-center" style={{ marginTop: '24px' }}>
-        <p className="text-[#9BA1A6]">
+        <p style={{ color: 'var(--text-muted)' }}>
           Already have an account?{' '}
           <Link href="/login" className="text-[#10B981] hover:underline font-medium">
             Login

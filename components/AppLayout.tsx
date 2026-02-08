@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Home, Users, MessageSquare, Bell, User, Target, Settings, Search, Shield, Award } from 'lucide-react'
+import { Home, Users, MessageSquare, Bell, User, Target, Settings, Search, Shield, Award, CheckCircle2 } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
@@ -122,43 +122,50 @@ export function AppLayout({ children, username }: AppLayoutProps) {
   const isActive = (path: string) => pathname === path
 
   return (
-    <div className="min-h-screen bg-[#000000]">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       {/* Top Header */}
-      <header className="fixed top-0 left-0 right-0 bg-[#000000] border-b border-[#2D2D2D] z-50">
+      <header className="fixed top-0 left-0 right-0 z-50" style={{ backgroundColor: 'var(--bg-primary)', borderBottom: '1px solid var(--border)' }}>
         <div className="h-14 flex items-center justify-between" style={{ marginLeft: '20px', marginRight: '20px' }}>
           <Link href="/" className="hover:opacity-80 transition-opacity">
-            <h1 className="text-xl font-bold text-[#10B981]">BeBusy</h1>
+            <h1 className="text-xl font-bold" style={{ color: 'var(--primary)' }}>BeBusy</h1>
           </Link>
           
           <div className="flex items-center gap-2">
-            <Link href="/search" className="p-2 hover:bg-[#151718] rounded-lg transition-colors">
-              <Search className="w-5 h-5 text-[#9BA1A6]" />
+            <Link href="/search" className="p-2 rounded-lg transition-colors" style={{ color: 'var(--text-secondary)' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--surface)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+              <Search className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
+            </Link>
+            <Link href="/check-in" className="p-2 rounded-lg transition-colors" title="Daily Check-in" onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--surface)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+              <CheckCircle2 className="w-5 h-5" style={{ color: 'var(--primary)' }} />
             </Link>
             {(userRole === 'mentor' || userRole === 'admin') && (
               <Link 
                 href="/mentor" 
-                className="p-2 hover:bg-[#151718] rounded-lg transition-colors" 
+                className="p-2 rounded-lg transition-colors" 
                 title="Mentor Dashboard"
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--surface)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
-                <Award className="w-5 h-5 text-[#10B981]" />
+                <Award className="w-5 h-5" style={{ color: 'var(--primary)' }} />
               </Link>
             )}
             {userRole === 'admin' && (
               <Link 
                 href="/admin" 
-                className="p-2 hover:bg-[#151718] rounded-lg transition-colors" 
+                className="p-2 rounded-lg transition-colors" 
                 title="Admin Dashboard"
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--surface)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
                 <Shield className="w-5 h-5 text-purple-500" />
               </Link>
             )}
-            <Link href="/settings/account" className="p-2 hover:bg-[#151718] rounded-lg transition-colors">
-              <Settings className="w-5 h-5 text-[#9BA1A6]" />
+            <Link href="/settings/account" className="p-2 rounded-lg transition-colors" onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--surface)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+              <Settings className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
             </Link>
-            <Link href="/notifications" className="p-2 hover:bg-[#151718] rounded-lg transition-colors relative">
-              <Bell className="w-5 h-5 text-[#9BA1A6]" />
+            <Link href="/notifications" className="p-2 rounded-lg transition-colors relative" onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--surface)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+              <Bell className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
               {unreadNotifCount > 0 && (
-                <span className="absolute top-1 right-1 bg-[#10B981] text-white text-xs font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                <span className="absolute top-1 right-1 text-white text-xs font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1" style={{ backgroundColor: 'var(--primary)' }}>
                   {unreadNotifCount > 99 ? '99+' : unreadNotifCount}
                 </span>
               )}
@@ -173,25 +180,25 @@ export function AppLayout({ children, username }: AppLayoutProps) {
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-[#000000] border-t border-[#2D2D2D] z-50">
+      <nav className="fixed bottom-0 left-0 right-0 z-50" style={{ backgroundColor: 'var(--bg-primary)', borderTop: '1px solid var(--border)' }}>
         <div className="h-16 flex items-center justify-around" style={{ marginLeft: '20px', marginRight: '20px' }}>
-          <Link href="/" className={`flex flex-col items-center gap-1 ${isActive('/') ? 'text-[#10B981]' : 'text-[#9BA1A6] hover:text-[#ECEDEE]'} transition-colors`}>
+          <Link href="/" className="flex flex-col items-center gap-1 transition-colors" style={{ color: isActive('/') ? 'var(--primary)' : 'var(--text-secondary)' }}>
             <Home className="w-6 h-6" />
             <span className="text-xs font-medium">Feed</span>
           </Link>
-          <Link href="/groups" className={`flex flex-col items-center gap-1 ${isActive('/groups') ? 'text-[#10B981]' : 'text-[#9BA1A6] hover:text-[#ECEDEE]'} transition-colors`}>
+          <Link href="/groups" className="flex flex-col items-center gap-1 transition-colors" style={{ color: isActive('/groups') ? 'var(--primary)' : 'var(--text-secondary)' }}>
             <Users className="w-6 h-6" />
             <span className="text-xs">Groups</span>
           </Link>
-          <Link href="/focus-groups" className={`flex flex-col items-center gap-1 ${pathname?.startsWith('/focus-groups') ? 'text-[#10B981]' : 'text-[#9BA1A6] hover:text-[#ECEDEE]'} transition-colors`}>
+          <Link href="/focus-groups" className="flex flex-col items-center gap-1 transition-colors" style={{ color: pathname?.startsWith('/focus-groups') ? 'var(--primary)' : 'var(--text-secondary)' }}>
             <Target className="w-6 h-6" />
             <span className="text-xs">Focus</span>
           </Link>
-          <Link href="/messages" className={`flex flex-col items-center gap-1 ${pathname?.startsWith('/messages') ? 'text-[#10B981]' : 'text-[#9BA1A6] hover:text-[#ECEDEE]'} transition-colors relative`}>
+          <Link href="/messages" className="flex flex-col items-center gap-1 transition-colors relative" style={{ color: pathname?.startsWith('/messages') ? 'var(--primary)' : 'var(--text-secondary)' }}>
             <div className="relative">
               <MessageSquare className="w-6 h-6" />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#10B981] text-white text-xs font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                <span className="absolute -top-1 -right-1 text-white text-xs font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1" style={{ backgroundColor: 'var(--primary)' }}>
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
               )}
@@ -199,12 +206,12 @@ export function AppLayout({ children, username }: AppLayoutProps) {
             <span className="text-xs">Messages</span>
           </Link>
           {username ? (
-            <Link href={`/profile/${username}`} className={`flex flex-col items-center gap-1 ${pathname?.startsWith('/profile') ? 'text-[#10B981]' : 'text-[#9BA1A6] hover:text-[#ECEDEE]'} transition-colors`}>
+            <Link href={`/profile/${username}`} className="flex flex-col items-center gap-1 transition-colors" style={{ color: pathname?.startsWith('/profile') ? 'var(--primary)' : 'var(--text-secondary)' }}>
               <User className="w-6 h-6" />
               <span className="text-xs">Profile</span>
             </Link>
           ) : (
-            <div className="flex flex-col items-center gap-1 text-[#4D4D4D]">
+            <div className="flex flex-col items-center gap-1" style={{ color: 'var(--text-muted)' }}>
               <User className="w-6 h-6" />
               <span className="text-xs">Profile</span>
             </div>

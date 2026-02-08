@@ -140,7 +140,7 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#000000] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
         <div className="animate-spin h-8 w-8 border-4 border-[#10B981] border-t-transparent rounded-full"></div>
       </div>
     )
@@ -152,21 +152,23 @@ export default function AdminDashboard() {
       <div style={{ marginBottom: '24px' }}>
         <div className="flex items-center gap-3" style={{ marginBottom: '8px' }}>
           <Shield className="w-8 h-8 text-purple-500" />
-          <h1 className="text-3xl font-bold text-[#ECEDEE]">Admin Dashboard</h1>
+          <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>Admin Dashboard</h1>
         </div>
-        <p className="text-[#9BA1A6]">Manage users and focus groups</p>
+        <p style={{ color: 'var(--text-muted)' }}>Manage users and focus groups</p>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-4 border-b border-[#2C2C2E]" style={{ marginBottom: '24px' }}>
+      <div className="flex gap-4 border-b" style={{ marginBottom: '24px', borderColor: 'var(--border)' }}>
         <button
           onClick={() => setActiveTab('users')}
           className={`flex items-center gap-2 py-3 font-medium transition-colors border-b-2 ${
             activeTab === 'users'
               ? 'border-[#10B981] text-[#10B981]'
-              : 'border-transparent text-[#9BA1A6] hover:text-[#ECEDEE]'
+              : 'border-transparent'
           }`}
-          style={{ paddingLeft: '16px', paddingRight: '16px' }}
+          style={activeTab !== 'users' ? { paddingLeft: '16px', paddingRight: '16px', color: 'var(--text-muted)' } : { paddingLeft: '16px', paddingRight: '16px' }}
+          onMouseEnter={(e) => activeTab !== 'users' && (e.currentTarget.style.color = 'var(--text-primary)')}
+          onMouseLeave={(e) => activeTab !== 'users' && (e.currentTarget.style.color = 'var(--text-muted)')}
         >
           <Users className="w-5 h-5" />
           Users ({users.length})
@@ -176,17 +178,21 @@ export default function AdminDashboard() {
           className={`flex items-center gap-2 py-3 font-medium transition-colors border-b-2 ${
             activeTab === 'focus-groups'
               ? 'border-[#10B981] text-[#10B981]'
-              : 'border-transparent text-[#9BA1A6] hover:text-[#ECEDEE]'
+              : 'border-transparent'
           }`}
-          style={{ paddingLeft: '16px', paddingRight: '16px' }}
+          style={activeTab !== 'focus-groups' ? { paddingLeft: '16px', paddingRight: '16px', color: 'var(--text-muted)' } : { paddingLeft: '16px', paddingRight: '16px' }}
+          onMouseEnter={(e) => activeTab !== 'focus-groups' && (e.currentTarget.style.color = 'var(--text-primary)')}
+          onMouseLeave={(e) => activeTab !== 'focus-groups' && (e.currentTarget.style.color = 'var(--text-muted)')}
         >
           <Target className="w-5 h-5" />
           Focus Groups ({focusGroups.length})
         </button>
         <Link
           href="/admin/reports"
-          className="flex items-center gap-2 py-3 font-medium transition-colors border-b-2 border-transparent text-[#9BA1A6] hover:text-[#ECEDEE]"
-          style={{ paddingLeft: '16px', paddingRight: '16px' }}
+          className="flex items-center gap-2 py-3 font-medium transition-colors border-b-2 border-transparent"
+          style={{ paddingLeft: '16px', paddingRight: '16px', color: 'var(--text-muted)' }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--text-primary)')}
+          onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-muted)')}
         >
           <Flag className="w-5 h-5" />
           Reports
@@ -195,22 +201,22 @@ export default function AdminDashboard() {
 
       {/* Users Tab */}
       {activeTab === 'users' && (
-        <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] overflow-hidden">
+        <div className="rounded-[20px] border overflow-hidden" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-[#2C2C2E]">
+              <thead style={{ backgroundColor: 'var(--bg-tertiary)' }}>
                 <tr>
-                  <th className="text-left font-semibold text-[#ECEDEE]" style={{ padding: '16px' }}>User</th>
-                  <th className="text-left font-semibold text-[#ECEDEE]" style={{ padding: '16px' }}>Email</th>
-                  <th className="text-left font-semibold text-[#ECEDEE]" style={{ padding: '16px' }}>Username</th>
-                  <th className="text-left font-semibold text-[#ECEDEE]" style={{ padding: '16px' }}>Role</th>
-                  <th className="text-left font-semibold text-[#ECEDEE]" style={{ padding: '16px' }}>Posts</th>
-                  <th className="text-left font-semibold text-[#ECEDEE]" style={{ padding: '16px' }}>Actions</th>
+                  <th className="text-left font-semibold" style={{ padding: '16px', color: 'var(--text-primary)' }}>User</th>
+                  <th className="text-left font-semibold" style={{ padding: '16px', color: 'var(--text-primary)' }}>Email</th>
+                  <th className="text-left font-semibold" style={{ padding: '16px', color: 'var(--text-primary)' }}>Username</th>
+                  <th className="text-left font-semibold" style={{ padding: '16px', color: 'var(--text-primary)' }}>Role</th>
+                  <th className="text-left font-semibold" style={{ padding: '16px', color: 'var(--text-primary)' }}>Posts</th>
+                  <th className="text-left font-semibold" style={{ padding: '16px', color: 'var(--text-primary)' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {users.map((user) => (
-                  <tr key={user.id} className="border-t border-[#2C2C2E] hover:bg-[#252527]">
+                  <tr key={user.id} className="border-t hover:bg-[#252527]" style={{ borderColor: 'var(--border)' }}>
                     <td style={{ padding: '16px' }}>
                       <div className="flex items-center gap-3">
                         {user.avatar_url ? (
@@ -224,17 +230,17 @@ export default function AdminDashboard() {
                             {user.full_name?.[0] || '?'}
                           </div>
                         )}
-                        <span className="font-medium text-[#ECEDEE]">{user.full_name}</span>
+                        <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{user.full_name}</span>
                       </div>
                     </td>
-                    <td className="text-[#9BA1A6]" style={{ padding: '16px' }}>{user.email}</td>
-                    <td className="text-[#9BA1A6]" style={{ padding: '16px' }}>@{user.username || 'N/A'}</td>
+                    <td style={{ padding: '16px', color: 'var(--text-muted)' }}>{user.email}</td>
+                    <td style={{ padding: '16px', color: 'var(--text-muted)' }}>@{user.username || 'N/A'}</td>
                     <td style={{ padding: '16px' }}>
                       <select
                         value={user.role || 'user'}
                         onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                        className="bg-[#2C2C2E] border border-[#3C3C3E] rounded-lg text-[#ECEDEE] text-sm focus:outline-none focus:border-[#10B981]"
-                        style={{ paddingLeft: '12px', paddingRight: '12px', paddingTop: '6px', paddingBottom: '6px' }}
+                        className="border rounded-lg text-sm focus:outline-none focus:border-[#10B981]"
+                        style={{ paddingLeft: '12px', paddingRight: '12px', paddingTop: '6px', paddingBottom: '6px', backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
                         disabled={user.role === 'banned'}
                       >
                         <option value="user">User</option>
@@ -248,7 +254,7 @@ export default function AdminDashboard() {
                         </div>
                       )}
                     </td>
-                    <td className="text-[#9BA1A6]" style={{ padding: '16px' }}>{user.posts_count}</td>
+                    <td style={{ padding: '16px', color: 'var(--text-muted)' }}>{user.posts_count}</td>
                     <td style={{ padding: '16px' }}>
                       <div className="flex items-center gap-2">
                         <button
@@ -304,14 +310,14 @@ export default function AdminDashboard() {
             {focusGroups.map((fg) => (
               <div
                 key={fg.id}
-                className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] hover:bg-[#252527] transition-all"
-                style={{ padding: '24px' }}
+                className="rounded-[20px] border hover:bg-[#252527] transition-all"
+                style={{ padding: '24px', backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
               >
                 <div className="flex items-start justify-between" style={{ marginBottom: '16px' }}>
                   <div className="flex-1">
-                    <h3 className="text-xl font-bold text-[#ECEDEE]" style={{ marginBottom: '8px' }}>{fg.title}</h3>
-                    <p className="text-[#9BA1A6] text-sm" style={{ marginBottom: '12px' }}>{fg.description}</p>
-                    <div className="flex items-center gap-4 text-sm text-[#8E8E93]">
+                    <h3 className="text-xl font-bold" style={{ marginBottom: '8px', color: 'var(--text-primary)' }}>{fg.title}</h3>
+                    <p className="text-sm" style={{ marginBottom: '12px', color: 'var(--text-muted)' }}>{fg.description}</p>
+                    <div className="flex items-center gap-4 text-sm" style={{ color: 'var(--text-muted)' }}>
                       <span>Mentor: <span className="text-[#10B981]">{fg.mentor_name}</span></span>
                       <span>•</span>
                       <span>
@@ -325,13 +331,14 @@ export default function AdminDashboard() {
                   </div>
                   <button
                     onClick={() => router.push(`/admin/edit-focus-group/${fg.id}`)}
-                    className="p-2 hover:bg-[#2C2C2E] rounded-lg transition-colors"
+                    className="p-2 rounded-lg transition-colors"
+                    style={{ backgroundColor: 'var(--bg-tertiary)' }}
                   >
-                    <Edit className="w-5 h-5 text-[#9BA1A6]" />
+                    <Edit className="w-5 h-5" style={{ color: 'var(--text-muted)' }} />
                   </button>
                 </div>
                 {(fg.start_date || fg.end_date) && (
-                  <div className="text-sm text-[#8E8E93]">
+                  <div className="text-sm" style={{ color: 'var(--text-muted)' }}>
                     Duration: {new Date(fg.start_date).toLocaleDateString()} -{' '}
                     {new Date(fg.end_date).toLocaleDateString()}
                   </div>
@@ -340,9 +347,9 @@ export default function AdminDashboard() {
             ))}
 
             {focusGroups.length === 0 && (
-              <div className="text-center bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E]" style={{ padding: '48px' }}>
-                <Target className="w-16 h-16 mx-auto text-[#3C3C3E]" style={{ marginBottom: '16px' }} />
-                <p className="text-[#9BA1A6]">No focus groups created yet</p>
+              <div className="text-center rounded-[20px] border" style={{ padding: '48px', backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
+                <Target className="w-16 h-16 mx-auto" style={{ marginBottom: '16px', color: '#3C3C3E' }} />
+                <p style={{ color: 'var(--text-muted)' }}>No focus groups created yet</p>
               </div>
             )}
           </div>

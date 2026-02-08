@@ -4,13 +4,13 @@ export default function AuthLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#000000]" style={{ padding: '20px' }}>
+    <div className="min-h-screen flex items-center justify-center" style={{ padding: '20px', backgroundColor: 'var(--bg-primary)' }}>
       <div className="w-full max-w-md">
         <div className="text-center" style={{ marginBottom: '40px' }}>
-          <h1 className="text-4xl font-bold text-[#FFFFFF]" style={{ marginBottom: '8px' }}>
+          <h1 className="text-4xl font-bold" style={{ marginBottom: '8px', color: 'var(--text-primary)' }}>
             Be<span className="text-[#10B981]">Busy</span>
           </h1>
-          <p className="text-[#9BA1A6]">Social network for productive people</p>
+          <p style={{ color: 'var(--text-muted)' }}>Social network for productive people</p>
         </div>
         {children}
       </div>

@@ -137,19 +137,19 @@ export default function CreateProfilePage() {
   }
 
   return (
-    <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E]" style={{ padding: '28px' }}>
-      <h2 className="text-2xl font-bold text-[#FFFFFF]" style={{ marginBottom: '8px' }}>Complete Your Profile</h2>
-      <p className="text-[#9BA1A6]" style={{ marginBottom: '24px' }}>Tell us a bit about yourself</p>
+    <div className="rounded-[20px] border" style={{ padding: '28px', backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
+      <h2 className="text-2xl font-bold" style={{ marginBottom: '8px', color: 'var(--text-primary)' }}>Complete Your Profile</h2>
+      <p style={{ marginBottom: '24px', color: 'var(--text-muted)' }}>Tell us a bit about yourself</p>
       
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {/* Avatar Upload */}
         <div className="flex flex-col items-center" style={{ marginBottom: '12px' }}>
           <div className="relative">
-            <div className="rounded-full bg-[#2C2C2E] flex items-center justify-center overflow-hidden" style={{ width: '96px', height: '96px' }}>
+            <div className="rounded-full flex items-center justify-center overflow-hidden" style={{ width: '96px', height: '96px', backgroundColor: 'var(--bg-tertiary)' }}>
               {avatarPreview ? (
                 <img src={avatarPreview} alt="Avatar preview" className="w-full h-full object-cover" />
               ) : (
-                <User className="text-[#8E8E93]" style={{ width: '48px', height: '48px' }} />
+                <User style={{ width: '48px', height: '48px', color: 'var(--text-muted)' }} />
               )}
             </div>
             <label
@@ -171,11 +171,11 @@ export default function CreateProfilePage() {
         </div>
 
         <div>
-          <label htmlFor="fullName" className="block text-sm font-medium text-[#FFFFFF]" style={{ marginBottom: '8px' }}>
+          <label htmlFor="fullName" className="block text-sm font-medium" style={{ marginBottom: '8px', color: 'var(--text-primary)' }}>
             Full Name *
           </label>
           <div className="relative">
-            <User className="absolute text-[#8E8E93]" style={{ left: '16px', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px' }} />
+            <User className="absolute" style={{ left: '16px', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px', color: 'var(--text-muted)' }} />
             <input
               id="fullName"
               type="text"
@@ -188,8 +188,8 @@ export default function CreateProfilePage() {
               }
             }}
               required
-              className="w-full bg-[#000000] border border-[#2C2C2E] rounded-[12px] text-[#FFFFFF] placeholder-[#8E8E93] focus:outline-none focus:border-[#10B981] transition-colors"
-              style={{ paddingLeft: '48px', paddingRight: '16px', paddingTop: '14px', paddingBottom: '14px' }}
+              className="w-full border rounded-[12px] focus:outline-none focus:border-[#10B981] transition-colors"
+              style={{ paddingLeft: '48px', paddingRight: '16px', paddingTop: '14px', paddingBottom: '14px', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', borderColor: 'var(--border)' }}
               placeholder="John Doe"
             />
           </div>
@@ -200,21 +200,21 @@ export default function CreateProfilePage() {
             Username *
           </label>
           <div className="relative">
-            <AtSign className="absolute text-[#8E8E93]" style={{ left: '16px', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px' }} />
+            <AtSign className="absolute" style={{ left: '16px', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px', color: 'var(--text-muted)' }} />
             <input
               id="username"
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
               required
-              className={`w-full bg-[#000000] border rounded-[12px] text-[#FFFFFF] placeholder-[#8E8E93] focus:outline-none transition-colors ${
+              className={`w-full border rounded-[12px] focus:outline-none transition-colors ${
                 usernameValid === false
                   ? 'border-red-500 focus:border-red-500'
                   : usernameValid === true
                   ? 'border-green-500 focus:border-green-500'
-                  : 'border-[#2C2C2E] focus:border-[#10B981]'
+                  : 'focus:border-[#10B981]'
               }`}
-              style={{ paddingLeft: '48px', paddingRight: '16px', paddingTop: '14px', paddingBottom: '14px' }}
+              style={{ paddingLeft: '48px', paddingRight: '16px', paddingTop: '14px', paddingBottom: '14px', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', borderColor: usernameValid === null ? 'var(--border)' : undefined }}
               placeholder="johndoe"
             />
             {usernameChecking && (
@@ -232,30 +232,30 @@ export default function CreateProfilePage() {
         </div>
 
         <div>
-          <label htmlFor="bio" className="block text-sm font-medium text-[#FFFFFF]" style={{ marginBottom: '8px' }}>
+          <label htmlFor="bio" className="block text-sm font-medium" style={{ marginBottom: '8px', color: 'var(--text-primary)' }}>
             Bio (optional)
           </label>
           <div className="relative">
-            <FileText className="absolute text-[#8E8E93]" style={{ left: '16px', top: '14px', width: '20px', height: '20px' }} />
+            <FileText className="absolute" style={{ left: '16px', top: '14px', width: '20px', height: '20px', color: 'var(--text-muted)' }} />
             <textarea
               id="bio"
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               rows={3}
               maxLength={160}
-              className="w-full bg-[#000000] border border-[#2C2C2E] rounded-[12px] text-[#FFFFFF] placeholder-[#8E8E93] focus:outline-none focus:border-[#10B981] transition-colors resize-none"
-              style={{ paddingLeft: '48px', paddingRight: '16px', paddingTop: '14px', paddingBottom: '14px' }}
+              className="w-full border rounded-[12px] focus:outline-none focus:border-[#10B981] transition-colors resize-none"
+              style={{ paddingLeft: '48px', paddingRight: '16px', paddingTop: '14px', paddingBottom: '14px', backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
               placeholder="Tell us about yourself..."
             />
           </div>
-          <p className="text-sm text-[#8E8E93] text-right" style={{ marginTop: '4px' }}>{bio.length}/160</p>
+          <p className="text-sm text-right" style={{ marginTop: '4px', color: 'var(--text-muted)' }}>{bio.length}/160</p>
         </div>
 
         <button
           type="submit"
           disabled={loading || !usernameValid}
-          className="w-full bg-[#10B981] hover:bg-[#059669] disabled:bg-[#2C2C2E] disabled:cursor-not-allowed text-white font-semibold rounded-[12px] transition-colors flex items-center justify-center gap-2"
-          style={{ paddingTop: '14px', paddingBottom: '14px', marginTop: '8px' }}
+          className="w-full bg-[#10B981] hover:bg-[#059669] disabled:cursor-not-allowed text-white font-semibold rounded-[12px] transition-colors flex items-center justify-center gap-2"
+          style={{ paddingTop: '14px', paddingBottom: '14px', marginTop: '8px', opacity: (loading || !usernameValid) ? 0.5 : 1, backgroundColor: (loading || !usernameValid) ? 'var(--bg-tertiary)' : undefined }}
         >
           {loading ? 'Creating profile...' : 'Complete Profile'}
           {!loading && <ArrowRight style={{ width: '20px', height: '20px' }} />}

@@ -1,8 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createGroup } from '@/lib/supabase/groups'
+import { TAG_OPTIONS } from '@/lib/tagCategories'
+import TagPicker from '@/components/TagPicker'
 import { ArrowLeft } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -10,6 +12,7 @@ export default function CreateGroupPage() {
   const router = useRouter()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [creating, setCreating] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,7 +25,7 @@ export default function CreateGroupPage() {
 
     setCreating(true)
     try {
-      const group = await createGroup(name.trim(), description.trim(), false)
+      const group = await createGroup(name.trim(), description.trim(), false, selectedTags)
       const groupId = (group as any)?.id
 
       if (!groupId) {
@@ -44,12 +47,12 @@ export default function CreateGroupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="max-w-[600px] mx-auto border-x border-gray-800">
+    <div className="min-h-screen" style={{ minHeight: '100dvh', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+      <div className="max-w-[600px] mx-auto border-x" style={{ borderColor: 'var(--border)' }}>
         {/* Header */}
-        <div className="sticky top-0 bg-black/95 backdrop-blur-md border-b border-gray-800 p-4 z-10 flex items-center justify-between">
+        <div className="sticky top-0 backdrop-blur-md border-b p-4 z-10 flex items-center justify-between" style={{ backgroundColor: 'rgba(0, 0, 0, 0.95)', borderColor: 'var(--border)', paddingTop: 'calc(12px + env(safe-area-inset-top))' }}>
           <div className="flex items-center gap-4">
-            <button onClick={() => router.back()} className="p-2 hover:bg-gray-900 rounded-full transition-colors">
+            <button onClick={() => router.back()} className="p-2 rounded-full transition-colors" style={{ backgroundColor: 'var(--bg-secondary)' }}>
               <ArrowLeft className="w-5 h-5" />
             </button>
             <h2 className="text-xl font-bold">Create Group</h2>
@@ -64,34 +67,41 @@ export default function CreateGroupPage() {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-4 space-y-6">
+        <form onSubmit={handleSubmit} className="p-4 space-y-6" style={{ paddingBottom: 'calc(16px + env(safe-area-inset-bottom))' }}>
           {/* Group Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">Group Name *</label>
+            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-muted)' }}>Group Name *</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter group name"
               maxLength={50}
-              className="w-full bg-gray-900 text-white px-4 py-3 rounded-lg border border-gray-800 focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition-colors"
+              className="w-full px-4 py-3 rounded-lg border focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition-colors"
+              style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', borderColor: 'var(--border)' }}
               required
             />
-            <p className="text-xs text-gray-600 mt-1">{name.length}/50</p>
+            <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>{name.length}/50</p>
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">Description</label>
+            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-muted)' }}>Description</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="What is this group about?"
               maxLength={200}
               rows={4}
-              className="w-full bg-gray-900 text-white px-4 py-3 rounded-lg border border-gray-800 focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition-colors resize-none"
+              className="w-full px-4 py-3 rounded-lg border focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none transition-colors resize-none"
+              style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', borderColor: 'var(--border)' }}
             />
-            <p className="text-xs text-gray-600 mt-1">{description.length}/200</p>
+            <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>{description.length}/200</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-muted)' }}>Tags</label>
+            <TagPicker value={selectedTags} onChange={setSelectedTags} options={TAG_OPTIONS} placeholder="Filter by tags (comma-separated) e.g. react, python, machine_learning" />
           </div>
         </form>
       </div>

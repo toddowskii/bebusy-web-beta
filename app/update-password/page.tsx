@@ -57,15 +57,15 @@ export default function UpdatePasswordPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-[#1C1C1E] rounded-[20px] p-8">
-        <h1 className="text-2xl font-bold mb-2">Update Password</h1>
-        <p className="text-gray-400 mb-6">
+      <div className="w-full max-w-md rounded-[20px] p-8" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+        <h1 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Update Password</h1>
+        <p className="mb-6" style={{ color: 'var(--text-muted)' }}>
           Enter your new password below.
         </p>
 
         <form onSubmit={handleUpdatePassword}>
           <div className="mb-4">
-            <label htmlFor="password" className="block text-sm font-medium mb-2">
+            <label htmlFor="password" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-muted)' }}>
               New Password
             </label>
             <input
@@ -73,7 +73,10 @@ export default function UpdatePasswordPage() {
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-[#2C2C2E] rounded-[12px] focus:outline-none focus:ring-2 focus:ring-[#10B981]"
+              className="w-full px-4 py-3 rounded-[12px] focus:outline-none"
+              style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderWidth: '2px', borderColor: 'transparent' }}
+              onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary)'}
+              onBlur={(e) => e.currentTarget.style.borderColor = 'transparent'}
               placeholder="Enter new password"
               required
               disabled={loading}
@@ -82,7 +85,7 @@ export default function UpdatePasswordPage() {
           </div>
 
           <div className="mb-6">
-            <label htmlFor="confirmPassword" className="block text-sm font-medium mb-2">
+            <label htmlFor="confirmPassword" className="block text-sm font-medium mb-2" style={{ color: 'var(--text-muted)' }}>
               Confirm Password
             </label>
             <input
@@ -90,7 +93,10 @@ export default function UpdatePasswordPage() {
               id="confirmPassword"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-[#2C2C2E] rounded-[12px] focus:outline-none focus:ring-2 focus:ring-[#10B981]"
+              className="w-full px-4 py-3 rounded-[12px] focus:outline-none"
+              style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderWidth: '2px', borderColor: 'transparent' }}
+              onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary)'}
+              onBlur={(e) => e.currentTarget.style.borderColor = 'transparent'}
               placeholder="Confirm new password"
               required
               disabled={loading}
@@ -101,7 +107,7 @@ export default function UpdatePasswordPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#10B981] text-white rounded-full px-6 py-3 font-semibold hover:bg-[#0ea472] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-primary text-white rounded-full px-6 py-3 font-semibold hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Updating...' : 'Update Password'}
           </button>

@@ -52,6 +52,29 @@ export async function getProfileById(userId: string) {
 }
 
 /**
+ * Get profile by username
+ */
+export async function getProfileByUsername(username: string): Promise<Profile | null> {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('username', username)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error fetching profile by username:', error);
+      return null;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error in getProfileByUsername:', error);
+    return null;
+  }
+}
+
+/**
  * Create a new profile
  */
 export async function createProfile(profile: ProfileInsert): Promise<Profile | null> {

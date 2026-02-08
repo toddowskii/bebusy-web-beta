@@ -7,11 +7,17 @@ type FocusGroup = Database['public']['Tables']['focus_groups']['Row'];
 /**
  * Fetch all focus groups
  */
-export async function fetchFocusGroups() {
-  const { data, error } = await supabase
+export async function fetchFocusGroups(tags?: string[]) {
+  let query: any = supabase
     .from('focus_groups')
     .select('*')
     .order('created_at', { ascending: false });
+
+  if (tags && tags.length > 0) {
+    query = query.overlaps('tags', tags);
+  }
+
+  const { data, error } = await query;
 
   if (error) throw error;
   return data || [];
@@ -20,26 +26,27 @@ export async function fetchFocusGroups() {
 /**
  * Fetch user's focus groups (groups they are a member of)
  */
-export async function fetchUserFocusGroups() {
+export async function fetchUserFocusGroups(tags?: string[]) {
   const { data: session } = await supabase.auth.getSession();
   const userId = session?.session?.user?.id;
 
   if (!userId) return [];
 
-  const { data, error } = await supabase
-    .from('focus_group_members')
-    .select(`
-      focus_group_id,
-      status,
-      focus_groups (*)
-    `)
-    .eq('user_id', userId);
+  let query: any = supabase
+    .from('focus_groups')
+    .select(`*, focus_group_members (*)`)
+    .eq('focus_group_members.user_id', userId)
+    .order('created_at', { ascending: false });
 
+  if (tags && tags.length > 0) {
+    query = query.overlaps('tags', tags);
+  }
+
+  const { data, error } = await query;
   if (error) throw error;
-  
-  return (data || []).map((item: any) => ({
-    ...item.focus_groups,
-    membership_status: item.status
+
+  return (data || []).map((fg: any) => ({
+    ...fg
   }));
 }
 

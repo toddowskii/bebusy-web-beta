@@ -3,6 +3,8 @@
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { getCurrentProfile, updateProfile, uploadAvatar, uploadBanner } from '@/lib/supabase/profiles'
+import { TAG_OPTIONS } from '@/lib/tagCategories'
+import TagPicker from '@/components/TagPicker'
 import { ArrowLeft, Camera, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -21,6 +23,7 @@ export default function EditProfilePage() {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [bannerFile, setBannerFile] = useState<File | null>(null)
   const [bannerPreview, setBannerPreview] = useState<string | null>(null)
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
   
   // Crop modal state
   const [showCropModal, setShowCropModal] = useState(false)
@@ -47,6 +50,7 @@ export default function EditProfilePage() {
       setBio(currentProfile.bio || '')
       setAvatarPreview(currentProfile.avatar_url)
       setBannerPreview(currentProfile.cover_url)
+      setSelectedTags(currentProfile.tags || [])
     } catch (error) {
       console.error('Error loading profile:', error)
       toast.error('Failed to load profile')
@@ -446,6 +450,7 @@ export default function EditProfilePage() {
       if (coverUrl && coverUrl !== profile.cover_url) {
         updates.cover_url = coverUrl
       }
+      updates.tags = selectedTags
 
       console.log('Updating profile with:', updates)
       const result = await updateProfile(profile.id, updates)
@@ -463,21 +468,21 @@ export default function EditProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
         <div className="animate-spin h-10 w-10 border-4 border-[#10B981] border-t-transparent rounded-full"></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-black text-white" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '80px', paddingBottom: '80px' }}>
+    <div className="min-h-screen text-white" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '80px', paddingBottom: '80px', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       {/* Header */}
       <div className="flex items-center justify-between" style={{ marginBottom: '24px' }}>
         <div className="flex items-center gap-4">
-          <button onClick={() => router.back()} className="p-2 hover:bg-[#1C1C1E] rounded-full transition-colors">
-            <ArrowLeft className="w-5 h-5 text-[#ECEDEE]" />
+          <button onClick={() => router.back()} className="p-2 rounded-full transition-colors" style={{ backgroundColor: 'transparent' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+            <ArrowLeft className="w-5 h-5" style={{ color: 'var(--text-primary)' }} />
           </button>
-          <h2 className="text-2xl font-bold text-[#ECEDEE]">Edit Profile</h2>
+          <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Edit Profile</h2>
         </div>
         <button
           onClick={handleSave}
@@ -490,25 +495,28 @@ export default function EditProfilePage() {
       </div>
 
       {/* Banner Section */}
-      <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E]" style={{ marginBottom: '16px', padding: '24px' }}>
-        <h3 className="text-lg font-semibold text-[#ECEDEE]" style={{ marginBottom: '16px' }}>Cover Banner</h3>
+      <div className="rounded-[20px] border" style={{ marginBottom: '16px', padding: '24px', backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
+        <h3 className="text-lg font-semibold" style={{ marginBottom: '16px', color: 'var(--text-primary)' }}>Cover Banner</h3>
         <div className="relative" style={{ marginBottom: '12px' }}>
           {bannerPreview ? (
             <img
               src={bannerPreview}
               alt="Cover banner"
-              className="w-full h-40 object-cover rounded-xl border-2 border-[#2C2C2E]"
+              className="w-full h-40 object-cover rounded-xl border-2"
+              style={{ borderColor: 'var(--border)' }}
             />
           ) : (
-            <div className="w-full h-40 bg-gradient-to-r from-[#10B981]/20 to-[#059669]/20 rounded-xl border-2 border-[#2C2C2E] flex items-center justify-center">
-              <Camera className="w-8 h-8 text-[#8E8E93]" />
+            <div className="w-full h-40 bg-gradient-to-r from-[#10B981]/20 to-[#059669]/20 rounded-xl border-2 flex items-center justify-center" style={{ borderColor: 'var(--border)' }}>
+              <Camera className="w-8 h-8" style={{ color: 'var(--text-muted)' }} />
             </div>
           )}
         </div>
         <button
           onClick={() => bannerInputRef.current?.click()}
-          className="w-full bg-[#2C2C2E] hover:bg-[#3C3C3E] text-[#ECEDEE] font-medium rounded-xl transition-colors flex items-center justify-center gap-2"
-          style={{ paddingTop: '12px', paddingBottom: '12px' }}
+          className="w-full font-medium rounded-xl transition-colors flex items-center justify-center gap-2"
+          style={{ paddingTop: '12px', paddingBottom: '12px', backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'}
         >
           <Camera className="w-4 h-4" />
           {bannerPreview ? 'Change Banner' : 'Add Banner'}
@@ -520,22 +528,23 @@ export default function EditProfilePage() {
           onChange={handleBannerSelect}
           className="hidden"
         />
-        <p className="text-xs text-[#8E8E93]" style={{ marginTop: '8px' }}>Recommended size: 1500x500px. Max 5MB</p>
+        <p className="text-xs" style={{ marginTop: '8px', color: 'var(--text-muted)' }}>Recommended size: 1500x500px. Max 5MB</p>
       </div>
 
       {/* Avatar Section */}
-      <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E]" style={{ marginBottom: '16px', padding: '24px' }}>
-        <h3 className="text-lg font-semibold text-[#ECEDEE]" style={{ marginBottom: '16px' }}>Profile Picture</h3>
+      <div className="rounded-[20px] border" style={{ marginBottom: '16px', padding: '24px', backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
+        <h3 className="text-lg font-semibold" style={{ marginBottom: '16px', color: 'var(--text-primary)' }}>Profile Picture</h3>
         <div className="flex items-center gap-6">
           <div className="relative">
             {avatarPreview ? (
               <img
                 src={avatarPreview}
                 alt="Avatar"
-                className="w-24 h-24 rounded-full object-cover border-2 border-[#2C2C2E]"
+                className="w-24 h-24 rounded-full object-cover border-2"
+                style={{ borderColor: 'var(--border)' }}
               />
             ) : (
-              <div className="w-24 h-24 rounded-full bg-[#10B981] flex items-center justify-center text-white font-bold text-3xl border-2 border-[#2C2C2E]">
+              <div className="w-24 h-24 rounded-full bg-[#10B981] flex items-center justify-center text-white font-bold text-3xl border-2" style={{ borderColor: 'var(--border)' }}>
                 {profile?.username[0].toUpperCase()}
               </div>
             )}
@@ -554,32 +563,32 @@ export default function EditProfilePage() {
             />
           </div>
           <div>
-            <p className="text-sm text-[#ECEDEE] font-medium" style={{ marginBottom: '4px' }}>Change your profile picture</p>
-            <p className="text-xs text-[#8E8E93]">JPG, PNG or GIF. Max size 5MB</p>
+            <p className="text-sm font-medium" style={{ marginBottom: '4px', color: 'var(--text-primary)' }}>Change your profile picture</p>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>JPG, PNG or GIF. Max size 5MB</p>
           </div>
         </div>
       </div>
 
       {/* Profile Information */}
-      <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E]" style={{ marginBottom: '16px', padding: '24px' }}>
-        <h3 className="text-lg font-semibold text-[#ECEDEE]" style={{ marginBottom: '20px' }}>Profile Information</h3>
+      <div className="rounded-[20px] border" style={{ marginBottom: '16px', padding: '24px', backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
+        <h3 className="text-lg font-semibold" style={{ marginBottom: '20px', color: 'var(--text-primary)' }}>Profile Information</h3>
         
         {/* Username (read-only) */}
         <div style={{ marginBottom: '20px' }}>
-          <label className="block text-sm font-medium text-[#9BA1A6]" style={{ marginBottom: '8px' }}>Username</label>
+          <label className="block text-sm font-medium" style={{ marginBottom: '8px', color: 'var(--text-muted)' }}>Username</label>
           <input
             type="text"
             value={profile?.username || ''}
             disabled
-            className="w-full bg-[#2C2C2E]/50 text-[#8E8E93] rounded-xl border border-[#2C2C2E] cursor-not-allowed"
-            style={{ paddingLeft: '16px', paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px' }}
+            className="w-full rounded-xl border cursor-not-allowed"
+            style={{ paddingLeft: '16px', paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px', backgroundColor: 'var(--bg-tertiary)', opacity: 0.5, color: 'var(--text-muted)', borderColor: 'var(--border)' }}
           />
-          <p className="text-xs text-[#8E8E93]" style={{ marginTop: '4px' }}>Username cannot be changed</p>
+          <p className="text-xs" style={{ marginTop: '4px', color: 'var(--text-muted)' }}>Username cannot be changed</p>
         </div>
 
         {/* Full Name */}
         <div style={{ marginBottom: '20px' }}>
-          <label className="block text-sm font-medium text-[#9BA1A6]" style={{ marginBottom: '8px' }}>Full Name</label>
+          <label className="block text-sm font-medium" style={{ marginBottom: '8px', color: 'var(--text-muted)' }}>Full Name</label>
           <input
             type="text"
             value={fullName}
@@ -592,34 +601,44 @@ export default function EditProfilePage() {
             }}
             placeholder="Your full name"
             maxLength={50}
-            className="w-full bg-[#2C2C2E] text-[#ECEDEE] rounded-xl border border-[#2C2C2E] focus:border-[#10B981] focus:outline-none transition-colors placeholder:text-[#8E8E93]"
-            style={{ paddingLeft: '16px', paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px' }}
+            className="w-full rounded-xl border focus:outline-none transition-colors"
+            style={{ paddingLeft: '16px', paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px', backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderColor: 'var(--border)' }}
+            onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary)'}
+            onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
           />
-          <p className="text-xs text-[#8E8E93]" style={{ marginTop: '4px' }}>{fullName.length}/50</p>
+          <p className="text-xs" style={{ marginTop: '4px', color: 'var(--text-muted)' }}>{fullName.length}/50</p>
         </div>
 
         {/* Bio */}
         <div>
-          <label className="block text-sm font-medium text-[#9BA1A6]" style={{ marginBottom: '8px' }}>Bio</label>
+          <label className="block text-sm font-medium" style={{ marginBottom: '8px', color: 'var(--text-muted)' }}>Bio</label>
           <textarea
             value={bio}
             onChange={(e) => setBio(e.target.value)}
             placeholder="Tell us about yourself"
             maxLength={160}
             rows={4}
-            className="w-full bg-[#2C2C2E] text-[#ECEDEE] rounded-xl border border-[#2C2C2E] focus:border-[#10B981] focus:outline-none transition-colors resize-none placeholder:text-[#8E8E93]"
-            style={{ paddingLeft: '16px', paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px' }}
+            className="w-full rounded-xl border focus:outline-none transition-colors resize-none"
+            style={{ paddingLeft: '16px', paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px', backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderColor: 'var(--border)' }}
+            onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary)'}
+            onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
           />
-          <p className="text-xs text-[#8E8E93]" style={{ marginTop: '4px' }}>{bio.length}/160</p>
+          <p className="text-xs" style={{ marginTop: '4px', color: 'var(--text-muted)' }}>{bio.length}/160</p>
+        </div>
+
+        {/* Tags */}
+        <div className="rounded-[20px] border" style={{ marginBottom: '16px', padding: '24px', backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
+          <h3 className="text-lg font-semibold" style={{ marginBottom: '12px', color: 'var(--text-primary)' }}>Tags</h3>
+          <TagPicker value={selectedTags} onChange={setSelectedTags} options={TAG_OPTIONS} placeholder="Filter by tags (comma-separated) e.g. react, python, machine_learning" />
         </div>
       </div>
 
       {/* Crop Modal */}
       {showCropModal && (
         <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] max-w-4xl w-full my-8" style={{ padding: '24px' }}>
+          <div className="rounded-[20px] border max-w-4xl w-full my-8" style={{ padding: '24px', backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
             <div className="flex items-center justify-between" style={{ marginBottom: '20px' }}>
-              <h3 className="text-xl font-bold text-[#ECEDEE]">
+              <h3 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
                 {cropType === 'avatar' ? 'Crop Profile Picture' : 'Crop Banner Image'}
               </h3>
               <button
@@ -627,9 +646,11 @@ export default function EditProfilePage() {
                   setShowCropModal(false)
                   setImageToCrop(null)
                 }}
-                className="p-2 hover:bg-[#2C2C2E] rounded-full transition-colors"
+                className="p-2 rounded-full transition-colors"
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
               >
-                <X className="w-5 h-5 text-[#9BA1A6]" />
+                <X className="w-5 h-5" style={{ color: 'var(--text-muted)' }} />
               </button>
             </div>
 
@@ -652,18 +673,22 @@ export default function EditProfilePage() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => handleZoom(-50)}
-                  className="bg-[#2C2C2E] hover:bg-[#3C3C3E] text-[#ECEDEE] rounded-xl transition-colors font-bold text-xl flex items-center justify-center"
-                  style={{ width: '40px', height: '40px' }}
+                  className="rounded-xl transition-colors font-bold text-xl flex items-center justify-center"
+                  style={{ width: '40px', height: '40px', backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'}
                 >
                   −
                 </button>
-                <span className="text-sm text-[#9BA1A6] font-medium min-w-[60px] text-center">
+                <span className="text-sm font-medium min-w-[60px] text-center" style={{ color: 'var(--text-muted)' }}>
                   {cropType === 'avatar' ? '1:1' : '3:1'}
                 </span>
                 <button
                   onClick={() => handleZoom(50)}
-                  className="bg-[#2C2C2E] hover:bg-[#3C3C3E] text-[#ECEDEE] rounded-xl transition-colors font-bold text-xl flex items-center justify-center"
-                  style={{ width: '40px', height: '40px' }}
+                  className="rounded-xl transition-colors font-bold text-xl flex items-center justify-center"
+                  style={{ width: '40px', height: '40px', backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'}
                 >
                   +
                 </button>
@@ -675,8 +700,10 @@ export default function EditProfilePage() {
                     setShowCropModal(false)
                     setImageToCrop(null)
                   }}
-                  className="bg-[#2C2C2E] hover:bg-[#3C3C3E] text-[#ECEDEE] font-semibold rounded-full transition-colors"
-                  style={{ paddingLeft: '32px', paddingRight: '32px', paddingTop: '10px', paddingBottom: '10px' }}
+                  className="font-semibold rounded-full transition-colors"
+                  style={{ paddingLeft: '32px', paddingRight: '32px', paddingTop: '10px', paddingBottom: '10px', backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-hover)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'}
                 >
                   Cancel
                 </button>
@@ -690,8 +717,8 @@ export default function EditProfilePage() {
               </div>
             </div>
 
-            <div className="bg-[#2C2C2E]/50 rounded-lg p-3">
-              <p className="text-sm text-[#9BA1A6] text-center">
+            <div className="rounded-lg p-3" style={{ backgroundColor: 'var(--bg-tertiary)', opacity: 0.5 }}>
+              <p className="text-sm text-center" style={{ color: 'var(--text-muted)' }}>
                 <span className="text-[#10B981] font-semibold">Drag</span> to reposition • 
                 <span className="text-[#10B981] font-semibold"> +/−</span> to zoom • 
                 <span className="text-[#10B981] font-semibold"> {cropType === 'avatar' ? 'Square' : 'Banner (3:1)'}</span> ratio

@@ -301,7 +301,7 @@ export default function ChatPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#000000] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
         <div className="animate-spin h-10 w-10 border-4 border-[#10B981] border-t-transparent rounded-full"></div>
       </div>
     )
@@ -310,10 +310,10 @@ export default function ChatPage() {
   if (!otherUser) return null
 
   return (
-    <div className="h-screen bg-[#000000] text-white flex flex-col">
+    <div className="flex flex-col" style={{ minHeight: '100dvh', backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       {/* Header */}
-      <div className="sticky top-0 bg-[#000000]/95 backdrop-blur-md border-b border-[#2C2C2E] z-10 flex items-center" style={{ padding: '20px', gap: '16px' }}>
-        <button onClick={() => router.back()} className="p-2 hover:bg-[#1C1C1E] rounded-full transition-colors">
+      <div className="sticky top-0 backdrop-blur-md z-10 flex items-center" style={{ padding: '20px', gap: '16px', backgroundColor: 'var(--bg-primary)', opacity: 0.95, borderBottom: '1px solid var(--border)' }}>
+        <button onClick={() => router.back()} className="p-2 rounded-full transition-colors" onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
           <ArrowLeft className="w-5 h-5" />
         </button>
         <Link href={`/profile/${otherUser.username}`} className="flex items-center flex-1" style={{ gap: '12px' }}>
@@ -329,17 +329,17 @@ export default function ChatPage() {
             </div>
           )}
           <div>
-            <h2 className="font-bold text-[#FFFFFF]">{otherUser.full_name || otherUser.username}</h2>
-            <p className="text-sm text-[#9BA1A6]">@{otherUser.username}</p>
+            <h2 className="font-bold" style={{ color: 'var(--text-primary)' }}>{otherUser.full_name || otherUser.username}</h2>
+            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>@{otherUser.username}</p>
           </div>
         </Link>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto" style={{ padding: '20px' }}>
+      <div className="flex-1 overflow-y-auto" style={{ padding: '20px', paddingBottom: '140px' }}>
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
-            <p className="text-[#9BA1A6]">No messages yet. Say hi! 👋</p>
+            <p style={{ color: 'var(--text-muted)' }}>No messages yet. Say hi! 👋</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -360,7 +360,7 @@ export default function ChatPage() {
                       className={`rounded-[16px] overflow-hidden ${
                         isOwn
                           ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white'
-                          : 'bg-[#1C1C1E] text-white border border-[#2C2C2E]'
+                          : ''
                       }`}
                       style={{ padding: hasFile && !message.content ? '0' : '12px 16px' }}
                     >
@@ -425,7 +425,8 @@ export default function ChatPage() {
                     <div className="flex items-center gap-2 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={() => setReplyingTo(message)}
-                        className="text-xs text-[#9BA1A6] hover:text-[#10B981] flex items-center gap-1"
+                        className="text-xs hover:text-[#10B981] flex items-center gap-1"
+                        style={{ color: 'var(--text-muted)' }}
                       >
                         <Reply className="w-3 h-3" />
                         Reply
@@ -433,7 +434,8 @@ export default function ChatPage() {
                       {!isOwn && (
                         <button
                           onClick={() => setReportingMessage(message)}
-                          className="text-xs text-[#9BA1A6] hover:text-yellow-500 flex items-center gap-1"
+                          className="text-xs hover:text-yellow-500 flex items-center gap-1"
+                          style={{ color: 'var(--text-muted)' }}
                         >
                           <Flag className="w-3 h-3" />
                           Report
@@ -442,7 +444,8 @@ export default function ChatPage() {
                       {isOwn && (
                         <button
                           onClick={() => handleDelete(message.id)}
-                          className="text-xs text-[#9BA1A6] hover:text-red-500 flex items-center gap-1"
+                          className="text-xs hover:text-red-500 flex items-center gap-1"
+                          style={{ color: 'var(--text-muted)' }}
                         >
                           <Trash2 className="w-3 h-3" />
                           Delete
@@ -459,9 +462,9 @@ export default function ChatPage() {
       </div>
 
       {/* Input */}
-      <form onSubmit={handleSend} className="border-t border-[#2C2C2E]" style={{ padding: '20px' }}>
+      <form onSubmit={handleSend} className="border-t border-[#2C2C2E] sticky bottom-0 z-10" style={{ padding: '20px', paddingBottom: 'calc(20px + env(safe-area-inset-bottom))', backgroundColor: 'var(--bg-primary)' }}>
         {replyingTo && (
-          <div className="mb-3 bg-[#1C1C1E] rounded-lg p-3 border border-[#2C2C2E]">
+          <div className="mb-3 rounded-lg p-3 border" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
@@ -470,11 +473,12 @@ export default function ChatPage() {
                     Replying to {replyingTo.profiles?.username}
                   </span>
                 </div>
-                <p className="text-sm text-[#9BA1A6] truncate">{replyingTo.content || 'Attachment'}</p>
+                <p className="text-sm truncate" style={{ color: 'var(--text-muted)' }}>{replyingTo.content || 'Attachment'}</p>
               </div>
               <button
                 onClick={() => setReplyingTo(null)}
-                className="text-[#9BA1A6] hover:text-white ml-2"
+                className="hover:text-white ml-2"
+                style={{ color: 'var(--text-muted)' }}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -493,8 +497,10 @@ export default function ChatPage() {
             type="button"
             onClick={handleFileClick}
             disabled={uploading || sending}
-            className="bg-[#1C1C1E] hover:bg-[#2C2C2E] text-white rounded-full transition-colors border border-[#2C2C2E] disabled:opacity-50"
-            style={{ padding: '12px' }}
+            className="rounded-full transition-colors border disabled:opacity-50"
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            style={{ padding: '12px', backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
           >
             {uploading ? (
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -507,8 +513,8 @@ export default function ChatPage() {
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder={uploading ? "Uploading file..." : replyingTo ? "Type your reply..." : "Type a message..."}
-            className="flex-1 bg-[#1C1C1E] text-white rounded-full outline-none focus:ring-2 focus:ring-[#10B981] border border-[#2C2C2E]"
-            style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '12px', paddingBottom: '12px' }}
+            className="flex-1 text-white rounded-full outline-none focus:ring-2 focus:ring-[#10B981] border"
+            style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '12px', paddingBottom: '12px', backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
             disabled={sending || uploading}
           />
           <button
@@ -528,8 +534,8 @@ export default function ChatPage() {
           onClick={() => setReportingMessage(null)}
         >
           <div
-            className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] max-w-md w-full"
-            style={{ padding: '28px' }}
+            className="rounded-[20px] border max-w-md w-full"
+            style={{ padding: '28px', backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex flex-col">
@@ -537,21 +543,22 @@ export default function ChatPage() {
                 <div className="w-12 h-12 rounded-full bg-yellow-500/10 flex items-center justify-center">
                   <Flag className="w-6 h-6 text-yellow-500" />
                 </div>
-                <h3 className="text-xl font-bold text-[#FFFFFF]">Report Message</h3>
+                <h3 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Report Message</h3>
               </div>
 
-              <p className="text-[#9BA1A6] text-sm" style={{ marginBottom: '20px' }}>
+              <p className="text-sm" style={{ marginBottom: '20px', color: 'var(--text-muted)' }}>
                 Help us understand what's wrong with this message.
               </p>
 
               <div style={{ marginBottom: '20px' }}>
-                <label className="block text-sm font-medium text-[#FFFFFF]" style={{ marginBottom: '8px' }}>
+                <label className="block text-sm font-medium" style={{ marginBottom: '8px', color: 'var(--text-primary)' }}>
                   Reason
                 </label>
                 <select
                   value={reportReason}
                   onChange={(e) => setReportReason(e.target.value as ReportReason)}
-                  className="w-full px-4 py-3 bg-[#2C2C2E] border border-[#3C3C3E] rounded-xl text-[#FFFFFF] focus:outline-none focus:border-green-500"
+                  className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:border-green-500"
+                  style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
                 >
                   <option value="spam">Spam</option>
                   <option value="harassment">Harassment</option>
@@ -563,7 +570,7 @@ export default function ChatPage() {
               </div>
 
               <div style={{ marginBottom: '24px' }}>
-                <label className="block text-sm font-medium text-[#FFFFFF]" style={{ marginBottom: '8px' }}>
+                <label className="block text-sm font-medium" style={{ marginBottom: '8px', color: 'var(--text-primary)' }}>
                   Additional Details (Optional)
                 </label>
                 <textarea
@@ -571,7 +578,8 @@ export default function ChatPage() {
                   onChange={(e) => setReportDescription(e.target.value)}
                   placeholder="Provide more context..."
                   rows={3}
-                  className="w-full px-4 py-3 bg-[#2C2C2E] border border-[#3C3C3E] rounded-xl text-[#FFFFFF] placeholder-[#8E8E93] focus:outline-none focus:border-green-500 resize-none"
+                  className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:border-green-500 resize-none"
+                  style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
                 />
               </div>
 
@@ -579,7 +587,8 @@ export default function ChatPage() {
                 <button
                   onClick={() => setReportingMessage(null)}
                   disabled={isReporting}
-                  className="flex-1 px-6 py-3 bg-[#2C2C2E] hover:bg-[#3C3C3E] text-[#FFFFFF] font-semibold rounded-full transition-colors disabled:opacity-50"
+                  className="flex-1 px-6 py-3 hover:bg-[#3C3C3E] font-semibold rounded-full transition-colors disabled:opacity-50"
+                  style={{ backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)' }}
                 >
                   Cancel
                 </button>

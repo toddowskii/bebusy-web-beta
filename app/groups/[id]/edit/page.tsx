@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { getGroup, updateGroup, deleteGroup } from '@/lib/supabase/groups'
+import { TAG_OPTIONS } from '@/lib/tagCategories'
+import TagPicker from '@/components/TagPicker'
 import { getCurrentProfile } from '@/lib/supabase/profiles'
 import { ArrowLeft, Trash2 } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -14,6 +16,7 @@ export default function EditGroupPage() {
 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -45,6 +48,7 @@ export default function EditGroupPage() {
 
       setName((groupData as any).name)
       setDescription((groupData as any).description || '')
+      setSelectedTags((groupData as any).tags || [])
       setLoading(false)
     } catch (error) {
       console.error('Error loading group:', error)
@@ -63,7 +67,7 @@ export default function EditGroupPage() {
 
     setSaving(true)
     try {
-      await updateGroup(groupId, name.trim(), description.trim())
+      await updateGroup(groupId, name.trim(), description.trim(), selectedTags)
       toast.success('Group updated!')
       router.push(`/groups/${groupId}`)
     } catch (error) {
@@ -94,22 +98,22 @@ export default function EditGroupPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
         <div className="animate-spin h-10 w-10 border-4 border-[#10B981] border-t-transparent rounded-full"></div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-black text-white" style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '80px', paddingBottom: '80px' }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)', paddingLeft: '20px', paddingRight: '20px', paddingTop: '80px', paddingBottom: '80px' }}>
       <div className="w-full max-w-none">
         {/* Header */}
         <div className="flex items-center justify-between" style={{ marginBottom: '24px' }}>
           <div className="flex items-center gap-4">
-            <button onClick={() => router.back()} className="p-2 hover:bg-[#1C1C1E] rounded-full transition-colors">
-              <ArrowLeft className="w-5 h-5 text-[#ECEDEE]" />
+            <button onClick={() => router.back()} className="p-2 rounded-full transition-colors" onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+              <ArrowLeft className="w-5 h-5" style={{ color: 'var(--text-primary)' }} />
             </button>
-            <h2 className="text-2xl font-bold text-[#ECEDEE]">Edit Group</h2>
+            <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Edit Group</h2>
           </div>
           <button
             onClick={handleSubmit}
@@ -123,52 +127,57 @@ export default function EditGroupPage() {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E]" style={{ padding: '24px' }}>
-            <h3 className="text-lg font-semibold text-[#ECEDEE]" style={{ marginBottom: '16px' }}>Group Details</h3>
+          <div className="rounded-[20px] border" style={{ padding: '24px', backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
+            <h3 className="text-lg font-semibold" style={{ marginBottom: '16px', color: 'var(--text-primary)' }}>Group Details</h3>
 
             {/* Group Name */}
             <div style={{ marginBottom: '20px' }}>
-              <label className="block text-sm font-medium text-[#9BA1A6]" style={{ marginBottom: '8px' }}>Group Name *</label>
+              <label className="block text-sm font-medium" style={{ marginBottom: '8px', color: 'var(--text-muted)' }}>Group Name *</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter group name"
                 maxLength={50}
-                className="w-full bg-[#2C2C2E] text-[#ECEDEE] rounded-xl border border-[#2C2C2E] focus:border-[#10B981] focus:outline-none transition-colors placeholder:text-[#8E8E93]"
-                style={{ paddingLeft: '16px', paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px' }}
+                className="w-full rounded-xl border focus:border-[#10B981] focus:outline-none transition-colors"
+                style={{ paddingLeft: '16px', paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px', backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderColor: 'var(--border)' }}
                 required
               />
-              <p className="text-xs text-[#8E8E93]" style={{ marginTop: '4px' }}>{name.length}/50</p>
+              <p className="text-xs" style={{ marginTop: '4px', color: 'var(--text-muted)' }}>{name.length}/50</p>
             </div>
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-[#9BA1A6]" style={{ marginBottom: '8px' }}>Description</label>
+              <label className="block text-sm font-medium" style={{ marginBottom: '8px', color: 'var(--text-muted)' }}>Description</label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="What is this group about?"
                 maxLength={200}
                 rows={4}
-                className="w-full bg-[#2C2C2E] text-[#ECEDEE] rounded-xl border border-[#2C2C2E] focus:border-[#10B981] focus:outline-none transition-colors resize-none placeholder:text-[#8E8E93]"
-                style={{ paddingLeft: '16px', paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px' }}
+                className="w-full rounded-xl border focus:border-[#10B981] focus:outline-none transition-colors resize-none"
+                style={{ paddingLeft: '16px', paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px', backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderColor: 'var(--border)' }}
               />
-              <p className="text-xs text-[#8E8E93]" style={{ marginTop: '4px' }}>{description.length}/200</p>
+              <p className="text-xs" style={{ marginTop: '4px', color: 'var(--text-muted)' }}>{description.length}/200</p>
+            </div>
+
+            <div style={{ marginTop: '16px' }}>
+              <label className="block text-sm font-medium" style={{ marginBottom: '8px', color: 'var(--text-muted)' }}>Tags</label>
+              <TagPicker value={selectedTags} onChange={setSelectedTags} options={TAG_OPTIONS} placeholder="Filter by tags (comma-separated) e.g. react, python, machine_learning" />
             </div>
           </div>
 
           {/* Delete Section */}
-          <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E]" style={{ padding: '24px' }}>
+          <div className="rounded-[20px] border" style={{ padding: '24px', backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
             <h3 className="text-sm font-semibold text-red-400" style={{ marginBottom: '12px' }}>Danger Zone</h3>
-            <p className="text-sm text-[#8E8E93]" style={{ marginBottom: '16px' }}>
+            <p className="text-sm" style={{ marginBottom: '16px', color: 'var(--text-muted)' }}>
               This action cannot be undone. All members will be removed from the group.
             </p>
             <button
               onClick={handleDelete}
               disabled={deleting}
-              className="w-full bg-[#2C2C2E] hover:bg-[#3C3C3E] text-red-400 hover:text-red-300 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 border border-red-500/40 disabled:opacity-50"
-              style={{ paddingTop: '12px', paddingBottom: '12px' }}
+              className="w-full rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 border border-red-500/40 text-red-400 hover:text-red-300 disabled:opacity-50"
+              style={{ paddingTop: '12px', paddingBottom: '12px', backgroundColor: 'var(--bg-tertiary)' }}
             >
               <Trash2 className="w-4 h-4" />
               {deleting ? 'Deleting...' : 'Delete Group'}

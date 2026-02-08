@@ -227,8 +227,8 @@ export default function GroupChatPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#000000] flex items-center justify-center">
-        <div className="animate-spin h-10 w-10 border-4 border-[#10B981] border-t-transparent rounded-full"></div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin h-10 w-10 border-4 border-primary border-t-transparent rounded-full"></div>
       </div>
     )
   }
@@ -236,9 +236,9 @@ export default function GroupChatPage() {
   if (!group) return null
 
   return (
-    <div className="h-screen bg-[#000000] text-white flex flex-col">
-      <div className="sticky top-0 bg-[#000000]/95 backdrop-blur-md border-b border-[#2C2C2E] z-10 flex items-center" style={{ padding: '20px', gap: '16px' }}>
-        <button onClick={() => router.back()} className="p-2 hover:bg-[#1C1C1E] rounded-full transition-colors">
+    <div className="h-screen bg-background text-white flex flex-col">
+      <div className="sticky top-0 bg-background/95 backdrop-blur-md border-b border-border z-10 flex items-center" style={{ padding: '20px', gap: '16px' }}>
+        <button onClick={() => router.back()} className="p-2 hover:bg-card rounded-full transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="flex items-center flex-1" style={{ gap: '12px' }}>
@@ -246,8 +246,8 @@ export default function GroupChatPage() {
             <Users className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h2 className="font-bold text-[#FFFFFF]">{group.name}</h2>
-            <p className="text-sm text-[#9BA1A6]">{group.members_count} members</p>
+            <h2 className="font-bold text-foreground">{group.name}</h2>
+            <p className="text-sm text-muted-foreground">{group.members_count} members</p>
           </div>
         </div>
       </div>
@@ -255,7 +255,7 @@ export default function GroupChatPage() {
       <div className="flex-1 overflow-y-auto" style={{ padding: '20px' }}>
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
-            <p className="text-[#9BA1A6]">No messages yet. Say hi! 👋</p>
+            <p className="text-muted-foreground">No messages yet. Say hi! 👋</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -280,7 +280,7 @@ export default function GroupChatPage() {
                             {message.profiles?.username[0].toUpperCase()}
                           </div>
                         )}
-                        <span className="text-sm font-semibold text-[#ECEDEE]">
+                        <span className="text-sm font-semibold text-foreground">
                           {message.profiles?.full_name || message.profiles?.username}
                         </span>
                       </div>
@@ -289,7 +289,7 @@ export default function GroupChatPage() {
                       className={`rounded-[16px] ${
                         isOwn
                           ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white'
-                          : 'bg-[#1C1C1E] text-white border border-[#2C2C2E]'
+                          : 'bg-card text-white border border-border'
                       }`}
                       style={{ padding: '12px 16px' }}
                     >
@@ -307,7 +307,7 @@ export default function GroupChatPage() {
                     <div className="flex items-center gap-2 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={() => setReplyingTo(message)}
-                        className="text-xs text-[#9BA1A6] hover:text-[#10B981] flex items-center gap-1"
+                        className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1"
                       >
                         <Reply className="w-3 h-3" />
                         Reply
@@ -315,7 +315,7 @@ export default function GroupChatPage() {
                       {!isOwn && (
                         <button
                           onClick={() => setReportingMessage(message)}
-                          className="text-xs text-[#9BA1A6] hover:text-yellow-500 flex items-center gap-1"
+                          className="text-xs text-muted-foreground hover:text-yellow-500 flex items-center gap-1"
                         >
                           <Flag className="w-3 h-3" />
                           Report
@@ -324,7 +324,7 @@ export default function GroupChatPage() {
                       {isOwn && (
                         <button
                           onClick={() => handleDelete(message.id)}
-                          className="text-xs text-[#9BA1A6] hover:text-red-500 flex items-center gap-1"
+                          className="text-xs text-muted-foreground hover:text-red-500 flex items-center gap-1"
                         >
                           <Trash2 className="w-3 h-3" />
                           Delete
@@ -340,22 +340,22 @@ export default function GroupChatPage() {
         )}
       </div>
 
-      <form onSubmit={handleSend} className="border-t border-[#2C2C2E]" style={{ padding: '20px' }}>
+      <form onSubmit={handleSend} className="border-t border-border" style={{ padding: '20px' }}>
         {replyingTo && (
-          <div className="mb-3 bg-[#1C1C1E] rounded-lg p-3 border border-[#2C2C2E]">
+          <div className="mb-3 bg-card rounded-lg p-3 border border-border">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <Reply className="w-4 h-4 text-[#10B981]" />
-                  <span className="text-sm text-[#10B981] font-semibold">
+                  <Reply className="w-4 h-4 text-primary" />
+                  <span className="text-sm text-primary font-semibold">
                     Replying to {replyingTo.profiles?.username}
                   </span>
                 </div>
-                <p className="text-sm text-[#9BA1A6] truncate">{replyingTo.content}</p>
+                <p className="text-sm text-muted-foreground truncate">{replyingTo.content}</p>
               </div>
               <button
                 onClick={() => setReplyingTo(null)}
-                className="text-[#9BA1A6] hover:text-white ml-2"
+                className="text-muted-foreground hover:text-white ml-2"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -368,7 +368,7 @@ export default function GroupChatPage() {
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder={replyingTo ? "Type your reply..." : "Type a message..."}
-            className="flex-1 bg-[#1C1C1E] text-white rounded-full outline-none focus:ring-2 focus:ring-[#10B981] border border-[#2C2C2E]"
+            className="flex-1 bg-card text-white rounded-full outline-none focus:ring-2 focus:ring-primary border border-border"
             style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '12px', paddingBottom: '12px' }}
             disabled={sending}
           />
@@ -389,7 +389,7 @@ export default function GroupChatPage() {
           onClick={() => setReportingMessage(null)}
         >
           <div
-            className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] max-w-md w-full"
+            className="bg-card rounded-[20px] border border-border max-w-md w-full"
             style={{ padding: '28px' }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -398,21 +398,21 @@ export default function GroupChatPage() {
                 <div className="w-12 h-12 rounded-full bg-yellow-500/10 flex items-center justify-center">
                   <Flag className="w-6 h-6 text-yellow-500" />
                 </div>
-                <h3 className="text-xl font-bold text-[#FFFFFF]">Report Message</h3>
+                <h3 className="text-xl font-bold text-foreground">Report Message</h3>
               </div>
 
-              <p className="text-[#9BA1A6] text-sm" style={{ marginBottom: '20px' }}>
+              <p className="text-muted-foreground text-sm" style={{ marginBottom: '20px' }}>
                 Help us understand what's wrong with this message.
               </p>
 
               <div style={{ marginBottom: '20px' }}>
-                <label className="block text-sm font-medium text-[#FFFFFF]" style={{ marginBottom: '8px' }}>
+                <label className="block text-sm font-medium text-foreground" style={{ marginBottom: '8px' }}>
                   Reason
                 </label>
                 <select
                   value={reportReason}
                   onChange={(e) => setReportReason(e.target.value as ReportReason)}
-                  className="w-full px-4 py-3 bg-[#2C2C2E] border border-[#3C3C3E] rounded-xl text-[#FFFFFF] focus:outline-none focus:border-green-500"
+                  className="w-full px-4 py-3 bg-muted border border-border rounded-xl text-foreground focus:outline-none focus:border-green-500"
                 >
                   <option value="spam">Spam</option>
                   <option value="harassment">Harassment</option>
@@ -424,7 +424,7 @@ export default function GroupChatPage() {
               </div>
 
               <div style={{ marginBottom: '24px' }}>
-                <label className="block text-sm font-medium text-[#FFFFFF]" style={{ marginBottom: '8px' }}>
+                <label className="block text-sm font-medium text-foreground" style={{ marginBottom: '8px' }}>
                   Additional Details (Optional)
                 </label>
                 <textarea
@@ -432,7 +432,7 @@ export default function GroupChatPage() {
                   onChange={(e) => setReportDescription(e.target.value)}
                   placeholder="Provide more context..."
                   rows={3}
-                  className="w-full px-4 py-3 bg-[#2C2C2E] border border-[#3C3C3E] rounded-xl text-[#FFFFFF] placeholder-[#8E8E93] focus:outline-none focus:border-green-500 resize-none"
+                  className="w-full px-4 py-3 bg-muted border border-border rounded-xl text-foreground placeholder-muted focus:outline-none focus:border-green-500 resize-none"
                 />
               </div>
 
@@ -440,7 +440,7 @@ export default function GroupChatPage() {
                 <button
                   onClick={() => setReportingMessage(null)}
                   disabled={isReporting}
-                  className="flex-1 px-6 py-3 bg-[#2C2C2E] hover:bg-[#3C3C3E] text-[#FFFFFF] font-semibold rounded-full transition-colors disabled:opacity-50"
+                  className="flex-1 px-6 py-3 bg-muted hover:bg-muted/80 text-foreground font-semibold rounded-full transition-colors disabled:opacity-50"
                 >
                   Cancel
                 </button>

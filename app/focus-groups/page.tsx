@@ -7,6 +7,8 @@ import { fetchFocusGroups, fetchUserFocusGroups } from '@/lib/supabase/focusgrou
 import { getCurrentProfile } from '@/lib/supabase/profiles'
 import { Target, Users, Calendar, Clock, Compass, UserCircle2 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import TagPicker from '@/components/TagPicker'
+import { TAG_OPTIONS } from '@/lib/tagCategories'
 import { AppLayout } from '@/components/AppLayout'
 
 export default function FocusGroupsPage() {
@@ -16,17 +18,22 @@ export default function FocusGroupsPage() {
   const [loading, setLoading] = useState(true)
   const [profile, setProfile] = useState<any>(null)
   const [activeTab, setActiveTab] = useState<'explore' | 'yours'>('explore')
+  const [filterTags, setFilterTags] = useState<string[]>([])
 
   useEffect(() => {
     loadData()
   }, [])
 
+  useEffect(() => {
+    loadData()
+  }, [filterTags])
+
   const loadData = async () => {
     setLoading(true)
     try {
       const [allData, userData, userProfile] = await Promise.all([
-        fetchFocusGroups(),
-        fetchUserFocusGroups(),
+        fetchFocusGroups(filterTags),
+        fetchUserFocusGroups(filterTags),
         getCurrentProfile()
       ])
       setAllFocusGroups(allData)
@@ -48,19 +55,24 @@ export default function FocusGroupsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#000000] flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-primary)' }}>
         <div className="animate-spin h-8 w-8 border-4 border-[#10B981] border-t-transparent rounded-full"></div>
       </div>
     )
   }
 
   const focusGroups = activeTab === 'explore' ? allFocusGroups : userFocusGroups
+  const filtered = focusGroups.filter(fg => {
+    if (!filterTags || filterTags.length === 0) return true
+    const tags = fg.tags || []
+    return filterTags.some(t => tags.includes(t))
+  })
 
   return (
     <AppLayout username={profile?.username}>
       <div style={{ marginBottom: '24px' }}>
-        <h2 className="text-2xl font-bold text-[#ECEDEE]">Focus Groups & Challenges</h2>
-        <p className="text-sm text-[#9BA1A6]" style={{ marginTop: '8px' }}>Join exclusive mentorship programs</p>
+        <h2 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Focus Groups & Challenges</h2>
+        <p className="text-sm" style={{ marginTop: '8px', color: 'var(--text-muted)' }}>Join exclusive mentorship programs</p>
       </div>
 
       {/* Tabs */}
@@ -70,9 +82,9 @@ export default function FocusGroupsPage() {
           className={`flex-1 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 ${
             activeTab === 'explore'
               ? 'bg-[#10B981]/10 text-[#10B981]'
-              : 'text-[#8E8E93] bg-[#1C1C1E] hover:bg-[#2C2C2E]'
+              : ''
           }`}
-          style={{ paddingTop: '12px', paddingBottom: '12px', paddingLeft: '16px', paddingRight: '16px' }}
+          style={activeTab !== 'explore' ? { paddingTop: '12px', paddingBottom: '12px', paddingLeft: '16px', paddingRight: '16px', color: 'var(--text-muted)', backgroundColor: 'var(--bg-secondary)' } : { paddingTop: '12px', paddingBottom: '12px', paddingLeft: '16px', paddingRight: '16px' }}
         >
           <Compass className="w-4 h-4" />
           Explore
@@ -82,20 +94,25 @@ export default function FocusGroupsPage() {
           className={`flex-1 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 ${
             activeTab === 'yours'
               ? 'bg-[#10B981]/10 text-[#10B981]'
-              : 'text-[#8E8E93] bg-[#1C1C1E] hover:bg-[#2C2C2E]'
+              : ''
           }`}
-          style={{ paddingTop: '12px', paddingBottom: '12px', paddingLeft: '16px', paddingRight: '16px' }}
+          style={activeTab !== 'yours' ? { paddingTop: '12px', paddingBottom: '12px', paddingLeft: '16px', paddingRight: '16px', color: 'var(--text-muted)', backgroundColor: 'var(--bg-secondary)' } : { paddingTop: '12px', paddingBottom: '12px', paddingLeft: '16px', paddingRight: '16px' }}
         >
           <UserCircle2 className="w-4 h-4" />
           Your Groups
         </button>
       </div>
 
+      {/* Filter */}
+      <div style={{ marginBottom: '16px' }}>
+        <TagPicker value={filterTags} onChange={setFilterTags} options={TAG_OPTIONS} placeholder="Filter by tags (comma-separated) e.g. react, python, machine_learning" />
+      </div>
+
       {/* Focus Groups List */}
-      {focusGroups.length === 0 ? (
+      {filtered.length === 0 ? (
         <div className="p-12 text-center">
-          <Target className="w-16 h-16 text-[#2D2D2D] mx-auto mb-4" />
-          <h3 className="text-xl font-semibold mb-2 text-[#ECEDEE]">
+          <Target className="w-16 h-16 mx-auto mb-4" style={{ color: '#2D2D2D' }} />
+          <h3 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
             {activeTab === 'explore' ? 'No focus groups available' : 'Not in any focus groups'}
           </h3>
           <p className="text-[#9BA1A6]">
@@ -104,14 +121,14 @@ export default function FocusGroupsPage() {
         </div>
       ) : (
         <div>
-          {focusGroups.map((fg) => (
+          {filtered.map((fg) => (
             <Link
               key={fg.id}
               href={`/focus-groups/${fg.id}`}
               className="block"
               style={{ marginBottom: '20px' }}
             >
-              <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] hover:bg-[#252527] transition-all cursor-pointer" style={{ padding: '20px' }}>
+              <div className="rounded-[20px] border hover:bg-[#252527] transition-all cursor-pointer" style={{ padding: '20px', backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
                 <div className="flex items-start" style={{ gap: '20px' }}>
                   {/* Mentor Avatar */}
                   {fg.mentor_image_url ? (
@@ -127,25 +144,25 @@ export default function FocusGroupsPage() {
                   )}
 
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-lg text-[#FFFFFF]" style={{ marginBottom: '8px' }}>{fg.title}</h3>
-                    <p className="text-[#9BA1A6] text-sm line-clamp-2" style={{ marginBottom: '12px' }}>{fg.description}</p>
+                    <h3 className="font-bold text-lg" style={{ marginBottom: '8px', color: 'var(--text-primary)' }}>{fg.title}</h3>
+                    <p className="text-sm line-clamp-2" style={{ marginBottom: '12px', color: 'var(--text-muted)' }}>{fg.description}</p>
                     
                     {/* Mentor Info */}
                     <div className="flex items-center" style={{ gap: '8px', marginBottom: '16px' }}>
                       <span className="text-sm font-medium text-[#10B981]">{fg.mentor_name}</span>
-                      <span className="text-[#4D4D4D]">·</span>
-                      <span className="text-sm text-[#9BA1A6]">{fg.mentor_role}</span>
+                      <span style={{ color: 'var(--text-muted)' }}>·</span>
+                      <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{fg.mentor_role}</span>
                     </div>
 
                     {/* Stats */}
-                    <div className="flex items-center text-sm text-[#8E8E93]" style={{ gap: '16px' }}>
+                    <div className="flex items-center text-sm" style={{ gap: '16px', color: 'var(--text-muted)' }}>
                       <div className="flex items-center" style={{ gap: '6px' }}>
                         <Users className="w-4 h-4" />
                         <span>{fg.total_spots - fg.available_spots}/{fg.total_spots} spots filled</span>
                       </div>
                       {fg.start_date && (
                         <>
-                          <span className="text-[#4D4D4D]">|</span>
+                          <span style={{ color: 'var(--text-muted)' }}>|</span>
                           <div className="flex items-center" style={{ gap: '6px' }}>
                             <Calendar className="w-4 h-4" />
                             <span>{formatDate(fg.start_date)}</span>

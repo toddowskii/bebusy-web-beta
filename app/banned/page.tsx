@@ -44,7 +44,7 @@ export default function BannedPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#000000] flex items-center justify-center" style={{ padding: '20px' }}>
+    <div className="min-h-screen bg-background flex items-center justify-center" style={{ padding: '20px' }}>
       <div className="max-w-md w-full">
         {/* Ban Icon */}
         <div className="flex justify-center" style={{ marginBottom: '48px' }}>
@@ -54,11 +54,11 @@ export default function BannedPage() {
         </div>
         
         {/* Main Card */}
-        <div className="bg-[#1C1C1E] rounded-[24px] border border-[#2C2C2E] overflow-hidden" style={{ marginBottom: '20px' }}>
+        <div className="bg-card rounded-[24px] border border-border overflow-hidden" style={{ marginBottom: '20px' }}>
           {/* Header */}
           <div className="bg-gradient-to-r from-red-500/10 to-red-600/10 border-b border-red-500/20" style={{ padding: '32px 24px' }}>
-            <h1 className="text-3xl font-bold text-[#FFFFFF] mb-3 text-center">Account Suspended</h1>
-            <p className="text-[#9BA1A6] text-center leading-relaxed">
+            <h1 className="text-3xl font-bold text-foreground mb-3 text-center">Account Suspended</h1>
+            <p className="text-muted-foreground text-center leading-relaxed">
               Your account has been temporarily or permanently suspended due to violation of our community guidelines.
             </p>
           </div>
@@ -66,12 +66,12 @@ export default function BannedPage() {
           {/* Appeal Section */}
           <div style={{ padding: '24px' }}>
             <div className="flex items-start gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-[#10B981]/10 flex items-center justify-center flex-shrink-0">
-                <span className="text-[#10B981] text-lg">?</span>
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <span className="text-primary text-lg">?</span>
               </div>
               <div>
-                <h3 className="text-[#FFFFFF] font-semibold mb-2">Believe this is a mistake?</h3>
-                <p className="text-sm text-[#8E8E93] leading-relaxed">
+                <h3 className="text-foreground font-semibold mb-2">Believe this is a mistake?</h3>
+                <p className="text-sm text-muted leading-relaxed">
                   If you think your account was banned in error, you can submit an appeal to our support team.
                 </p>
               </div>
@@ -79,7 +79,7 @@ export default function BannedPage() {
             
             <a
               href="mailto:appeals@bebusy.app?subject=Account%20Ban%20Appeal&body=Please%20explain%20why%20you%20believe%20your%20account%20was%20banned%20in%20error."
-              className="flex items-center justify-center gap-2 w-full font-semibold rounded-xl transition-all bg-[#10B981] hover:bg-[#059669] text-white"
+              className="flex items-center justify-center gap-2 w-full font-semibold rounded-xl transition-all bg-primary hover:bg-primary-hover text-white"
               style={{ paddingTop: '14px', paddingBottom: '14px', paddingLeft: '20px', paddingRight: '20px', marginTop: '16px' }}
             >
               Submit Appeal
@@ -90,7 +90,7 @@ export default function BannedPage() {
         {/* Logout Button */}
         <button
           onClick={handleLogout}
-          className="w-full font-semibold rounded-xl transition-all bg-[#1C1C1E] hover:bg-[#2C2C2E] border border-[#2C2C2E] text-[#ECEDEE]"
+          className="w-full font-semibold rounded-xl transition-all bg-card hover:bg-muted border border-border text-foreground"
           style={{ paddingTop: '14px', paddingBottom: '14px' }}
         >
           Log Out

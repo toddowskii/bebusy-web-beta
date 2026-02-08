@@ -143,15 +143,15 @@ export default function MessagesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#000000] flex items-center justify-center">
-        <div className="animate-spin h-8 w-8 border-4 border-[#10B981] border-t-transparent rounded-full"></div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
       </div>
     )
   }
 
   return (
     <AppLayout username={profile?.username}>
-      <h2 className="text-2xl font-bold text-[#ECEDEE]" style={{ marginBottom: '24px' }}>Messages</h2>
+      <h2 className="text-2xl font-bold text-foreground" style={{ marginBottom: '24px' }}>Messages</h2>
 
       {/* Tabs */}
       <div className="flex gap-2" style={{ marginBottom: '24px' }}>
@@ -159,8 +159,8 @@ export default function MessagesPage() {
           onClick={() => setActiveTab('all')}
           className={`flex-1 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 ${
             activeTab === 'all'
-              ? 'bg-[#10B981]/10 text-[#10B981]'
-              : 'text-[#8E8E93] bg-[#1C1C1E] hover:bg-[#2C2C2E]'
+              ? 'bg-primary/10 text-primary'
+              : 'text-muted bg-card hover:bg-muted'
           }`}
           style={{ paddingTop: '12px', paddingBottom: '12px', paddingLeft: '16px', paddingRight: '16px' }}
         >
@@ -171,8 +171,8 @@ export default function MessagesPage() {
           onClick={() => setActiveTab('direct')}
           className={`flex-1 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 ${
             activeTab === 'direct'
-              ? 'bg-[#10B981]/10 text-[#10B981]'
-              : 'text-[#8E8E93] bg-[#1C1C1E] hover:bg-[#2C2C2E]'
+              ? 'bg-primary/10 text-primary'
+              : 'text-muted bg-card hover:bg-muted'
           }`}
           style={{ paddingTop: '12px', paddingBottom: '12px', paddingLeft: '16px', paddingRight: '16px' }}
         >
@@ -183,8 +183,8 @@ export default function MessagesPage() {
           onClick={() => setActiveTab('groups')}
           className={`flex-1 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 ${
             activeTab === 'groups'
-              ? 'bg-[#10B981]/10 text-[#10B981]'
-              : 'text-[#8E8E93] bg-[#1C1C1E] hover:bg-[#2C2C2E]'
+              ? 'bg-primary/10 text-primary'
+              : 'text-muted bg-card hover:bg-muted'
           }`}
           style={{ paddingTop: '12px', paddingBottom: '12px', paddingLeft: '16px', paddingRight: '16px' }}
         >
@@ -209,11 +209,11 @@ export default function MessagesPage() {
         if (filteredMessages.length === 0) {
           return (
             <div className="p-12 text-center relative">
-              <MessageSquare className="w-80 h-80 text-[#2D2D2D] mx-auto mb-4 absolute left-1/2 -translate-x-1/2" style={{ top: '80px', zIndex: 0 }} />
-              <h3 className="text-xl font-semibold mb-2 text-[#ECEDEE] relative" style={{ zIndex: 10 }}>
+              <MessageSquare className="w-80 h-80 text-muted mx-auto mb-4 absolute left-1/2 -translate-x-1/2" style={{ top: '80px', zIndex: 0 }} />
+              <h3 className="text-xl font-semibold mb-2 text-foreground relative" style={{ zIndex: 10 }}>
                 {activeTab === 'groups' ? 'No group chats yet' : 'No messages yet'}
               </h3>
-              <p className="text-[#9BA1A6] relative" style={{ zIndex: 10 }}>
+              <p className="text-muted-foreground relative" style={{ zIndex: 10 }}>
                 {activeTab === 'groups' 
                   ? 'Join a group to start chatting!' 
                   : 'Start a conversation by visiting someone\'s profile!'}
@@ -231,7 +231,7 @@ export default function MessagesPage() {
                 className="block"
                 style={{ marginBottom: '16px' }}
               >
-                <div className="bg-[#1C1C1E] rounded-[20px] border border-[#2C2C2E] hover:bg-[#252527] transition-all cursor-pointer" style={{ padding: '20px' }}>
+                <div className="bg-card rounded-[20px] border border-border hover:bg-card-hover transition-all cursor-pointer" style={{ padding: '20px' }}>
                   <div className="flex items-center" style={{ gap: '16px' }}>
                     {item.type === 'group' ? (
                       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
@@ -251,24 +251,24 @@ export default function MessagesPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between" style={{ marginBottom: '4px' }}>
                         <div className="flex items-center gap-2 flex-1 min-w-0">
-                          <h3 className={`font-bold truncate ${item.unreadCount > 0 ? 'text-[#FFFFFF]' : 'text-[#FFFFFF]'}`}>
+                          <h3 className="font-bold truncate text-foreground">
                             {item.type === 'group' 
                               ? item.name 
                               : (item.otherUser?.full_name || item.otherUser?.username)}
                           </h3>
                           {item.unreadCount > 0 && (
-                            <span className="flex-shrink-0 bg-[#10B981] text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5">
+                            <span className="flex-shrink-0 bg-primary text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5">
                               {item.unreadCount}
                             </span>
                           )}
                         </div>
                         {item.lastMessage && (
-                          <span className="text-sm text-[#8E8E93] flex-shrink-0 ml-2">
+                          <span className="text-sm text-muted flex-shrink-0 ml-2">
                             {formatTime(item.lastMessage.created_at)}
                           </span>
                         )}
                       </div>
-                      <p className={`text-sm truncate ${item.unreadCount > 0 ? 'text-[#FFFFFF] font-semibold' : 'text-[#9BA1A6]'}`}>
+                      <p className={`text-sm truncate ${item.unreadCount > 0 ? 'text-foreground font-semibold' : 'text-muted-foreground'}`}>
                         {(() => {
                           if (!item.lastMessage) return 'No messages yet';
                           if (item.lastMessage.content) return item.lastMessage.content;

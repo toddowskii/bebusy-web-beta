@@ -19,6 +19,7 @@ export interface Database {
           avatar_url: string | null
           cover_url: string | null
           bio: string | null
+          tags: string[] | null
           role: string | null
           current_focus: string | null
           followers_count: number
@@ -35,6 +36,7 @@ export interface Database {
           avatar_url?: string | null
           cover_url?: string | null
           bio?: string | null
+          tags?: string[] | null
           role?: string | null
           current_focus?: string | null
           followers_count?: number
@@ -51,6 +53,7 @@ export interface Database {
           avatar_url?: string | null
           cover_url?: string | null
           bio?: string | null
+          tags?: string[] | null
           role?: string | null
           current_focus?: string | null
           followers_count?: number
@@ -151,6 +154,7 @@ export interface Database {
           created_by: string
           created_at: string
           updated_at: string
+          tags: string[] | null
         }
         Insert: {
           id?: string
@@ -161,6 +165,7 @@ export interface Database {
           created_by: string
           created_at?: string
           updated_at?: string
+          tags?: string[] | null
         }
         Update: {
           id?: string
@@ -171,6 +176,7 @@ export interface Database {
           created_by?: string
           created_at?: string
           updated_at?: string
+          tags?: string[] | null
         }
       }
       group_members: {
@@ -212,6 +218,7 @@ export interface Database {
           start_date: string | null
           end_date: string | null
           created_at: string
+          tags: string[] | null
         }
         Insert: {
           id?: string
@@ -228,6 +235,7 @@ export interface Database {
           start_date?: string | null
           end_date?: string | null
           created_at?: string
+          tags?: string[] | null
         }
         Update: {
           id?: string
@@ -244,6 +252,7 @@ export interface Database {
           start_date?: string | null
           end_date?: string | null
           created_at?: string
+          tags?: string[] | null
         }
       }
       messages: {
@@ -403,6 +412,237 @@ export interface Database {
           user_id?: string
           badge_id?: string
           earned_at?: string
+        }
+      }
+      user_settings: {
+        Row: {
+          id: string
+          user_id: string
+          email_notifications: boolean
+          push_notifications: boolean
+          like_notifications: boolean
+          comment_notifications: boolean
+          follow_notifications: boolean
+          message_notifications: boolean
+          group_notifications: boolean
+          mention_notifications: boolean
+          profile_visibility: 'public' | 'private' | 'friends'
+          show_online_status: boolean
+          allow_messages_from: 'everyone' | 'followers' | 'none'
+          allow_tags: boolean
+          show_activity: boolean
+          language: string
+          theme: 'dark' | 'light' | 'auto'
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          email_notifications?: boolean
+          push_notifications?: boolean
+          like_notifications?: boolean
+          comment_notifications?: boolean
+          follow_notifications?: boolean
+          message_notifications?: boolean
+          group_notifications?: boolean
+          mention_notifications?: boolean
+          profile_visibility?: 'public' | 'private' | 'friends'
+          show_online_status?: boolean
+          allow_messages_from?: 'everyone' | 'followers' | 'none'
+          allow_tags?: boolean
+          show_activity?: boolean
+          language?: string
+          theme?: 'dark' | 'light' | 'auto'
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          email_notifications?: boolean
+          push_notifications?: boolean
+          like_notifications?: boolean
+          comment_notifications?: boolean
+          follow_notifications?: boolean
+          message_notifications?: boolean
+          group_notifications?: boolean
+          mention_notifications?: boolean
+          profile_visibility?: 'public' | 'private' | 'friends'
+          show_online_status?: boolean
+          allow_messages_from?: 'everyone' | 'followers' | 'none'
+          allow_tags?: boolean
+          show_activity?: boolean
+          language?: string
+          theme?: 'dark' | 'light' | 'auto'
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      blocked_users: {
+        Row: {
+          id: string
+          user_id: string
+          blocked_user_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          blocked_user_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          blocked_user_id?: string
+          created_at?: string
+        }
+      }
+      reports: {
+        Row: {
+          id: string
+          reporter_id: string
+          reported_user_id: string | null
+          reported_post_id: string | null
+          reported_comment_id: string | null
+          reason: string
+          description: string | null
+          status: 'pending' | 'reviewed' | 'resolved' | 'dismissed'
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          reporter_id: string
+          reported_user_id?: string | null
+          reported_post_id?: string | null
+          reported_comment_id?: string | null
+          reason: string
+          description?: string | null
+          status?: 'pending' | 'reviewed' | 'resolved' | 'dismissed'
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          reporter_id?: string
+          reported_user_id?: string | null
+          reported_post_id?: string | null
+          reported_comment_id?: string | null
+          reason?: string
+          description?: string | null
+          status?: 'pending' | 'reviewed' | 'resolved' | 'dismissed'
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      daily_check_ins: {
+        Row: {
+          id: string
+          user_id: string
+          group_id: string | null
+          today_goal: string
+          yesterday_completed: string | null
+          is_completed: boolean
+          date: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          group_id?: string | null
+          today_goal: string
+          yesterday_completed?: string | null
+          is_completed?: boolean
+          date?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          group_id?: string | null
+          today_goal?: string
+          yesterday_completed?: string | null
+          is_completed?: boolean
+          date?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      user_streaks: {
+        Row: {
+          id: string
+          user_id: string
+          current_streak: number
+          longest_streak: number
+          last_check_in_date: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          current_streak?: number
+          longest_streak?: number
+          last_check_in_date?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          current_streak?: number
+          longest_streak?: number
+          last_check_in_date?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      portfolio_projects: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          description: string | null
+          image_url: string | null
+          project_url: string | null
+          technologies: string[] | null
+          completed_at: string
+          is_featured: boolean
+          likes_count: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          description?: string | null
+          image_url?: string | null
+          project_url?: string | null
+          technologies?: string[] | null
+          completed_at?: string
+          is_featured?: boolean
+          likes_count?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          description?: string | null
+          image_url?: string | null
+          project_url?: string | null
+          technologies?: string[] | null
+          completed_at?: string
+          is_featured?: boolean
+          likes_count?: number
+          created_at?: string
+          updated_at?: string
         }
       }
     }

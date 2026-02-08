@@ -4,7 +4,7 @@ import { Database } from '@/types/database.types';
 /**
  * Create a new group
  */
-export async function createGroup(name: string, description: string, isPrivate: boolean = false) {
+export async function createGroup(name: string, description: string, isPrivate: boolean = false, tags?: string[]) {
   const { data: session } = await supabase.auth.getSession();
   const userId = session?.session?.user?.id;
 
@@ -18,6 +18,7 @@ export async function createGroup(name: string, description: string, isPrivate: 
       name,
       description: description?.trim() || '',
       created_by: userId,
+      tags: tags || null,
     } as any)
     .select('id')
     .single();
@@ -60,7 +61,7 @@ export async function createGroup(name: string, description: string, isPrivate: 
 /**
  * Update a group
  */
-export async function updateGroup(groupId: string, name: string, description: string) {
+export async function updateGroup(groupId: string, name: string, description: string, tags?: string[] ) {
   const { data: session } = await supabase.auth.getSession();
   const userId = session?.session?.user?.id;
 
@@ -68,10 +69,11 @@ export async function updateGroup(groupId: string, name: string, description: st
     throw new Error('User not authenticated');
   }
 
-  const updateData = {
+  const updateData: any = {
     name,
     description,
   };
+  if (typeof tags !== 'undefined') updateData.tags = tags || null;
 
   const { data, error } = await (supabase as any)
     .from('groups')
@@ -88,7 +90,7 @@ export async function updateGroup(groupId: string, name: string, description: st
 /**
  * Get all groups (excluding focus group chats)
  */
-export async function fetchGroups() {
+export async function fetchGroups(tags?: string[]) {
   // Get all focus group IDs that have associated groups
   const { data: focusGroups } = await supabase
     .from('focus_groups')
@@ -97,7 +99,7 @@ export async function fetchGroups() {
 
   const focusGroupIds = focusGroups?.map((fg: any) => fg.group_id).filter(Boolean) || [];
 
-  const { data, error } = await supabase
+  let query: any = supabase
     .from('groups')
     .select(`
       *,
@@ -112,6 +114,12 @@ export async function fetchGroups() {
       )
     `)
     .order('created_at', { ascending: false });
+
+  if (tags && tags.length > 0) {
+    query = query.overlaps('tags', tags);
+  }
+
+  const { data, error } = await query;
 
   if (error) throw error;
 

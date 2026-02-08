@@ -49,28 +49,29 @@ export default function CreateFocusGroupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       <div className="max-w-[800px] mx-auto p-6">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <button
             onClick={() => router.back()}
-            className="p-2 hover:bg-gray-900 rounded-lg transition-colors"
+            className="p-2 rounded-lg transition-colors"
+            style={{ backgroundColor: 'var(--bg-secondary)' }}
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
           <div>
             <h1 className="text-2xl font-bold">Create Focus Group</h1>
-            <p className="text-gray-400 text-sm">Set up a new mentorship program</p>
+            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Set up a new mentorship program</p>
           </div>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="bg-gray-900 rounded-lg border border-gray-800 p-6 space-y-6">
+          <div className="rounded-lg border p-6 space-y-6" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
             {/* Title */}
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-muted)' }}>
                 Title *
               </label>
               <input
@@ -79,10 +80,11 @@ export default function CreateFocusGroupPage() {
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="30-Day Startup Challenge"
                 maxLength={100}
-                className="w-full bg-black border border-gray-800 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 transition-colors"
+                className="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-green-500 transition-colors"
+                style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
                 required
               />
-              <p className="text-xs text-gray-500 mt-1">{title.length}/100</p>
+              <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>{title.length}/100</p>
             </div>
 
             {/* Description */}
