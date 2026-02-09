@@ -5,7 +5,7 @@ type DailyCheckIn = Database['public']['Tables']['daily_check_ins']['Row']
 type UserStreak = Database['public']['Tables']['user_streaks']['Row']
 
 // Get today's check-in
-export async function getTodayCheckIn(userId: string) {
+export async function getTodayCheckIn(userId: string): Promise<{ data: DailyCheckIn | null; error: any | null }> {
   try {
     const today = new Date().toISOString().split('T')[0]
     const { data, error } = await supabase

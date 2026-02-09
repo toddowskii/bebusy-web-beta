@@ -7,10 +7,13 @@ export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
 
   // Define public paths that don't require authentication
-  const isPublicPath = path === '/login' || path === '/signup' || path === '/create-profile' || path === '/banned'
+  // Add reset and update password pages so unauthenticated users can access the reset flow
+  const isPublicPath = path === '/login' || path === '/signup' || path === '/create-profile' || path === '/banned' || path === '/reset-password' || path === '/update-password'
 
-  // Get the token from cookies
-  const token = request.cookies.get('sb-access-token')?.value || ''
+  // Get the token from cookies (prefer access token, fallback to refresh token)
+  const accessToken = request.cookies.get('sb-access-token')?.value
+  const refreshToken = request.cookies.get('sb-refresh-token')?.value
+  const token = accessToken || refreshToken || ''
 
   // Redirect to login if accessing protected route without token
   if (!isPublicPath && !token) {
@@ -18,32 +21,64 @@ export async function middleware(request: NextRequest) {
   }
 
   // Check if user is banned - check for ALL routes when authenticated
-  if (token) {
+  // Be defensive: don't call Supabase if token is clearly invalid to avoid AuthSessionMissingError
+  if (token && typeof token === 'string' && token.length > 20) {
     try {
       const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       )
-      
-      const { data: { user }, error: userError } = await supabase.auth.getUser(token)
-      
-      if (userError) {
-        console.error('Middleware: Error getting user:', userError)
+
+      let user = null
+
+      try {
+        const resp = await supabase.auth.getUser(token)
+        // Some runtimes throw; others return an object with error
+        if (resp?.data?.user) user = resp.data.user
+        if ((resp as any)?.error) {
+          // Treat missing session as non-fatal and skip detailed logging
+          const err = (resp as any).error
+          if (err?.name === 'AuthSessionMissingError' || err?.message?.includes('Auth session missing')) {
+            console.debug('Middleware: No valid auth session found for token (skipping auth checks)')
+            // If this request requires authentication, clear cookies and redirect to login
+            if (!isPublicPath) {
+              const res = NextResponse.redirect(new URL('/login', request.url))
+              res.cookies.delete('sb-access-token')
+              res.cookies.delete('sb-refresh-token')
+              return res
+            }
+          } else {
+            console.warn('Middleware: Error getting user:', err)
+          }
+        }
+      } catch (err: any) {
+        // Supabase client may throw on missing session; handle gracefully
+        if (err?.name === 'AuthSessionMissingError' || err?.message?.includes('Auth session missing')) {
+          console.debug('Middleware: No valid auth session found for token (skipping auth checks)')
+          if (!isPublicPath) {
+            const res = NextResponse.redirect(new URL('/login', request.url))
+            res.cookies.delete('sb-access-token')
+            res.cookies.delete('sb-refresh-token')
+            return res
+          }
+        } else {
+          console.warn('Middleware: Error getting user (caught):', err)
+        }
       }
-      
+
       if (user) {
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('role, banned_until')
           .eq('id', user.id)
           .single()
-        
+
         if (profileError) {
           console.error('Middleware: Error fetching profile:', profileError)
         }
-        
+
         console.log('Middleware: User role:', profile?.role, 'Path:', path)
-        
+
         if (profile?.role === 'banned') {
           // Check if ban has expired
           if (profile.banned_until && new Date(profile.banned_until) < new Date()) {
@@ -67,6 +102,9 @@ export async function middleware(request: NextRequest) {
     } catch (error) {
       console.error('Middleware auth check error:', error)
     }
+  } else {
+    // If token is too short, just skip auth checks (likely invalid or empty)
+    if (token) console.debug('Middleware: Received token but it appears invalid - skipping auth checks')
   }
 
   // Redirect to home if accessing login/signup pages with token (and not banned)

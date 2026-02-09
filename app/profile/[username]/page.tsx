@@ -454,6 +454,20 @@ export default function ProfilePage() {
             <Calendar className="w-4 h-4" />
             <span>Joined {new Date(profile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
           </div>
+          {profile.website && (
+            <div className="flex items-center gap-1.5">
+              <LinkIcon className="w-4 h-4" />
+              {(() => {
+                const url = profile.website?.startsWith('http') ? profile.website : `https://${profile.website}`
+                const display = profile.website?.replace(/^https?:\/\//, '')
+                return (
+                  <a href={url} target="_blank" rel="noopener noreferrer" className="hover:underline text-foreground">
+                    {display}
+                  </a>
+                )
+              })()}
+            </div>
+          )}
         </div>
 
         {/* Follow Stats */}

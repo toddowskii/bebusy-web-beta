@@ -32,10 +32,21 @@ export async function fetchUserFocusGroups(tags?: string[]) {
 
   if (!userId) return [];
 
+  // Get memberships to find focus_group_ids
+  const { data: memberships, error: memErr } = await supabase
+    .from('focus_group_members')
+    .select('focus_group_id')
+    .eq('user_id', userId);
+
+  if (memErr) throw memErr;
+
+  const ids = (memberships || []).map((m: any) => m.focus_group_id).filter(Boolean);
+  if (ids.length === 0) return [];
+
   let query: any = supabase
     .from('focus_groups')
-    .select(`*, focus_group_members (*)`)
-    .eq('focus_group_members.user_id', userId)
+    .select('*')
+    .in('id', ids)
     .order('created_at', { ascending: false });
 
   if (tags && tags.length > 0) {
@@ -45,9 +56,7 @@ export async function fetchUserFocusGroups(tags?: string[]) {
   const { data, error } = await query;
   if (error) throw error;
 
-  return (data || []).map((fg: any) => ({
-    ...fg
-  }));
+  return data || [];
 }
 
 /**

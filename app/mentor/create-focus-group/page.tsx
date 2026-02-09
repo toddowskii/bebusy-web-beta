@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createMentorFocusGroup } from '@/lib/supabase/mentor'
+import { getCurrentProfile } from '@/lib/supabase/profiles'
 import { TAG_OPTIONS } from '@/lib/tagCategories'
 import TagPicker from '@/components/TagPicker'
 import { ArrowLeft, Calendar, Users } from 'lucide-react'
@@ -14,6 +15,22 @@ export default function MentorCreateFocusGroupPage() {
   const [description, setDescription] = useState('')
   const [mentorName, setMentorName] = useState('')
   const [mentorRole, setMentorRole] = useState('')
+
+  useEffect(() => {
+    const prefill = async () => {
+      try {
+        const profile = await getCurrentProfile()
+        if (profile) {
+          setMentorName(profile.full_name || profile.username || '')
+          setMentorRole(profile.role || '')
+        }
+      } catch (err) {
+        // ignore
+      }
+    }
+
+    prefill()
+  }, [])
   const [totalSpots, setTotalSpots] = useState(10)
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')

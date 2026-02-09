@@ -19,6 +19,7 @@ export default function EditProfilePage() {
   const [saving, setSaving] = useState(false)
   const [fullName, setFullName] = useState('')
   const [bio, setBio] = useState('')
+  const [website, setWebsite] = useState('')
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [bannerFile, setBannerFile] = useState<File | null>(null)
@@ -48,6 +49,7 @@ export default function EditProfilePage() {
       setProfile(currentProfile)
       setFullName(currentProfile.full_name || '')
       setBio(currentProfile.bio || '')
+      setWebsite(currentProfile.website || '')
       setAvatarPreview(currentProfile.avatar_url)
       setBannerPreview(currentProfile.cover_url)
       setSelectedTags(currentProfile.tags || [])
@@ -439,9 +441,13 @@ export default function EditProfilePage() {
       }
 
       // Update profile
+      // Normalize website (prepend https:// if missing)
+      const normalizedWebsite = website.trim() ? (website.trim().startsWith('http') ? website.trim() : `https://${website.trim()}`) : null
+
       const updates: any = {
         full_name: fullName.trim() || profile.full_name,
         bio: bio.trim() || profile.bio,
+        website: normalizedWebsite !== null ? normalizedWebsite : profile.website,
       }
 
       if (avatarUrl && avatarUrl !== profile.avatar_url) {
@@ -625,7 +631,24 @@ export default function EditProfilePage() {
           />
           <p className="text-xs" style={{ marginTop: '4px', color: 'var(--text-muted)' }}>{bio.length}/160</p>
         </div>
-
+        <br />
+        {/* Website */}
+        <div style={{ marginBottom: '16px' }}>
+          <label className="block text-sm font-medium" style={{ marginBottom: '8px', color: 'var(--text-muted)' }}>Website</label>
+          <input
+            type="url"
+            value={website}
+            onChange={(e) => setWebsite(e.target.value)}
+            placeholder="https://example.com"
+            maxLength={200}
+            className="w-full rounded-xl border focus:outline-none transition-colors"
+            style={{ paddingLeft: '16px', paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px', backgroundColor: 'var(--bg-tertiary)', color: 'var(--text-primary)', borderColor: 'var(--border)' }}
+            onFocus={(e) => e.currentTarget.style.borderColor = 'var(--primary)'}
+            onBlur={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
+          />
+          <p className="text-xs" style={{ marginTop: '4px', color: 'var(--text-muted)' }}>Optional. Add your website or link to your work (https://...)</p>
+        </div>
+        <br />
         {/* Tags */}
         <div className="rounded-[20px] border" style={{ marginBottom: '16px', padding: '24px', backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
           <h3 className="text-lg font-semibold" style={{ marginBottom: '12px', color: 'var(--text-primary)' }}>Tags</h3>

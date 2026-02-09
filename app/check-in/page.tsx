@@ -85,13 +85,20 @@ export default function CheckInPage() {
   const handleCompleteGoal = async () => {
     if (!todayCheckIn) return
 
+    // Immediately notify layout to hide the floating check-in button
     try {
+      // Optimistically hide the floating button for immediate UX
+      window.dispatchEvent(new CustomEvent('bb:checkin-completed', { detail: { id: todayCheckIn.id } }))
+
       await completeCheckIn(todayCheckIn.id)
       setTodayCheckIn({ ...todayCheckIn, is_completed: true })
       toast.success('🎉 Goal marked as completed!')
     } catch (error) {
       console.error('Error completing goal:', error)
       toast.error('Failed to mark goal as completed')
+
+      // Re-show floating button on failure
+      window.dispatchEvent(new CustomEvent('bb:checkin-uncompleted', { detail: { id: todayCheckIn.id } }))
     }
   }
 

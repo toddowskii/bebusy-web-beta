@@ -39,6 +39,11 @@ export default function FocusGroupsPage() {
       setAllFocusGroups(allData)
       setUserFocusGroups(userData)
       setProfile(userProfile)
+
+      // If user is not logged in and the active tab is 'yours', switch to explore
+      if (!userProfile && activeTab === 'yours') {
+        setActiveTab('explore')
+      }
     } catch (error) {
       console.error('Error loading focus groups:', error)
       toast.error('Failed to load focus groups')
@@ -90,16 +95,19 @@ export default function FocusGroupsPage() {
           Explore
         </button>
         <button
-          onClick={() => setActiveTab('yours')}
+          onClick={() => {
+            if (profile) setActiveTab('yours')
+            else router.push('/login')
+          }}
           className={`flex-1 font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 ${
             activeTab === 'yours'
               ? 'bg-[#10B981]/10 text-[#10B981]'
-              : ''
+              : profile ? '' : 'opacity-60 cursor-not-allowed'
           }`}
-          style={activeTab !== 'yours' ? { paddingTop: '12px', paddingBottom: '12px', paddingLeft: '16px', paddingRight: '16px', color: 'var(--text-muted)', backgroundColor: 'var(--bg-secondary)' } : { paddingTop: '12px', paddingBottom: '12px', paddingLeft: '16px', paddingRight: '16px' }}
+          style={activeTab !== 'yours' ? { paddingTop: '12px', paddingBottom: '12px', paddingLeft: '16px', paddingRight: '16px', color: profile ? 'var(--text-muted)' : 'var(--text-muted)', backgroundColor: profile ? 'var(--bg-secondary)' : 'transparent' } : { paddingTop: '12px', paddingBottom: '12px', paddingLeft: '16px', paddingRight: '16px' }}
         >
           <UserCircle2 className="w-4 h-4" />
-          Your Groups
+          {profile ? 'Your Groups' : 'Your Groups (Sign in)'}
         </button>
       </div>
 

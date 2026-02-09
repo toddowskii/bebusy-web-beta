@@ -19,6 +19,7 @@ export interface Database {
           avatar_url: string | null
           cover_url: string | null
           bio: string | null
+          website: string | null
           tags: string[] | null
           role: string | null
           current_focus: string | null
@@ -36,6 +37,7 @@ export interface Database {
           avatar_url?: string | null
           cover_url?: string | null
           bio?: string | null
+          website?: string | null
           tags?: string[] | null
           role?: string | null
           current_focus?: string | null
@@ -53,6 +55,7 @@ export interface Database {
           avatar_url?: string | null
           cover_url?: string | null
           bio?: string | null
+          website?: string | null
           tags?: string[] | null
           role?: string | null
           current_focus?: string | null

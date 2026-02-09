@@ -5,6 +5,7 @@ import { Home, Users, MessageSquare, Bell, User, Target, Settings, Search, Shiel
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase/client'
+import { getTodayCheckIn } from '@/lib/supabase/checkins'
 
 interface AppLayoutProps {
   children: React.ReactNode
@@ -19,6 +20,11 @@ export function AppLayout({ children, username }: AppLayoutProps) {
   const [unreadNotifCount, setUnreadNotifCount] = useState(0)
   const [userId, setUserId] = useState<string | null>(null)
   const [userRole, setUserRole] = useState<string | null>(null)
+
+  // Check-in UI state
+  const [hasCompletedCheckIn, setHasCompletedCheckIn] = useState<boolean | null>(null)
+  const [showFloatingCheckIn, setShowFloatingCheckIn] = useState(false)
+  const [animateFloatingToTop, setAnimateFloatingToTop] = useState(false)
 
   useEffect(() => {
     const checkBanStatus = async () => {
@@ -109,9 +115,80 @@ export function AppLayout({ children, username }: AppLayoutProps) {
       )
       .subscribe()
 
+    // Fetch today's check-in status for the user and subscribe to check-in changes
+    const fetchCheckInStatus = async () => {
+      try {
+        const result = await getTodayCheckIn(userId)
+        const data = result?.data || null
+        if (!data?.is_completed) {
+          setHasCompletedCheckIn(false)
+          setShowFloatingCheckIn(true)
+        } else {
+          setHasCompletedCheckIn(true)
+          setShowFloatingCheckIn(false)
+        }
+      } catch (err) {
+        console.error('Error fetching check-in status:', err)
+      }
+    }
+
+    fetchCheckInStatus()
+
+    const checkinChannel = supabase
+      .channel('user-checkins-app')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'daily_check_ins',
+          filter: `user_id=eq.${userId}`,
+        },
+        (payload: any) => {
+          console.log('Check-in change detected:', payload)
+          const newRow = payload.new
+          if (!newRow) return
+          const today = new Date().toISOString().split('T')[0]
+          if (newRow.date !== today) return
+
+          if (newRow.is_completed) {
+            // Animate the floating button up before hiding it
+            setAnimateFloatingToTop(true)
+            setTimeout(() => {
+              setShowFloatingCheckIn(false)
+              setAnimateFloatingToTop(false)
+              setHasCompletedCheckIn(true)
+            }, 700)
+          } else {
+            setHasCompletedCheckIn(false)
+            setShowFloatingCheckIn(true)
+          }
+        }
+      )
+      .subscribe()
+
+    // Listen for immediate client-side events so we can hide/show the floating button
+    const onCompleted = () => {
+      // Hide immediately without animation for instant feedback
+      setShowFloatingCheckIn(false)
+      setAnimateFloatingToTop(false)
+      setHasCompletedCheckIn(true)
+    }
+
+    const onUncompleted = () => {
+      setShowFloatingCheckIn(true)
+      setHasCompletedCheckIn(false)
+    }
+
+    window.addEventListener('bb:checkin-completed', onCompleted)
+    window.addEventListener('bb:checkin-uncompleted', onUncompleted)
+
     return () => {
       supabase.removeChannel(messagesChannel)
       supabase.removeChannel(notifsChannel)
+      supabase.removeChannel(checkinChannel)
+      window.removeEventListener('bb:checkin-completed', onCompleted)
+      window.removeEventListener('bb:checkin-uncompleted', onUncompleted)
     }
   }, [userId])
 
@@ -131,8 +208,8 @@ export function AppLayout({ children, username }: AppLayoutProps) {
           </Link>
           
           <div className="flex items-center gap-2">
-            <Link href="/search" className="p-2 rounded-lg transition-colors" style={{ color: 'var(--text-secondary)' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--surface)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
-              <Search className="w-5 h-5" style={{ color: 'var(--text-secondary)' }} />
+            <Link href="/search" className="p-2 rounded-lg transition-colors" style={{ color: 'var(--primary)', boxShadow: '0 0 0 6px rgba(16,185,129,0.04)' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--surface)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'} title="Search">
+              <Search className="w-6 h-6" style={{ color: 'var(--primary)' }} />
             </Link>
             <Link href="/check-in" className="p-2 rounded-lg transition-colors" title="Daily Check-in" onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--surface)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
               <CheckCircle2 className="w-5 h-5" style={{ color: 'var(--primary)' }} />
@@ -178,6 +255,34 @@ export function AppLayout({ children, username }: AppLayoutProps) {
       <main style={{ paddingLeft: '20px', paddingRight: '20px', paddingTop: '80px', paddingBottom: '80px' }}>
         {children}
       </main>
+
+      {/* Floating bottom-right check-in button (appears only when user hasn't completed today's check-in) */}
+      {showFloatingCheckIn && (
+        <button
+          onClick={() => router.push('/check-in')}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); router.push('/check-in') } }}
+          aria-label="Daily Check-in"
+          tabIndex={0}
+          title="Daily Check-in"
+          className="fixed right-6 flex items-center gap-3 shadow-xl"
+          style={{
+            zIndex: 9999,
+            bottom: '92px', // place above bottom nav
+            backgroundColor: 'var(--primary)',
+            color: 'white',
+            padding: '12px 20px',
+            borderRadius: '999px',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+            transition: 'transform 600ms ease, opacity 600ms ease',
+            transform: animateFloatingToTop ? 'translate(-10vw, -60vh) scale(0.6)' : 'none',
+            opacity: animateFloatingToTop ? 0 : 1,
+            pointerEvents: 'auto',
+          }}
+        >
+          <CheckCircle2 className="w-6 h-6" />
+          <span style={{ fontWeight: 700, fontSize: '16px' }}>Check in</span>
+        </button>
+      )}
 
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 z-50" style={{ backgroundColor: 'var(--bg-primary)', borderTop: '1px solid var(--border)' }}>
