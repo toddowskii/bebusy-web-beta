@@ -142,12 +142,41 @@ export async function updateFocusGroup(
  * Delete focus group
  */
 export async function deleteFocusGroup(focusGroupId: string) {
+  // First, fetch the focus group so we know the associated group_id (if any)
+  const { data: focusGroup, error: fetchError } = await supabaseAdmin
+    .from('focus_groups')
+    .select('id, group_id')
+    .eq('id', focusGroupId)
+    .maybeSingle();
+
+  if (fetchError) {
+    // If not found, surface the error
+    throw fetchError;
+  }
+
+  // Delete the focus group record
   const { error } = await supabaseAdmin
     .from('focus_groups')
     .delete()
     .eq('id', focusGroupId);
 
   if (error) throw error;
+
+  // If there is an associated group chat, delete its members and the group itself
+  const groupId = (focusGroup as any)?.group_id;
+  if (groupId) {
+    const { error: membersError } = await supabaseAdmin
+      .from('group_members')
+      .delete()
+      .eq('group_id', groupId);
+    if (membersError) throw membersError;
+
+    const { error: groupError } = await supabaseAdmin
+      .from('groups')
+      .delete()
+      .eq('id', groupId);
+    if (groupError) throw groupError;
+  }
 }
 
 /**

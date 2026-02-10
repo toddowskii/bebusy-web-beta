@@ -143,6 +143,16 @@ export async function deleteMentorFocusGroup(focusGroupId: string) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
 
+  // Fetch the focus group to find associated group chat id
+  const { data: focusGroup, error: fetchError } = await supabase
+    .from('focus_groups')
+    .select('id, group_id, mentor_id')
+    .eq('id', focusGroupId)
+    .maybeSingle();
+
+  if (fetchError) throw fetchError;
+
+  // Delete the focus group (ensures the mentor owns it via mentor_id check)
   const { error } = await supabase
     .from('focus_groups')
     .delete()
@@ -150,4 +160,22 @@ export async function deleteMentorFocusGroup(focusGroupId: string) {
     .eq('mentor_id', user.id);
 
   if (error) throw error;
+
+  const groupId = (focusGroup as any)?.group_id;
+  if (groupId) {
+    // Remove group members (no further ownership checks needed for members table)
+    const { error: membersError } = await supabase
+      .from('group_members')
+      .delete()
+      .eq('group_id', groupId);
+    if (membersError) throw membersError;
+
+    // Delete the group itself, but ensure the current user is the creator
+    const { error: groupError } = await supabase
+      .from('groups')
+      .delete()
+      .eq('id', groupId)
+      .eq('created_by', user.id);
+    if (groupError) throw groupError;
+  }
 }
